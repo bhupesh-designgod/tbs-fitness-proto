@@ -21,8 +21,8 @@
   --color-text-tertiary: rgba(255, 255, 255, 0.4);
   --color-text-muted: rgba(255, 255, 255, 0.25);
 
-  --font-family-display: 'Manrope', sans-serif;
-  --font-family-body: 'Inter', sans-serif;
+  --font-family-display: 'Bebas Neue', sans-serif;
+  --font-family-body: 'Manrope', sans-serif;
 }
 
 /* ── Base ── */
@@ -37,21 +37,21 @@ html, body, #root {
   min-height: 100dvh;
   background: #000000;
   color: #ffffff;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Manrope', sans-serif;
   font-weight: 400;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* ── Display type ── */
+/* ── Display type (Bebas Neue) ── */
 .font-display {
-  font-family: 'Manrope', sans-serif;
-  font-feature-settings: 'tnum' 1;
-  font-variant-numeric: tabular-nums;
+  font-family: 'Bebas Neue', sans-serif;
+  letter-spacing: 0.04em;
 }
 
+/* ── Body type (Manrope) ── */
 .font-body {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Manrope', sans-serif;
 }
 
 /* ── Numeral treatment ── */
@@ -138,6 +138,11 @@ html, body, #root {
   to { transform: translateX(-50%); }
 }
 
+@keyframes pulse-glow {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+
 /* ── Reduced motion ── */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
@@ -165,7 +170,7 @@ html, body, #root {
   border-radius: 9999px;
   background: #121212;
   border: 1px solid rgba(255, 255, 255, 0.12);
-  font-family: 'Inter', sans-serif;
+  font-family: 'Manrope', sans-serif;
   font-size: 13px;
   font-weight: 400;
   color: rgba(255, 255, 255, 0.6);
@@ -181,8 +186,8 @@ html, body, #root {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: 'Manrope', sans-serif;
-  font-weight: 700;
+  font-family: 'Bebas Neue', sans-serif;
+  font-weight: 400;
   font-size: 14px;
   color: rgba(255, 255, 255, 0.6);
   position: relative;
@@ -195,4 +200,64 @@ html, body, #root {
 
 .calendar-cell.logged {
   color: rgba(255, 255, 255, 0.8);
+}
+
+/* ── Coach quote card ── */
+.coach-quote-card {
+  position: relative;
+  background: #131318;
+  border: 1px solid rgba(212,167,78,0.10);
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.coach-quote-card::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: linear-gradient(180deg, #B8893C, #E0C074);
+  border-radius: 3px 0 0 3px;
+}
+
+/* ── Sleep banner ── */
+.sleep-banner {
+  position: relative;
+  background: #131318;
+  border: 1px solid rgba(91,124,153,0.10);
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.sleep-banner::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: linear-gradient(180deg, #5B7C99, #7BA3C4);
+  border-radius: 3px 0 0 3px;
+}
+
+/* ── Status card ── */
+.status-card {
+  background: #131318;
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 16px;
+  padding: 20px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+/* ── Weekly ring ── */
+.weekly-ring-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
 }

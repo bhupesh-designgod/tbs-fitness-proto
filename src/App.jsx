@@ -62,7 +62,7 @@ function AppContent() {
   return (
     <div className="app-shell">
       {/* Header (always visible unless in overlay) */}
-      {!overlay && (
+      {!overlay && activeTab !== 'home' && (
         <Header
           onProfileClick={() => setOverlay('profile')}
           onBikiClick={() => handleTabChange('coach')}

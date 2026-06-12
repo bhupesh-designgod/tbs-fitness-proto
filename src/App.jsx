@@ -15,6 +15,7 @@ import Coach from './pages/Coach';
 import Progress from './pages/Progress';
 import Profile from './pages/Profile';
 import CheckIn from './pages/CheckIn';
+import CheckInDetail from './pages/CheckInDetail';
 import MacroDetail from './pages/MacroDetail';
 
 const TABS = [
@@ -28,7 +29,8 @@ const TABS = [
 function AppContent() {
   const shouldReduce = useReducedMotion();
   const [activeTab, setActiveTab] = useState('home');
-  const [overlay, setOverlay] = useState(null); // 'profile' | 'checkin' | 'macroDetail'
+  const [overlay, setOverlay] = useState(null); // 'profile' | 'checkin' | 'macroDetail' | 'checkinDetail'
+  const [checkInId, setCheckInId] = useState(null);
 
   const pageVariants = shouldReduce
     ? { initial: { opacity: 0 }, animate: { opacity: 1 }, exit: { opacity: 0 } }
@@ -38,18 +40,24 @@ function AppContent() {
         exit: { opacity: 0, y: -8 },
       };
 
+  const openCheckInDetail = (id) => {
+    setCheckInId(id);
+    setOverlay('checkinDetail');
+  };
+
   const renderPage = () => {
     // Overlays take priority
     if (overlay === 'profile') return <Profile />;
     if (overlay === 'checkin') return <CheckIn onDone={() => setOverlay(null)} />;
     if (overlay === 'macroDetail') return <MacroDetail onBack={() => setOverlay(null)} />;
+    if (overlay === 'checkinDetail') return <CheckInDetail checkInId={checkInId} onBack={() => setOverlay(null)} />;
 
     switch (activeTab) {
       case 'home': return <Home onProfileClick={() => setOverlay('profile')} onNavigate={handleTabChange} />;
       case 'nutrition': return <Nutrition onMacroDetail={() => setOverlay('macroDetail')} />;
       case 'train': return <Train />;
       case 'coach': return <Coach onCheckIn={() => setOverlay('checkin')} />;
-      case 'progress': return <Progress />;
+      case 'progress': return <Progress onOpenCheckIn={openCheckInDetail} />;
       default: return <Home />;
     }
   };
@@ -69,8 +77,8 @@ function AppContent() {
         />
       )}
 
-      {/* Overlay back button */}
-      {overlay && (
+      {/* Overlay back button — pages with their own header don't need this */}
+      {overlay && overlay !== 'checkinDetail' && (
         <div className="px-5 pt-3">
           <motion.button
             whileTap={{ scale: 0.95 }}

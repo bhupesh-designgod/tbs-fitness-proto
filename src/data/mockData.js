@@ -372,3 +372,57 @@ export const PLAN_PROGRESS = {
   currentDay: 38,
   totalDays: 84,
 };
+
+// ── Check-in history (most recent first) ──
+// Dates are absolute to keep the demo stable; the Progress screen
+// shows the next check-in only when it falls within 3 days of today.
+export const CHECK_IN_HISTORY = [
+  {
+    id: 'wk-12',
+    week: 12,
+    label: 'Week 12',
+    date: '2026-06-09',
+    dateLabel: 'Jun 9',
+    reviewedOn: 'Jun 10',
+    status: 'reviewed',
+    submittedAt: 'Jun 9, 10:20 AM',
+    photos: {
+      front: PHOTOS.pushHero,
+      side:  PHOTOS.pullHero,
+      back:  PHOTOS.legsHero,
+    },
+    photosBaseline: {
+      front: PHOTOS.restHero,
+      side:  PHOTOS.sessionComplete,
+      back:  PHOTOS.bikiPortrait,
+    },
+    baselineLabel: 'Week 1',
+    baselineDateLabel: 'Mar 24',
+    metrics: {
+      weight:  { label: 'Weight',              value: 78.4, prev: 82.0, unit: 'kg', goodDir: 'down' },
+      protein: { label: 'Protein Adherence',   value: 92,   prev: 72,   unit: '%',  goodDir: 'up'   },
+      workout: { label: 'Workout Compliance',  value: 85,   prev: 78,   unit: '%',  goodDir: 'up'   },
+      waist:   { label: 'Waist',               value: 86,   prev: 92,   unit: 'cm', goodDir: 'down' },
+    },
+    bikiReview:
+      "Great consistency this week. Your weight is dropping at an ideal pace and your protein adherence has improved a lot.\n\nLet's increase carbs slightly on training days to support performance.",
+    changes: [
+      'Increase carbs by 25g on training days',
+      'Add one refeed meal on Saturday',
+      'Keep cardio and steps the same',
+      'Continue current workout plan',
+    ],
+  },
+  { id: 'wk-11', week: 11, label: 'Week 11', date: '2026-06-02', dateLabel: 'Jun 2',  reviewedOn: 'Jun 3',  status: 'reviewed' },
+  { id: 'wk-10', week: 10, label: 'Week 10', date: '2026-05-26', dateLabel: 'May 26', reviewedOn: 'May 27', status: 'reviewed' },
+  { id: 'wk-9',  week: 9,  label: 'Week 9',  date: '2026-05-19', dateLabel: 'May 19', reviewedOn: 'May 20', status: 'reviewed' },
+  { id: 'wk-8',  week: 8,  label: 'Week 8',  date: '2026-05-12', dateLabel: 'May 12', reviewedOn: 'May 13', status: 'reviewed' },
+];
+
+// ── Next check-in (used by Progress screen) ──
+// Falls within 3 days of seed date 2026-06-13 to demo the reminder card.
+export const NEXT_CHECKIN = {
+  week: 13,
+  date: '2026-06-16',
+  dateLabel: 'Jun 16',
+};

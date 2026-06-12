@@ -2,11 +2,11 @@
 // Latest weekly review, conditional next-check-in card (≤3 days),
 // review-history list. (Internal tab id remains "progress".)
 
-import { useState } from 'react';
-import { motion, useReducedMotion } from 'framer-motion';
+import { useState, useEffect, useRef } from 'react';
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import {
   Bell, ChevronRight, ArrowRight, ArrowUp, ArrowDown,
-  CalendarDays, Quote,
+  CalendarDays, Quote, ChevronDown, User as UserIcon,
 } from 'lucide-react';
 import { CHECK_IN_HISTORY, NEXT_CHECKIN, PHOTOS } from '../data/mockData';
 
@@ -245,29 +245,108 @@ function NextCheckInCard({ next, onStart }) {
 }
 
 // ─────────────────────────────────────────────
-// Compare Progress — pick any week, split-view vs current
+// Compare Progress — two independent week pickers
 // ─────────────────────────────────────────────
-function AngleToggle({ active, onChange }) {
-  const angles = ['front', 'side', 'back'];
+const ANGLES = ['front', 'back', 'left', 'right'];
+
+function WeekPicker({ value, options, onChange }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef(null);
+  const current = options.find(o => o.id === value);
+
+  useEffect(() => {
+    if (!open) return;
+    const handle = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
+    document.addEventListener('mousedown', handle);
+    return () => document.removeEventListener('mousedown', handle);
+  }, [open]);
+
   return (
-    <div
-      className="rounded-xl p-1 flex"
-      style={{ background: 'rgba(0,0,0,0.4)', border: `1px solid ${CARD_BORDER}` }}
-    >
-      {angles.map(a => {
+    <div ref={ref} className="relative flex-1 min-w-0">
+      <motion.button
+        whileTap={{ scale: 0.98 }}
+        onClick={() => setOpen(o => !o)}
+        className="w-full flex items-center justify-between gap-2 px-3.5 py-2.5 rounded-xl"
+        style={{ background: CARD_BG, border: `1px solid ${CARD_BORDER}` }}
+      >
+        <span className="font-display text-[13px] text-white truncate">
+          {current?.label || '—'}
+        </span>
+        <motion.span
+          animate={{ rotate: open ? 180 : 0 }}
+          transition={{ duration: 0.2 }}
+          className="shrink-0"
+        >
+          <ChevronDown size={14} strokeWidth={1.5} className="text-white/45" />
+        </motion.span>
+      </motion.button>
+
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0, y: 4 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 4 }}
+            transition={{ duration: 0.15 }}
+            className="absolute left-0 right-0 top-full mt-1 rounded-xl overflow-hidden z-30"
+            style={{
+              background: '#1A1A1F',
+              border: `1px solid ${CARD_BORDER}`,
+              boxShadow: '0 12px 40px rgba(0,0,0,0.5)',
+              maxHeight: 220,
+              overflowY: 'auto',
+            }}
+          >
+            {options.map(opt => {
+              const isActive = opt.id === value;
+              return (
+                <button
+                  key={opt.id}
+                  onClick={() => { onChange(opt.id); setOpen(false); }}
+                  className="w-full text-left px-3.5 py-2.5 flex items-center justify-between"
+                  style={{ background: isActive ? 'rgba(212,167,78,0.1)' : 'transparent' }}
+                >
+                  <span
+                    className="font-display text-[12px] uppercase tracking-wider"
+                    style={{ color: isActive ? GOLD : 'rgba(255,255,255,0.75)' }}
+                  >
+                    {opt.label}
+                  </span>
+                  <span className="font-body text-[11px] text-white/35">
+                    {opt.dateLabel}
+                  </span>
+                </button>
+              );
+            })}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+function CompareAngleToggle({ active, onChange }) {
+  return (
+    <div className="flex items-center gap-1 my-3">
+      {ANGLES.map(a => {
         const isActive = active === a;
         return (
           <motion.button
             key={a}
             onClick={() => onChange(a)}
             whileTap={{ scale: 0.96 }}
-            className="flex-1 py-2 rounded-lg font-display text-[11px] uppercase tracking-wider"
+            className="px-4 py-1.5 rounded-full"
             style={{
-              background: isActive ? `linear-gradient(135deg, ${GOLD_START}, ${GOLD_END})` : 'transparent',
-              color: isActive ? '#000' : 'rgba(255,255,255,0.5)',
+              background: isActive ? 'rgba(212,167,78,0.16)' : 'transparent',
+              border: isActive ? '1px solid rgba(212,167,78,0.4)' : '1px solid transparent',
             }}
           >
-            {a.charAt(0).toUpperCase() + a.slice(1)}
+            <span
+              className="font-display text-[12px] uppercase tracking-wider"
+              style={{ color: isActive ? GOLD : 'rgba(255,255,255,0.4)' }}
+            >
+              {a.charAt(0).toUpperCase() + a.slice(1)}
+            </span>
           </motion.button>
         );
       })}
@@ -275,94 +354,111 @@ function AngleToggle({ active, onChange }) {
   );
 }
 
-function CompareProgress({ current, options, selectedId, onSelect, angle, onAngleChange }) {
-  const selected = options.find(o => o.id === selectedId) || options[0];
-  const leftPhoto = selected?.photos?.[angle] || selected?.thumbnail;
-  const rightPhoto = current?.photos?.[angle];
+function PhotoCard({ entry, angle, accent }) {
+  const photo = entry?.photos?.[angle] || entry?.thumbnail;
+  const weight = entry?.weight;
+  return (
+    <div
+      className="relative aspect-square rounded-2xl overflow-hidden"
+      style={{ background: '#0A0A0A', border: `1px solid ${CARD_BORDER}` }}
+    >
+      {photo ? (
+        <img
+          src={photo}
+          alt={entry.label}
+          className="absolute inset-0 w-full h-full object-cover"
+          style={{ filter: 'contrast(1.05) saturate(0.95) brightness(0.92)' }}
+          loading="lazy"
+        />
+      ) : (
+        <div className="absolute inset-0 flex items-center justify-center">
+          <UserIcon size={36} strokeWidth={1} className="text-white/15" />
+        </div>
+      )}
+      {/* Bottom-left gradient for legibility */}
+      <div
+        className="absolute inset-x-0 bottom-0 h-12 pointer-events-none"
+        style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.7), transparent)' }}
+      />
+      {typeof weight === 'number' && (
+        <span
+          className="absolute bottom-2 left-2 font-display text-[14px] tabular-nums"
+          style={{ color: accent || '#fff' }}
+        >
+          {weight.toFixed(1)} kg
+        </span>
+      )}
+    </div>
+  );
+}
+
+function DeltaPill({ delta }) {
+  if (delta == null || isNaN(delta)) return null;
+  const isDown = delta < 0;
+  const isZero = delta === 0;
+  const abs = Math.abs(delta).toFixed(1);
+
+  if (isZero) {
+    return (
+      <div
+        className="rounded-full px-2.5 py-1.5 whitespace-nowrap flex items-center justify-center"
+        style={{ background: 'rgba(255,255,255,0.06)', border: `1px solid ${CARD_BORDER}` }}
+      >
+        <span className="font-display text-[11px] text-white/60 tabular-nums">0.0 kg</span>
+      </div>
+    );
+  }
 
   return (
-    <div className="mb-5">
-      <div className="px-5 mb-3 flex items-center justify-between">
-        <p className="font-display text-[13px] text-white/55 uppercase tracking-[0.2em]">
-          Compare Progress
-        </p>
-        <span className="font-body text-[10px] text-white/30">Current vs any week</span>
-      </div>
+    <div
+      className="rounded-full px-2.5 py-1.5 whitespace-nowrap flex items-center gap-1"
+      style={{
+        background: 'rgba(74,222,128,0.14)',
+        border: '1px solid rgba(74,222,128,0.4)',
+      }}
+    >
+      {isDown
+        ? <ArrowDown size={11} strokeWidth={2.5} style={{ color: ON_TRACK }} />
+        : <ArrowUp   size={11} strokeWidth={2.5} style={{ color: ON_TRACK }} />}
+      <span className="font-display text-[11px] tabular-nums" style={{ color: ON_TRACK }}>
+        {abs} kg
+      </span>
+    </div>
+  );
+}
 
-      {/* Week picker chips */}
-      <div className="flex gap-2 px-5 mb-3 overflow-x-auto no-scrollbar">
-        {options.map(opt => {
-          const isActive = opt.id === selected.id;
-          return (
-            <motion.button
-              key={opt.id}
-              onClick={() => onSelect(opt.id)}
-              whileTap={{ scale: 0.95 }}
-              className="shrink-0 px-3.5 py-2 rounded-full"
-              style={{
-                background: isActive ? `linear-gradient(135deg, ${GOLD_START}, ${GOLD_END})` : CARD_BG,
-                border: isActive ? '1px solid transparent' : `1px solid ${CARD_BORDER}`,
-              }}
-            >
-              <span
-                className="font-display text-[11px] uppercase tracking-wider"
-                style={{ color: isActive ? '#000' : 'rgba(255,255,255,0.6)' }}
-              >
-                vs {opt.label}
-                <span className={isActive ? 'opacity-60' : 'text-white/30'}> · {opt.dateLabel}</span>
-              </span>
-            </motion.button>
-          );
-        })}
-      </div>
+function CompareProgress({ entries, leftId, rightId, onLeftChange, onRightChange, angle, onAngleChange }) {
+  const left = entries.find(e => e.id === leftId);
+  const right = entries.find(e => e.id === rightId);
+  const delta = (right?.weight != null && left?.weight != null)
+    ? right.weight - left.weight
+    : null;
+
+  return (
+    <div className="mx-5 mb-5">
+      <p className="font-display text-[13px] text-white/55 uppercase tracking-[0.2em] mb-3">
+        Compare Progress
+      </p>
 
       <div
-        className="mx-5 rounded-2xl p-3"
+        className="rounded-2xl p-4"
         style={{ background: CARD_BG, border: `1px solid ${CARD_BORDER}` }}
       >
-        <AngleToggle active={angle} onChange={onAngleChange} />
+        {/* Two pickers */}
+        <div className="flex items-stretch gap-2">
+          <WeekPicker value={leftId}  options={entries} onChange={onLeftChange} />
+          <WeekPicker value={rightId} options={entries} onChange={onRightChange} />
+        </div>
 
-        <div
-          className="relative mt-3 rounded-xl overflow-hidden"
-          style={{ aspectRatio: '4 / 3', background: '#0A0A0A' }}
-        >
-          <img
-            src={leftPhoto}
-            alt={selected?.label}
-            className="absolute top-0 left-0 w-1/2 h-full object-cover"
-            style={{ filter: 'grayscale(30%) contrast(1.05) brightness(0.85)' }}
-            loading="lazy"
-          />
-          <img
-            src={rightPhoto}
-            alt={current?.label}
-            className="absolute top-0 right-0 w-1/2 h-full object-cover"
-            style={{ filter: 'contrast(1.05)' }}
-            loading="lazy"
-          />
-          <div
-            className="absolute top-0 bottom-0 left-1/2 -translate-x-1/2 w-px"
-            style={{ background: 'rgba(212,167,78,0.55)' }}
-          />
-          <div
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-9 h-9 rounded-full flex items-center justify-center"
-            style={{ background: 'rgba(0,0,0,0.65)', border: `1px solid ${GOLD}88` }}
-          >
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-              <path d="M5 2L2 7l3 5M9 2l3 5-3 5" stroke={GOLD} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </div>
-          <div className="absolute top-2 left-2">
-            <p className="font-display text-[11px] text-white/85 uppercase tracking-wider leading-none">
-              {selected?.label}
-            </p>
-            <p className="font-body text-[10px] text-white/55 mt-0.5">{selected?.dateLabel}</p>
-          </div>
-          <div className="absolute top-2 right-2 text-right">
-            <p className="font-display text-[11px] uppercase tracking-wider leading-none" style={{ color: GOLD }}>
-              Current
-            </p>
-            <p className="font-body text-[10px] text-white/55 mt-0.5">{current?.dateLabel}</p>
+        {/* Angle toggle */}
+        <CompareAngleToggle active={angle} onChange={onAngleChange} />
+
+        {/* Photo cards with floating delta pill */}
+        <div className="relative grid grid-cols-2 gap-3">
+          <PhotoCard entry={left}  angle={angle} accent="#FFFFFF" />
+          <PhotoCard entry={right} angle={angle} accent={GOLD} />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
+            <DeltaPill delta={delta} />
           </div>
         </div>
       </div>
@@ -461,14 +557,17 @@ function HistoryRow({ item, delay, onOpen }) {
 export default function Progress({ onOpenCheckIn, onStartCheckIn }) {
   // Latest reviewed check-in (acts as "current" in comparisons)
   const latest = CHECK_IN_HISTORY[0];
-  // Anything else with photos can be a comparison target
-  const compareOptions = CHECK_IN_HISTORY
-    .filter(c => c.id !== latest.id && c.photos)
-    .sort((a, b) => a.week - b.week); // oldest first so Week 1 leads
+  // All entries with photos — oldest first — used in both picker dropdowns
+  const compareEntries = CHECK_IN_HISTORY
+    .filter(c => c.photos)
+    .slice()
+    .sort((a, b) => a.week - b.week);
   // History list excludes the baseline marker (Week 1) to keep recent weeks focused
   const historyList = CHECK_IN_HISTORY.filter(c => c.week !== 1);
 
-  const [compareId, setCompareId] = useState(compareOptions[0]?.id);
+  // Default: left = Week 1 (baseline), right = latest
+  const [leftCompareId, setLeftCompareId] = useState(compareEntries[0]?.id);
+  const [rightCompareId, setRightCompareId] = useState(latest.id);
   const [angle, setAngle] = useState('front');
 
   const openLatest = () => onOpenCheckIn?.(latest.id);
@@ -482,12 +581,13 @@ export default function Progress({ onOpenCheckIn, onStartCheckIn }) {
 
       <NextCheckInCard next={NEXT_CHECKIN} onStart={startCheckIn} />
 
-      {compareOptions.length > 0 && (
+      {compareEntries.length >= 2 && (
         <CompareProgress
-          current={latest}
-          options={compareOptions}
-          selectedId={compareId}
-          onSelect={setCompareId}
+          entries={compareEntries}
+          leftId={leftCompareId}
+          rightId={rightCompareId}
+          onLeftChange={setLeftCompareId}
+          onRightChange={setRightCompareId}
           angle={angle}
           onAngleChange={setAngle}
         />

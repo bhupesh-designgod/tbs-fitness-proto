@@ -24,6 +24,7 @@ const ONLINE_GREEN = '#4ADE80';
 
 // ── Topic palette ──
 const TOPICS = {
+  general:  { label: 'General',  color: '#9CA3AF' },
   workout:  { label: 'Workout',  color: '#FF8855' },
   diet:     { label: 'Diet',     color: '#4ADE80' },
   progress: { label: 'Progress', color: '#5B9DD9' },
@@ -139,55 +140,6 @@ function NextCallCard() {
         </span>
       </motion.button>
     </motion.div>
-  );
-}
-
-// ─────────────────────────────────────────────
-// Topic filters
-// ─────────────────────────────────────────────
-function TopicFilters({ active, onChange }) {
-  const items = [{ key: 'all', label: 'All', color: null }, ...TOPIC_KEYS.map(k => ({ key: k, ...TOPICS[k] }))];
-
-  return (
-    <div className="flex gap-2 px-5 mb-5 overflow-x-auto no-scrollbar">
-      {items.map(item => {
-        const isActive = active === item.key;
-        return (
-          <motion.button
-            key={item.key}
-            onClick={() => onChange(item.key)}
-            whileTap={{ scale: 0.95 }}
-            className="flex items-center gap-2 px-4 py-2 rounded-full shrink-0"
-            style={{
-              background: isActive
-                ? (item.key === 'all'
-                    ? `linear-gradient(135deg, ${GOLD_START}, ${GOLD_END})`
-                    : `${item.color}1F`)
-                : 'transparent',
-              border: `1px solid ${
-                isActive
-                  ? (item.key === 'all' ? 'transparent' : `${item.color}55`)
-                  : CARD_BORDER
-              }`,
-            }}
-          >
-            {item.color && (
-              <span className="w-1.5 h-1.5 rounded-full" style={{ background: item.color }} />
-            )}
-            <span
-              className="font-display text-[12px] uppercase tracking-wider"
-              style={{
-                color: isActive
-                  ? (item.key === 'all' ? '#000' : item.color)
-                  : 'rgba(255,255,255,0.55)',
-              }}
-            >
-              {item.label}
-            </span>
-          </motion.button>
-        );
-      })}
-    </div>
   );
 }
 
@@ -523,13 +475,7 @@ export default function Coach({ onCheckIn, onBack }) {
   const [messages, setMessages] = useState(INITIAL_MESSAGES);
   const [input, setInput] = useState('');
   const [typing, setTyping] = useState(false);
-  const [activeTopic, setActiveTopic] = useState('all');
-  const [inputTopic, setInputTopic] = useState('workout');
-
-  const filtered = useMemo(() => {
-    if (activeTopic === 'all') return messages;
-    return messages.filter(m => m.topic === activeTopic);
-  }, [messages, activeTopic]);
+  const [inputTopic, setInputTopic] = useState('general');
 
   const handleSend = () => {
     const text = input.trim();
@@ -568,7 +514,6 @@ export default function Coach({ onCheckIn, onBack }) {
     <div className="min-h-screen pb-44" style={{ background: '#000' }}>
       <CoachHeader onBack={onBack} />
       <NextCallCard />
-      <TopicFilters active={activeTopic} onChange={setActiveTopic} />
 
       {/* Check-in chip — quiet reminder, only when pending */}
       {CHECKIN_DUE.status === 'pending' && (
@@ -596,7 +541,7 @@ export default function Coach({ onCheckIn, onBack }) {
 
       {/* Messages */}
       <div className="flex flex-col">
-        {filtered.map((msg, i) => (
+        {messages.map((msg, i) => (
           <MessageRow key={msg.id} msg={msg} delay={i} />
         ))}
 
@@ -624,13 +569,6 @@ export default function Coach({ onCheckIn, onBack }) {
           </motion.div>
         )}
 
-        {filtered.length === 0 && (
-          <div className="px-5 py-10 text-center">
-            <p className="font-body text-[13px] text-white/35">
-              No messages in this topic yet.
-            </p>
-          </div>
-        )}
       </div>
 
       <InputBar

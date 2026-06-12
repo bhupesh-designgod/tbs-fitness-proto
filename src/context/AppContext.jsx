@@ -35,6 +35,7 @@ function createInitialState() {
   return {
     meals: clone(MEAL_PLAN),
     hydration: 0,
+    waterLog: [], // [{ ml, t: ISOString }]
     history,
     training: session,
     trainingSetsCompleted: 0,
@@ -127,7 +128,24 @@ export function AppProvider({ children }) {
     setState(prev => ({
       ...prev,
       hydration: Math.min(prev.hydration + ml, 5000),
+      waterLog: [
+        { ml, t: new Date().toISOString() },
+        ...(prev.waterLog || []),
+      ].slice(0, 50),
     }));
+  }, [setState]);
+
+  const removeWaterEntry = useCallback((index) => {
+    setState(prev => {
+      const log = prev.waterLog || [];
+      const entry = log[index];
+      if (!entry) return prev;
+      return {
+        ...prev,
+        hydration: Math.max(0, prev.hydration - entry.ml),
+        waterLog: log.filter((_, i) => i !== index),
+      };
+    });
   }, [setState]);
 
   const toggleSet = useCallback((exerciseIndex, setIndex) => {
@@ -162,10 +180,11 @@ export function AppProvider({ children }) {
     updateMealFoods,
     addMeal,
     logWater,
+    removeWaterEntry,
     toggleSet,
     setStateOverride,
     resetData,
-  }), [state, computed, logMeal, adjustMeal, swapMealFood, updateMealFoods, addMeal, logWater, toggleSet, setStateOverride, resetData]);
+  }), [state, computed, logMeal, adjustMeal, swapMealFood, updateMealFoods, addMeal, logWater, removeWaterEntry, toggleSet, setStateOverride, resetData]);
 
   return (
     <AppContext.Provider value={value}>

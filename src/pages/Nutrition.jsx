@@ -6,13 +6,11 @@ import { useState, useMemo, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import {
   Check, X, ChevronRight, Droplets, BookOpen, Plus, MoreHorizontal,
-  ArrowLeftRight,
+  RefreshCw,
 } from 'lucide-react';
 import { BottomSheet, NumericCounter, RingCounter } from '../components/ui/Components';
 import { useApp } from '../context/AppContext';
-import {
-  DAILY_TARGETS, MEAL_PLAN, USER_PROFILE, SWAP_OPTIONS,
-} from '../data/mockData';
+import { DAILY_TARGETS, MEAL_PLAN, USER_PROFILE } from '../data/mockData';
 
 // ── Tokens shared with Home ──
 const CARD_BG = '#131318';
@@ -365,15 +363,18 @@ function MealTimelineCard({ meal, mealIndex, onTap, delay = 0 }) {
 
 // ═════════════════════════════════════════════
 // ── Meal Bottom Sheet ──
-// Log as is / Adjust / Change meal
+// Log as is / Adjust / Replace
 // ═════════════════════════════════════════════
 function MealSheet({ meal, mealIndex, isOpen, onClose, logged, logMeal, adjustMeal, updateMealFoods }) {
   const [view, setView] = useState('main');
   const [editFoods, setEditFoods] = useState([]);
+  // Inline add-food state for the Adjust view
   const [customName, setCustomName] = useState('');
   const [customProtein, setCustomProtein] = useState('');
   const [customCarbs, setCustomCarbs] = useState('');
   const [customFat, setCustomFat] = useState('');
+  // Replace view — blank foods built from scratch
+  const [replaceFoods, setReplaceFoods] = useState([{ ...BLANK_FOOD }]);
 
   useEffect(() => {
     if (meal && isOpen) {
@@ -383,6 +384,7 @@ function MealSheet({ meal, mealIndex, isOpen, onClose, logged, logMeal, adjustMe
       setCustomProtein('');
       setCustomCarbs('');
       setCustomFat('');
+      setReplaceFoods([{ ...BLANK_FOOD }]);
     }
   }, [meal, isOpen]);
 
@@ -416,15 +418,53 @@ function MealSheet({ meal, mealIndex, isOpen, onClose, logged, logMeal, adjustMe
     setEditFoods(prev => prev.filter((_, i) => i !== fi));
   }, []);
 
-  const handleSwapWhole = useCallback((alt) => {
-    // Replace entire meal with the swap option
-    updateMealFoods(mealIndex, [{ ...alt }]);
+  // ── Replace view handlers ──
+  const handleReplaceChange = useCallback((fi, field, value) => {
+    setReplaceFoods(prev => {
+      const next = [...prev];
+      next[fi] = { ...next[fi], [field]: value };
+      return next;
+    });
+  }, []);
+
+  const handleReplaceAddRow = useCallback(() => {
+    setReplaceFoods(prev => [...prev, { ...BLANK_FOOD }]);
+  }, []);
+
+  const handleReplaceRemoveRow = useCallback((fi) => {
+    setReplaceFoods(prev => (prev.length > 1 ? prev.filter((_, i) => i !== fi) : prev));
+  }, []);
+
+  const handleConfirmReplace = useCallback(() => {
+    const valid = replaceFoods.filter(f => f.name.trim());
+    if (valid.length === 0) return;
+    const built = valid.map(f => {
+      const p = Number(f.protein) || 0;
+      const c = Number(f.carbs) || 0;
+      const fat = Number(f.fat) || 0;
+      return {
+        name: f.name.trim(),
+        portion: 'custom',
+        protein: p,
+        carbs: c,
+        fat,
+        calories: Math.round(p * 4 + c * 4 + fat * 9),
+      };
+    });
+    adjustMeal(mealIndex, built); // replaces + logs
     onClose();
-  }, [updateMealFoods, mealIndex, onClose]);
+  }, [replaceFoods, adjustMeal, mealIndex, onClose]);
 
   if (!meal) return null;
   const totals = sumFoods(meal.foods);
-  const swapOptions = SWAP_OPTIONS[meal.id] || [];
+  const replaceValidCount = replaceFoods.filter(f => f.name.trim()).length;
+  const replaceTotalCal = replaceFoods.reduce((sum, f) => {
+    if (!f.name.trim()) return sum;
+    const p = Number(f.protein) || 0;
+    const c = Number(f.carbs) || 0;
+    const fat = Number(f.fat) || 0;
+    return sum + Math.round(p * 4 + c * 4 + fat * 9);
+  }, 0);
 
   return (
     <BottomSheet isOpen={isOpen} onClose={onClose}>
@@ -522,11 +562,11 @@ function MealSheet({ meal, mealIndex, isOpen, onClose, logged, logMeal, adjustMe
               </motion.button>
               <motion.button
                 whileTap={{ scale: 0.97 }}
-                onClick={() => setView('change')}
+                onClick={() => setView('replace')}
                 className="flex-1 py-3 rounded-xl font-display text-[12px] uppercase tracking-wider text-white/60 flex items-center justify-center gap-1.5"
                 style={{ border: `1px solid ${CARD_BORDER}` }}
               >
-                <ArrowLeftRight size={13} strokeWidth={1.5} /> Change Meal
+                <RefreshCw size={13} strokeWidth={1.5} /> Replace
               </motion.button>
             </div>
           </motion.div>
@@ -632,9 +672,9 @@ function MealSheet({ meal, mealIndex, isOpen, onClose, logged, logMeal, adjustMe
           </motion.div>
         )}
 
-        {/* ── Change meal view ── */}
-        {view === 'change' && (
-          <motion.div key="change" initial={{ opacity: 0, x: 16 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -16 }}>
+        {/* ── Replace view ── blank inputs, rebuild this meal */}
+        {view === 'replace' && (
+          <motion.div key="replace" initial={{ opacity: 0, x: 16 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -16 }}>
             <button
               onClick={() => setView('main')}
               className="font-body text-[12px] text-white/35 mb-3 flex items-center gap-1 uppercase tracking-wider"
@@ -642,44 +682,80 @@ function MealSheet({ meal, mealIndex, isOpen, onClose, logged, logMeal, adjustMe
               <ChevronRight size={12} strokeWidth={1.5} className="rotate-180" /> Back
             </button>
 
-            <p className="font-display text-[12px] text-white/25 uppercase tracking-[0.2em] mb-3">
-              Swap with
+            <p className="font-display text-[12px] text-white/25 uppercase tracking-[0.2em] mb-1">
+              Replace {meal.label}
+            </p>
+            <p className="font-body text-[11px] text-white/30 mb-4">
+              Build this meal from scratch.
             </p>
 
-            {swapOptions.length === 0 && (
-              <p className="font-body text-[12px] text-white/35 py-6 text-center">
-                No swap options available.
+            <div className="space-y-2.5 mb-3">
+              {replaceFoods.map((food, fi) => (
+                <div
+                  key={fi}
+                  className="rounded-xl p-3 relative"
+                  style={{ background: 'rgba(255,255,255,0.03)', border: `1px solid ${CARD_BORDER}` }}
+                >
+                  {replaceFoods.length > 1 && (
+                    <button
+                      onClick={() => handleReplaceRemoveRow(fi)}
+                      className="absolute top-2 right-2 w-5 h-5 rounded-full flex items-center justify-center"
+                      style={{ background: 'rgba(255,255,255,0.06)' }}
+                    >
+                      <X size={10} strokeWidth={2} className="text-white/40" />
+                    </button>
+                  )}
+
+                  <input
+                    type="text" value={food.name}
+                    onChange={e => handleReplaceChange(fi, 'name', e.target.value)}
+                    placeholder="Food name, e.g. Grilled Salmon"
+                    className="w-full bg-transparent font-body text-[13px] text-white/85 placeholder:text-white/15 outline-none px-2.5 py-2 rounded-lg mb-2"
+                    style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}
+                  />
+                  <div className="grid grid-cols-3 gap-2">
+                    {[
+                      { key: 'protein', placeholder: 'Protein g', color: GOLD },
+                      { key: 'carbs',   placeholder: 'Carbs g',   color: CARB_BRONZE },
+                      { key: 'fat',     placeholder: 'Fat g',     color: FAT_GREY },
+                    ].map(m => (
+                      <input
+                        key={m.key}
+                        type="number" min={0} value={food[m.key]}
+                        onChange={e => handleReplaceChange(fi, m.key, e.target.value)}
+                        placeholder={m.placeholder}
+                        className="bg-transparent font-display text-[14px] tabular-nums outline-none px-2.5 py-2 rounded-lg placeholder:text-white/15 placeholder:font-body placeholder:text-[11px]"
+                        style={{ color: m.color, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}
+                      />
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <button
+              onClick={handleReplaceAddRow}
+              className="w-full py-2.5 rounded-xl font-body text-[12px] text-white/30 flex items-center justify-center gap-1.5 mb-4"
+              style={{ border: '1px dashed rgba(255,255,255,0.1)' }}
+            >
+              <Plus size={12} strokeWidth={1.5} /> Add another food
+            </button>
+
+            {replaceTotalCal > 0 && (
+              <p className="font-body text-[11px] text-white/30 text-center mb-4 tabular-nums">
+                ~{replaceTotalCal} cal estimated
               </p>
             )}
 
-            <div className="space-y-2">
-              {swapOptions.map((alt, ai) => (
-                <motion.button
-                  key={ai}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={() => handleSwapWhole(alt)}
-                  className="w-full text-left p-3.5 rounded-xl flex items-center justify-between"
-                  style={{ background: 'rgba(255,255,255,0.03)', border: `1px solid ${CARD_BORDER}` }}
-                >
-                  <div className="min-w-0 pr-3">
-                    <p className="font-display text-[14px] text-white uppercase tracking-wider leading-tight">
-                      {alt.name}
-                    </p>
-                    <p className="font-body text-[11px] text-white/30 mt-0.5">{alt.portion}</p>
-                  </div>
-                  <div className="flex flex-col items-end gap-0.5 shrink-0">
-                    <span className="font-display text-[14px] text-white tabular-nums leading-none">
-                      {alt.calories} <span className="font-body text-[9px] text-white/30 uppercase">cal</span>
-                    </span>
-                    <div className="flex gap-1.5 text-[10px] tabular-nums">
-                      <span style={{ color: GOLD }}>{alt.protein}p</span>
-                      <span style={{ color: FAT_GREY }}>{alt.fat}f</span>
-                      <span style={{ color: CARB_BRONZE }}>{alt.carbs}c</span>
-                    </div>
-                  </div>
-                </motion.button>
-              ))}
-            </div>
+            <motion.button
+              whileTap={{ scale: 0.97 }}
+              onClick={handleConfirmReplace}
+              disabled={replaceValidCount === 0}
+              className="w-full py-3.5 rounded-xl font-display text-[14px] uppercase tracking-wider text-black disabled:opacity-30"
+              style={{ background: `linear-gradient(135deg, ${GOLD_START}, ${GOLD_END})` }}
+            >
+              Replace & Log
+            </motion.button>
           </motion.div>
         )}
       </AnimatePresence>

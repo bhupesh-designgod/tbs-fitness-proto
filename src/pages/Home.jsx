@@ -137,11 +137,10 @@ function StatusRing({ percentage, size = 60, strokeWidth = 4, color, children })
   );
 }
 
-export default function Home({ onProfileClick }) {
+export default function Home({ onProfileClick, onNavigate }) {
   const {
     behaviorState, training, meals,
     hydration, isRestDay, history,
-    logMeal, logWater,
   } = useApp();
 
   const shouldReduce = useReducedMotion();
@@ -185,7 +184,7 @@ export default function Home({ onProfileClick }) {
   const totalMeals = meals.length;
   const nutritionPct = Math.round((mealsLogged / totalMeals) * 100);
 
-  // ── Up-next task queue (up to 2 actionable cards) ──
+  // ── Up-next task queue (up to 2 cards, tap to navigate) ──
   const tasks = useMemo(() => {
     const queue = [];
 
@@ -197,34 +196,33 @@ export default function Home({ onProfileClick }) {
       const totalProtein = meal.foods.reduce((s, f) => s + (f.protein || 0), 0);
       queue.push({
         key: `meal-${nextMealIdx}`,
-        kind: 'meal',
         icon: Utensils,
         accent: EMERALD,
         title: `Log ${meal.label}`,
         subtitle: `${Math.round(totalCal)} cal · ${Math.round(totalProtein)}g protein`,
-        cta: 'Log',
-        onAction: () => logMeal(nextMealIdx),
+        points: 5,
+        target: 'nutrition',
       });
     }
 
-    // 2. Hydration: nudge until target is hit
+    // 2. Hydration: nudge until target is hit (worth up to 10 pts: 5 at 50%, 5 at 100%)
     if (hydration < DAILY_TARGETS.water) {
-      const remaining = DAILY_TARGETS.water - hydration;
-      const nextPour = Math.min(500, remaining);
+      const pct = Math.round((hydration / DAILY_TARGETS.water) * 100);
+      // Next milestone: 50% (5pts) if not yet hit, else 100% (last 5pts)
+      const nextPts = hydration < DAILY_TARGETS.water * 0.5 ? 5 : 5;
       queue.push({
         key: 'hydration',
-        kind: 'hydration',
         icon: Droplets,
         accent: STEEL,
         title: 'Drink Water',
-        subtitle: `${nextPour} ml · ${Math.round((hydration / DAILY_TARGETS.water) * 100)}% of goal`,
-        cta: `+${nextPour}ml`,
-        onAction: () => logWater(nextPour),
+        subtitle: `${pct}% of daily goal`,
+        points: nextPts,
+        target: 'nutrition',
       });
     }
 
     return queue.slice(0, 2);
-  }, [meals, hydration, logMeal, logWater]);
+  }, [meals, hydration]);
 
   // Training info
   const exerciseCount = training.exercises?.length || 0;
@@ -488,12 +486,14 @@ export default function Home({ onProfileClick }) {
             {tasks.map((t, i) => {
               const Icon = t.icon;
               return (
-                <motion.div
+                <motion.button
                   key={t.key}
                   initial={shouldReduce ? {} : { opacity: 0, x: -8 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.32 + i * 0.05, duration: 0.3 }}
-                  className="flex items-center gap-3 rounded-2xl p-3 pr-3"
+                  whileTap={{ scale: 0.985 }}
+                  onClick={() => onNavigate && onNavigate(t.target)}
+                  className="w-full flex items-center gap-3 rounded-2xl p-3 text-left"
                   style={{
                     background: CARD_BG,
                     border: `1px solid ${CARD_BORDER}`,
@@ -520,20 +520,22 @@ export default function Home({ onProfileClick }) {
                     </p>
                   </div>
 
-                  {/* Action button */}
-                  <motion.button
-                    whileTap={{ scale: 0.94 }}
-                    onClick={t.onAction}
-                    className="font-display text-[12px] uppercase tracking-wider px-4 py-2 rounded-lg flex-shrink-0"
-                    style={{
-                      background: t.accent,
-                      color: '#0A0A0A',
-                      fontWeight: 700,
-                    }}
-                  >
-                    {t.cta}
-                  </motion.button>
-                </motion.div>
+                  {/* Points chip + chevron */}
+                  <div className="flex items-center gap-2 flex-shrink-0">
+                    <span
+                      className="font-display text-[11px] uppercase tracking-wider px-2 py-1 rounded-md"
+                      style={{
+                        background: `${t.accent}14`,
+                        color: t.accent,
+                        border: `1px solid ${t.accent}2E`,
+                        fontWeight: 700,
+                      }}
+                    >
+                      +{t.points} pts
+                    </span>
+                    <ChevronRight size={16} strokeWidth={1.5} className="text-white/25" />
+                  </div>
+                </motion.button>
               );
             })}
           </div>

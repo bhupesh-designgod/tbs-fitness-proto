@@ -1,14 +1,14 @@
-// ── Check-in Detail Screen ──
-// Overview / Metrics / Answers / Plan tabs, photo compare,
-// metrics summary, Biki review, changes for next week.
+// ── Check-in Detail / Week Review Screen ──
+// Coach summary, photo compare, 2-col submitted data grid,
+// plan changes, message Biki CTA.
 
 import { useState, useMemo } from 'react';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import {
-  ArrowLeft, MoreHorizontal, ArrowUp, ArrowDown, Download,
-  MessageCircle, Scale, Beef, Dumbbell, Ruler, Check, Quote,
+  ArrowLeft, MoreHorizontal, ArrowUp, ArrowDown,
+  MessageCircle, Scale, Beef, Dumbbell, Footprints, Ruler, Zap, Check,
 } from 'lucide-react';
-import { CHECK_IN_HISTORY, PHOTOS, LAST_CHECK_IN } from '../data/mockData';
+import { CHECK_IN_HISTORY, PHOTOS } from '../data/mockData';
 
 // ── Tokens ──
 const CARD_BG = '#131318';
@@ -20,38 +20,81 @@ const ON_TRACK = '#4ADE80';
 const RED = '#F87171';
 
 // ─────────────────────────────────────────────
-// Sub-tabs
+// Top bar
 // ─────────────────────────────────────────────
-function DetailTabs({ active, onChange }) {
-  const tabs = ['Overview', 'Metrics', 'Answers', 'Plan'];
+function TopBar({ title, subtitle, onBack }) {
+  const shouldReduce = useReducedMotion();
   return (
-    <div className="px-5 mb-4 flex">
-      {tabs.map(t => {
-        const k = t.toLowerCase();
-        const isActive = active === k;
-        return (
-          <button
-            key={t}
-            onClick={() => onChange(k)}
-            className="flex-1 py-2 relative"
-          >
-            <span
-              className="font-display text-[12px] uppercase tracking-wider"
-              style={{ color: isActive ? GOLD : 'rgba(255,255,255,0.4)' }}
-            >
-              {t}
-            </span>
-            {isActive && (
-              <motion.div
-                layoutId="detail-tab-underline"
-                className="absolute left-1/2 -translate-x-1/2 bottom-0 h-[2px] w-8 rounded-full"
-                style={{ background: GOLD }}
-              />
-            )}
-          </button>
-        );
-      })}
-    </div>
+    <motion.div
+      className="px-5 pt-4 pb-3 flex items-center gap-3"
+      initial={shouldReduce ? {} : { opacity: 0, y: -6 }}
+      animate={{ opacity: 1, y: 0 }}
+    >
+      <button
+        onClick={onBack}
+        aria-label="Back"
+        className="w-9 h-9 rounded-full flex items-center justify-center shrink-0"
+      >
+        <ArrowLeft size={18} strokeWidth={1.75} className="text-white/80" />
+      </button>
+      <div className="flex-1 text-center min-w-0">
+        <h1 className="font-display text-[14px] text-white uppercase tracking-[0.2em] truncate">
+          {title}
+        </h1>
+        {subtitle && (
+          <p className="font-body text-[11px] text-white/45 mt-1">{subtitle}</p>
+        )}
+      </div>
+      <button
+        aria-label="More"
+        className="w-9 h-9 rounded-full flex items-center justify-center shrink-0"
+      >
+        <MoreHorizontal size={18} strokeWidth={1.5} className="text-white/70" />
+      </button>
+    </motion.div>
+  );
+}
+
+// ─────────────────────────────────────────────
+// Coach Summary card
+// ─────────────────────────────────────────────
+function CoachSummaryCard({ summary }) {
+  if (!summary) return null;
+  return (
+    <motion.div
+      className="mx-5 mb-5 rounded-2xl p-5 relative overflow-hidden"
+      style={{
+        background: 'linear-gradient(135deg, rgba(212,167,78,0.08), rgba(212,167,78,0.02))',
+        border: '1px solid rgba(212,167,78,0.3)',
+      }}
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+    >
+      {/* Biki photo faded right */}
+      <div className="absolute top-0 right-0 bottom-0 w-[40%] pointer-events-none">
+        <img
+          src={PHOTOS.bikiPortrait}
+          alt=""
+          className="absolute inset-0 w-full h-full object-cover object-top"
+          style={{ filter: 'grayscale(15%) contrast(1.05)' }}
+        />
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              'linear-gradient(to right, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.45) 60%, transparent 100%)',
+          }}
+        />
+      </div>
+      <div className="relative">
+        <p className="font-display text-[10px] uppercase tracking-[0.2em] mb-2" style={{ color: GOLD }}>
+          Coach Summary
+        </p>
+        <p className="font-body text-[13px] text-white/85 leading-relaxed whitespace-pre-line max-w-[62%]">
+          {summary}
+        </p>
+      </div>
+    </motion.div>
   );
 }
 
@@ -99,7 +142,10 @@ function PhotoCompare({ checkIn, angle, onAngleChange }) {
       </p>
       <AngleToggle active={angle} onChange={onAngleChange} />
 
-      <div className="relative mt-3 rounded-xl overflow-hidden" style={{ aspectRatio: '16 / 11', background: '#0A0A0A' }}>
+      <div
+        className="relative mt-3 rounded-xl overflow-hidden"
+        style={{ aspectRatio: '4 / 3', background: '#0A0A0A' }}
+      >
         <img
           src={left}
           alt={checkIn.baselineLabel}
@@ -116,14 +162,14 @@ function PhotoCompare({ checkIn, angle, onAngleChange }) {
         />
         <div
           className="absolute top-0 bottom-0 left-1/2 -translate-x-1/2 w-px"
-          style={{ background: 'rgba(255,255,255,0.6)' }}
+          style={{ background: 'rgba(212,167,78,0.55)' }}
         />
         <div
           className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-9 h-9 rounded-full flex items-center justify-center"
-          style={{ background: 'rgba(0,0,0,0.65)', border: '1px solid rgba(255,255,255,0.4)' }}
+          style={{ background: 'rgba(0,0,0,0.65)', border: `1px solid ${GOLD}88` }}
         >
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-            <path d="M5 2L2 7l3 5M9 2l3 5-3 5" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M5 2L2 7l3 5M9 2l3 5-3 5" stroke={GOLD} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         </div>
         <div className="absolute top-2 left-2">
@@ -148,111 +194,108 @@ function PhotoCompare({ checkIn, angle, onAngleChange }) {
 }
 
 // ─────────────────────────────────────────────
-// Metrics summary list
+// Submitted Data 2-column grid
 // ─────────────────────────────────────────────
-function MetricsSummary({ metrics }) {
-  const items = [
-    { key: 'weight',  icon: Scale,    label: 'Weight',             tint: '#5B9DD9' },
-    { key: 'protein', icon: Beef,     label: 'Protein Adherence',  tint: '#E07B7B' },
-    { key: 'workout', icon: Dumbbell, label: 'Workout Compliance', tint: GOLD },
-    { key: 'waist',   icon: Ruler,    label: 'Waist',              tint: '#7BA7C9' },
-  ];
+const METRIC_ICONS = {
+  weight:  { icon: Scale,      tint: '#5B9DD9' },
+  protein: { icon: Beef,       tint: '#B57DD9' },
+  workout: { icon: Dumbbell,   tint: '#FF8855' },
+  steps:   { icon: Footprints, tint: '#4ADE80' },
+  waist:   { icon: Ruler,      tint: '#7BA7C9' },
+  energy:  { icon: Zap,        tint: GOLD },
+};
 
-  return (
-    <div className="mx-5 mb-5">
-      <p className="font-display text-[12px] text-white/40 uppercase tracking-[0.2em] mb-3">
-        Metrics Summary
-      </p>
-      <div className="space-y-2">
-        {items.map(it => {
-          const m = metrics?.[it.key];
-          if (!m) return null;
-          const delta = m.value - m.prev;
-          const isGood = (m.goodDir === 'up' && delta > 0) || (m.goodDir === 'down' && delta < 0);
-          const Icon = it.icon;
-          const formatV = v => Number.isInteger(v) ? v : v.toFixed(1);
-          return (
-            <div
-              key={it.key}
-              className="rounded-2xl p-3.5 flex items-center gap-3"
-              style={{ background: CARD_BG, border: `1px solid ${CARD_BORDER}` }}
-            >
-              <div
-                className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0"
-                style={{ background: `${it.tint}1F`, border: `1px solid ${it.tint}44` }}
-              >
-                <Icon size={18} strokeWidth={1.5} style={{ color: it.tint }} />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="font-display text-[13px] text-white uppercase tracking-wider leading-tight">
-                  {it.label}
-                </p>
-                <p className="font-body text-[12px] text-white/45 mt-0.5 tabular-nums">
-                  {formatV(m.prev)} {m.unit} <span className="text-white/30">→</span> {formatV(m.value)} {m.unit}
-                </p>
-              </div>
-              <div className="flex items-center gap-1 shrink-0">
-                {delta > 0
-                  ? <ArrowUp   size={13} strokeWidth={2} style={{ color: isGood ? ON_TRACK : RED }} />
-                  : <ArrowDown size={13} strokeWidth={2} style={{ color: isGood ? ON_TRACK : RED }} />}
-                <span
-                  className="font-display text-[13px] tabular-nums"
-                  style={{ color: isGood ? ON_TRACK : RED }}
-                >
-                  {Math.abs(delta).toFixed(delta % 1 === 0 ? 0 : 1)} {m.unit}
-                </span>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
+function formatNumber(v) {
+  if (typeof v === 'number') {
+    if (Number.isInteger(v)) return v.toLocaleString();
+    return v.toFixed(1);
+  }
+  return v;
+}
+function formatDelta(d) {
+  const abs = Math.abs(d);
+  return abs.toLocaleString();
 }
 
-// ─────────────────────────────────────────────
-// Biki's Review
-// ─────────────────────────────────────────────
-function BikiReview({ review }) {
+function MetricGridCard({ k, m }) {
+  const meta = METRIC_ICONS[k] || { icon: Scale, tint: GOLD };
+  const Icon = meta.icon;
+  const hasDelta = !m.noDelta && typeof m.delta === 'number' && m.delta !== 0;
+  const isGood = hasDelta && (
+    (m.goodDir === 'up' && m.delta > 0) ||
+    (m.goodDir === 'down' && m.delta < 0)
+  );
+
   return (
-    <div className="mx-5 mb-5">
-      <p className="font-display text-[12px] text-white/40 uppercase tracking-[0.2em] mb-3">
-        Biki's Review
-      </p>
-      <div
-        className="rounded-2xl p-4 relative overflow-hidden flex gap-3"
-        style={{ background: CARD_BG, border: `1px solid ${CARD_BORDER}` }}
-      >
-        <Quote size={18} strokeWidth={1.5} className="shrink-0 mt-0.5" style={{ color: GOLD }} />
-        <div className="flex-1 min-w-0">
-          <p className="font-body text-[13px] text-white/80 leading-relaxed whitespace-pre-line">
-            {review}
-          </p>
-        </div>
+    <div
+      className="rounded-2xl p-3.5"
+      style={{ background: CARD_BG, border: `1px solid ${CARD_BORDER}` }}
+    >
+      <div className="flex items-center gap-2 mb-2.5">
         <div
-          className="shrink-0 w-12 h-12 rounded-full overflow-hidden self-end"
-          style={{ border: '1.5px solid rgba(212,167,78,0.3)' }}
+          className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
+          style={{ background: `${meta.tint}1F`, border: `1px solid ${meta.tint}3D` }}
         >
-          <img
-            src={PHOTOS.bikiPortrait}
-            alt="Biki"
-            className="w-full h-full object-cover"
-            style={{ filter: 'grayscale(20%) contrast(1.05)' }}
-          />
+          <Icon size={14} strokeWidth={1.6} style={{ color: meta.tint }} />
         </div>
+        <p className="font-display text-[10px] text-white/45 uppercase tracking-wider leading-tight">
+          {m.label}
+        </p>
+      </div>
+      <div className="flex items-baseline gap-1">
+        <span className="font-display text-[26px] text-white tabular-nums leading-none">
+          {formatNumber(m.value)}
+        </span>
+        {m.unit && (
+          <span className="font-body text-[11px] text-white/35">{m.unit}</span>
+        )}
+      </div>
+      <div className="mt-2">
+        {hasDelta ? (
+          <div className="flex items-center gap-1">
+            {m.delta > 0
+              ? <ArrowUp   size={11} strokeWidth={2.5} style={{ color: isGood ? ON_TRACK : RED }} />
+              : <ArrowDown size={11} strokeWidth={2.5} style={{ color: isGood ? ON_TRACK : RED }} />}
+            <span
+              className="font-display text-[13px] tabular-nums"
+              style={{ color: isGood ? ON_TRACK : RED }}
+            >
+              {formatDelta(m.delta)}{m.unit}
+            </span>
+          </div>
+        ) : (
+          <span className="font-body text-[12px] text-white/30">—</span>
+        )}
+        <p className="font-body text-[10px] text-white/30 mt-0.5">vs last week</p>
+      </div>
+    </div>
+  );
+}
+
+function SubmittedData({ data }) {
+  if (!data) return null;
+  const keys = Object.keys(data);
+  return (
+    <div className="mx-5 mb-5">
+      <p className="font-display text-[12px] text-white/40 uppercase tracking-[0.2em] mb-3">
+        Submitted Data
+      </p>
+      <div className="grid grid-cols-2 gap-2.5">
+        {keys.map(k => <MetricGridCard key={k} k={k} m={data[k]} />)}
       </div>
     </div>
   );
 }
 
 // ─────────────────────────────────────────────
-// Changes list
+// Plan Changes
 // ─────────────────────────────────────────────
-function ChangesList({ changes }) {
+function PlanChanges({ changes }) {
+  if (!changes?.length) return null;
   return (
     <div className="mx-5 mb-5">
       <p className="font-display text-[12px] text-white/40 uppercase tracking-[0.2em] mb-3">
-        Changes For Next Week
+        Plan Changes
       </p>
       <div
         className="rounded-2xl p-4 space-y-3"
@@ -283,233 +326,8 @@ function ChangesList({ changes }) {
 }
 
 // ─────────────────────────────────────────────
-// Check-in Details (submitted at)
+// Empty state
 // ─────────────────────────────────────────────
-function CheckInDetails({ submittedAt }) {
-  return (
-    <div className="mx-5 mb-5">
-      <p className="font-display text-[12px] text-white/40 uppercase tracking-[0.2em] mb-3">
-        Check-in Details
-      </p>
-      <div
-        className="rounded-2xl p-4 flex items-center justify-between"
-        style={{ background: CARD_BG, border: `1px solid ${CARD_BORDER}` }}
-      >
-        <span className="font-body text-[12px] text-white/45">Submitted on</span>
-        <span className="font-display text-[12px] text-white/85 tabular-nums uppercase tracking-wider">
-          {submittedAt}
-        </span>
-      </div>
-    </div>
-  );
-}
-
-// ─────────────────────────────────────────────
-// Answers tab — re-use LAST_CHECK_IN.feel ratings
-// ─────────────────────────────────────────────
-function AnswersView() {
-  const feel = LAST_CHECK_IN.feel || {};
-  const dims = [
-    { key: 'energy', label: 'Energy' },
-    { key: 'hunger', label: 'Hunger' },
-    { key: 'sleep',  label: 'Sleep' },
-    { key: 'stress', label: 'Stress' },
-  ];
-
-  return (
-    <div className="px-5 mb-5">
-      <p className="font-display text-[12px] text-white/40 uppercase tracking-[0.2em] mb-3">
-        Self-report
-      </p>
-      <div
-        className="rounded-2xl p-4 space-y-3"
-        style={{ background: CARD_BG, border: `1px solid ${CARD_BORDER}` }}
-      >
-        {dims.map(d => (
-          <div key={d.key} className="flex items-center justify-between">
-            <span className="font-body text-[13px] text-white/75">{d.label}</span>
-            <div className="flex gap-1">
-              {[1, 2, 3, 4, 5].map(n => {
-                const filled = n <= (feel[d.key] || 0);
-                return (
-                  <div
-                    key={n}
-                    className="w-2.5 h-2.5 rounded-full"
-                    style={{ background: filled ? GOLD : 'rgba(255,255,255,0.1)' }}
-                  />
-                );
-              })}
-            </div>
-          </div>
-        ))}
-        {LAST_CHECK_IN.note && (
-          <div className="pt-3" style={{ borderTop: `1px solid ${CARD_BORDER}` }}>
-            <p className="font-display text-[10px] text-white/35 uppercase tracking-wider mb-1.5">
-              Note
-            </p>
-            <p className="font-body text-[12px] text-white/70 italic">
-              "{LAST_CHECK_IN.note}"
-            </p>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
-
-// ─────────────────────────────────────────────
-// Plan tab — same changes list
-// ─────────────────────────────────────────────
-function PlanView({ changes }) {
-  return <ChangesList changes={changes} />;
-}
-
-// ─────────────────────────────────────────────
-// Main
-// ─────────────────────────────────────────────
-export default function CheckInDetail({ checkInId, onBack }) {
-  const shouldReduce = useReducedMotion();
-  const checkIn = useMemo(
-    () => CHECK_IN_HISTORY.find(c => c.id === checkInId) || CHECK_IN_HISTORY[0],
-    [checkInId]
-  );
-
-  const [tab, setTab] = useState('overview');
-  const [angle, setAngle] = useState('front');
-
-  const reviewed = checkIn.status === 'reviewed';
-  const hasFullData = !!checkIn.metrics;
-
-  return (
-    <div className="min-h-screen pb-32" style={{ background: '#000' }}>
-      {/* Top bar */}
-      <motion.div
-        className="px-5 pt-4 pb-3 flex items-center gap-3"
-        initial={shouldReduce ? {} : { opacity: 0, y: -6 }}
-        animate={{ opacity: 1, y: 0 }}
-      >
-        <button
-          onClick={onBack}
-          aria-label="Back"
-          className="w-9 h-9 rounded-full flex items-center justify-center shrink-0"
-        >
-          <ArrowLeft size={18} strokeWidth={1.75} className="text-white/80" />
-        </button>
-        <div className="flex-1 text-center min-w-0">
-          <h1 className="font-display text-[14px] text-white uppercase tracking-[0.2em] truncate">
-            {checkIn.label} Check-in
-          </h1>
-          {reviewed && (
-            <div className="flex items-center justify-center gap-1.5 mt-1">
-              <span
-                className="w-3 h-3 rounded-full flex items-center justify-center"
-                style={{ background: ON_TRACK }}
-              >
-                <svg width="7" height="7" viewBox="0 0 7 7" fill="none">
-                  <path d="M1 3.5L2.5 5L6 1.5" stroke="#000" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </span>
-              <span className="font-body text-[11px]" style={{ color: ON_TRACK }}>
-                Reviewed by Biki
-              </span>
-              <span className="text-white/25">|</span>
-              <span className="font-body text-[11px] text-white/45">
-                on {checkIn.reviewedOn}
-              </span>
-            </div>
-          )}
-        </div>
-        <button
-          aria-label="More"
-          className="w-9 h-9 rounded-full flex items-center justify-center shrink-0"
-        >
-          <MoreHorizontal size={18} strokeWidth={1.5} className="text-white/70" />
-        </button>
-      </motion.div>
-
-      <DetailTabs active={tab} onChange={setTab} />
-
-      <AnimatePresence mode="wait">
-        {tab === 'overview' && (
-          <motion.div
-            key="overview"
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-          >
-            {hasFullData ? (
-              <>
-                <PhotoCompare checkIn={checkIn} angle={angle} onAngleChange={setAngle} />
-                <MetricsSummary metrics={checkIn.metrics} />
-                <BikiReview review={checkIn.bikiReview} />
-                <ChangesList changes={checkIn.changes} />
-                <CheckInDetails submittedAt={checkIn.submittedAt} />
-              </>
-            ) : (
-              <EmptyState label={checkIn.label} />
-            )}
-          </motion.div>
-        )}
-
-        {tab === 'metrics' && (
-          <motion.div
-            key="metrics"
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-          >
-            {hasFullData
-              ? <MetricsSummary metrics={checkIn.metrics} />
-              : <EmptyState label={checkIn.label} />}
-          </motion.div>
-        )}
-
-        {tab === 'answers' && (
-          <motion.div
-            key="answers"
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-          >
-            <AnswersView />
-          </motion.div>
-        )}
-
-        {tab === 'plan' && (
-          <motion.div
-            key="plan"
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-          >
-            {hasFullData
-              ? <PlanView changes={checkIn.changes} />
-              : <EmptyState label={checkIn.label} />}
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Fixed bottom actions */}
-      <div className="fixed bottom-0 left-0 right-0 z-20 px-5 pb-5 pt-3 mx-auto" style={{ maxWidth: 430, background: 'linear-gradient(to top, #000 60%, transparent)' }}>
-        <div className="flex gap-2">
-          <motion.button
-            whileTap={{ scale: 0.97 }}
-            className="flex-1 py-3.5 rounded-2xl font-display text-[13px] uppercase tracking-wider text-black flex items-center justify-center gap-2"
-            style={{ background: `linear-gradient(135deg, ${GOLD_START}, ${GOLD_END})` }}
-          >
-            <MessageCircle size={15} strokeWidth={2} />
-            Share with Coach
-          </motion.button>
-          <motion.button
-            whileTap={{ scale: 0.93 }}
-            aria-label="Download"
-            className="shrink-0 w-14 rounded-2xl flex items-center justify-center"
-            style={{ background: CARD_BG, border: `1px solid ${CARD_BORDER}` }}
-          >
-            <Download size={18} strokeWidth={1.5} className="text-white/65" />
-          </motion.button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 function EmptyState({ label }) {
   return (
     <div className="px-5 py-12 text-center">
@@ -517,8 +335,66 @@ function EmptyState({ label }) {
         {label}
       </p>
       <p className="font-body text-[12px] text-white/35">
-        Detailed metrics aren't recorded for this week yet.
+        Detailed review for this week isn't recorded yet.
       </p>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────
+// Main
+// ─────────────────────────────────────────────
+export default function CheckInDetail({ checkInId, onBack, onMessageBiki }) {
+  const checkIn = useMemo(
+    () => CHECK_IN_HISTORY.find(c => c.id === checkInId) || CHECK_IN_HISTORY[0],
+    [checkInId]
+  );
+  const [angle, setAngle] = useState('front');
+
+  const hasFullData = !!checkIn.submittedData;
+  const subtitle = checkIn.reviewedOn ? `Reviewed on ${checkIn.reviewedOn}` : null;
+
+  return (
+    <div className="min-h-screen pb-32" style={{ background: '#000' }}>
+      <TopBar
+        title={`${checkIn.label} Review`}
+        subtitle={subtitle}
+        onBack={onBack}
+      />
+
+      {hasFullData ? (
+        <AnimatePresence>
+          <motion.div
+            key="content"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.2 }}
+          >
+            <CoachSummaryCard summary={checkIn.coachSummary} />
+            <PhotoCompare checkIn={checkIn} angle={angle} onAngleChange={setAngle} />
+            <SubmittedData data={checkIn.submittedData} />
+            <PlanChanges changes={checkIn.planChanges} />
+          </motion.div>
+        </AnimatePresence>
+      ) : (
+        <EmptyState label={checkIn.label} />
+      )}
+
+      {/* Fixed bottom action — Message Biki */}
+      <div
+        className="fixed bottom-0 left-0 right-0 z-20 px-5 pb-5 pt-3 mx-auto"
+        style={{ maxWidth: 430, background: 'linear-gradient(to top, #000 60%, transparent)' }}
+      >
+        <motion.button
+          whileTap={{ scale: 0.97 }}
+          onClick={onMessageBiki}
+          className="w-full py-3.5 rounded-2xl font-display text-[14px] uppercase tracking-wider text-black flex items-center justify-center gap-2"
+          style={{ background: `linear-gradient(135deg, ${GOLD_START}, ${GOLD_END})` }}
+        >
+          <MessageCircle size={16} strokeWidth={2} />
+          Message Biki
+        </motion.button>
+      </div>
     </div>
   );
 }

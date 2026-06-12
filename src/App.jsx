@@ -3,7 +3,7 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
-import { Home as HomeIcon, Utensils, Dumbbell, MessageCircle, BarChart3 } from 'lucide-react';
+import { Home as HomeIcon, Utensils, Dumbbell, MessageCircle, Star } from 'lucide-react';
 import { TabBar, Header } from './components/ui/Components';
 import { AppProvider } from './context/AppContext';
 
@@ -23,7 +23,7 @@ const TABS = [
   { id: 'nutrition', label: 'Nutrition', icon: <Utensils size={20} strokeWidth={1.5} /> },
   { id: 'train', label: 'Train', icon: <Dumbbell size={20} strokeWidth={1.5} /> },
   { id: 'coach', label: 'Coach', icon: <MessageCircle size={20} strokeWidth={1.5} /> },
-  { id: 'progress', label: 'Progress', icon: <BarChart3 size={20} strokeWidth={1.5} /> },
+  { id: 'progress', label: 'Reviews', icon: <Star size={20} strokeWidth={1.5} /> },
 ];
 
 function AppContent() {
@@ -50,14 +50,25 @@ function AppContent() {
     if (overlay === 'profile') return <Profile />;
     if (overlay === 'checkin') return <CheckIn onDone={() => setOverlay(null)} />;
     if (overlay === 'macroDetail') return <MacroDetail onBack={() => setOverlay(null)} />;
-    if (overlay === 'checkinDetail') return <CheckInDetail checkInId={checkInId} onBack={() => setOverlay(null)} />;
+    if (overlay === 'checkinDetail') return (
+      <CheckInDetail
+        checkInId={checkInId}
+        onBack={() => setOverlay(null)}
+        onMessageBiki={() => { setOverlay(null); handleTabChange('coach'); }}
+      />
+    );
 
     switch (activeTab) {
       case 'home': return <Home onProfileClick={() => setOverlay('profile')} onNavigate={handleTabChange} />;
       case 'nutrition': return <Nutrition onMacroDetail={() => setOverlay('macroDetail')} />;
       case 'train': return <Train />;
       case 'coach': return <Coach onCheckIn={() => setOverlay('checkin')} />;
-      case 'progress': return <Progress onOpenCheckIn={openCheckInDetail} />;
+      case 'progress': return (
+        <Progress
+          onOpenCheckIn={openCheckInDetail}
+          onStartCheckIn={() => setOverlay('checkin')}
+        />
+      );
       default: return <Home />;
     }
   };

@@ -384,8 +384,10 @@ export const CHECK_IN_HISTORY = [
     date: '2026-06-09',
     dateLabel: 'Jun 9',
     reviewedOn: 'Jun 10',
+    reviewedAgo: '2 days ago',
     status: 'reviewed',
     submittedAt: 'Jun 9, 10:20 AM',
+    thumbnail: PHOTOS.pushHero,
     photos: {
       front: PHOTOS.pushHero,
       side:  PHOTOS.pullHero,
@@ -398,25 +400,61 @@ export const CHECK_IN_HISTORY = [
     },
     baselineLabel: 'Week 1',
     baselineDateLabel: 'Mar 24',
+    // 12-week deltas (used by Progress overview vs baseline)
     metrics: {
       weight:  { label: 'Weight',              value: 78.4, prev: 82.0, unit: 'kg', goodDir: 'down' },
       protein: { label: 'Protein Adherence',   value: 92,   prev: 72,   unit: '%',  goodDir: 'up'   },
       workout: { label: 'Workout Compliance',  value: 85,   prev: 78,   unit: '%',  goodDir: 'up'   },
       waist:   { label: 'Waist',               value: 86,   prev: 92,   unit: 'cm', goodDir: 'down' },
     },
-    bikiReview:
-      "Great consistency this week. Your weight is dropping at an ideal pace and your protein adherence has improved a lot.\n\nLet's increase carbs slightly on training days to support performance.",
-    changes: [
-      'Increase carbs by 25g on training days',
+    // Week-over-week submitted data (used by Detail screen grid)
+    submittedData: {
+      weight:  { label: 'Weight',             value: 78.4,  unit: 'kg', delta: -0.7,  goodDir: 'down' },
+      protein: { label: 'Protein Adherence',  value: 92,    unit: '%',  delta:  10,   goodDir: 'up'   },
+      workout: { label: 'Workout Compliance', value: 85,    unit: '%',  delta:  5,    goodDir: 'up'   },
+      steps:   { label: 'Steps (Avg)',        value: 10280, unit: '',   delta:  1240, goodDir: 'up'   },
+      waist:   { label: 'Waist',              value: 86,    unit: 'cm', delta: -2,    goodDir: 'down' },
+      energy:  { label: 'Energy Level',       value: '8/10', noDelta: true },
+    },
+    // Short summary on the Latest Review hero card
+    summary:
+      'Excellent adherence this week. Weight is trending exactly as planned. Keep going.',
+    // Multi-paragraph coach summary on the Detail screen
+    coachSummary:
+      "Great consistency this week, Arjun. Weight is dropping at the right pace and protein adherence is on point.\n\nLet's add one refeed meal this week to support performance.",
+    // List-row preview metric
+    preview: { label: 'Weight', value: '78.4 kg', delta: '0.7 kg', deltaDir: 'down', deltaTone: 'good' },
+    planChanges: [
       'Add one refeed meal on Saturday',
+      'Increase carbs by 25g on training days',
       'Keep cardio and steps the same',
-      'Continue current workout plan',
+      'Continue current workout split',
     ],
   },
-  { id: 'wk-11', week: 11, label: 'Week 11', date: '2026-06-02', dateLabel: 'Jun 2',  reviewedOn: 'Jun 3',  status: 'reviewed' },
-  { id: 'wk-10', week: 10, label: 'Week 10', date: '2026-05-26', dateLabel: 'May 26', reviewedOn: 'May 27', status: 'reviewed' },
-  { id: 'wk-9',  week: 9,  label: 'Week 9',  date: '2026-05-19', dateLabel: 'May 19', reviewedOn: 'May 20', status: 'reviewed' },
-  { id: 'wk-8',  week: 8,  label: 'Week 8',  date: '2026-05-12', dateLabel: 'May 12', reviewedOn: 'May 13', status: 'reviewed' },
+  {
+    id: 'wk-11', week: 11, label: 'Week 11',
+    date: '2026-06-02', dateLabel: 'Jun 2', reviewedOn: 'Jun 3', status: 'reviewed',
+    thumbnail: PHOTOS.pullHero,
+    preview: { label: 'Protein', value: '92%', delta: '10%', deltaDir: 'up', deltaTone: 'good' },
+  },
+  {
+    id: 'wk-10', week: 10, label: 'Week 10',
+    date: '2026-05-26', dateLabel: 'May 26', reviewedOn: 'May 27', status: 'reviewed',
+    thumbnail: PHOTOS.legsHero,
+    preview: { label: 'Waist', value: '86 cm', delta: '2 cm', deltaDir: 'down', deltaTone: 'good' },
+  },
+  {
+    id: 'wk-9', week: 9, label: 'Week 9',
+    date: '2026-05-19', dateLabel: 'May 19', reviewedOn: 'May 20', status: 'reviewed',
+    thumbnail: PHOTOS.restHero,
+    preview: { label: 'Steps', value: '10,280 avg', delta: '1,240', deltaDir: 'up', deltaTone: 'good' },
+  },
+  {
+    id: 'wk-8', week: 8, label: 'Week 8',
+    date: '2026-05-12', dateLabel: 'May 12', reviewedOn: 'May 13', status: 'reviewed',
+    thumbnail: PHOTOS.sessionComplete,
+    preview: { label: 'Weight', value: '79.1 kg', delta: '1.1 kg', deltaDir: 'down', deltaTone: 'good' },
+  },
 ];
 
 // ── Next check-in (used by Progress screen) ──

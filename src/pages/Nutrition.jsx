@@ -6,7 +6,7 @@ import { useState, useMemo, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import {
   Check, X, ChevronRight, Droplets, BookOpen, Plus, MoreHorizontal,
-  RefreshCw, Trophy, Flame, GlassWater, CalendarDays,
+  RefreshCw, Trophy, Flame, GlassWater, Settings2,
 } from 'lucide-react';
 import { BottomSheet, NumericCounter, RingCounter } from '../components/ui/Components';
 import { useApp } from '../context/AppContext';
@@ -1042,93 +1042,101 @@ function HydrationHero({ hydration }) {
   );
 }
 
-function GlassRow({ hydration, logWater }) {
-  const target = DAILY_TARGETS.water;
-  const glassesTarget = Math.ceil(target / GLASS_ML);
-  const glassesCurr = Math.floor(hydration / GLASS_ML);
+function DrinkButton({ defaultMl, logWater, setWaterDefault }) {
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [editMl, setEditMl] = useState(defaultMl);
+  const presets = [150, 200, 250, 300, 500, 750];
 
-  return (
-    <div
-      className="mx-5 mb-4 rounded-2xl p-4"
-      style={{ background: CARD_BG, border: `1px solid ${CARD_BORDER}` }}
-    >
-      <p className="font-display text-[11px] text-white/40 uppercase tracking-[0.2em] mb-3">
-        Log Water
-      </p>
-      <div className="flex justify-between gap-1.5 mb-3 overflow-x-auto no-scrollbar">
-        {Array.from({ length: glassesTarget }).map((_, i) => {
-          const filled = i < glassesCurr;
-          return (
-            <motion.button
-              key={i}
-              whileTap={{ scale: 0.9 }}
-              onClick={() => !filled && logWater(GLASS_ML)}
-              className="flex flex-col items-center gap-1 shrink-0"
-              style={{ flex: '0 0 auto', width: 36 }}
-            >
-              <svg width="28" height="32" viewBox="0 0 28 32" fill="none">
-                <path
-                  d="M3 4 L25 4 L22 28 Q22 30 20 30 L8 30 Q6 30 6 28 Z"
-                  fill={filled ? STEEL_BRIGHT : 'transparent'}
-                  fillOpacity={filled ? 0.85 : 0}
-                  stroke={filled ? STEEL_BRIGHT : 'rgba(212,167,78,0.45)'}
-                  strokeWidth="1.5"
-                  strokeDasharray={filled ? '0' : '3 2'}
-                  strokeLinejoin="round"
-                />
-              </svg>
-              <span className="font-body text-[9px] text-white/35 tabular-nums">{GLASS_ML}ml</span>
-            </motion.button>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
+  useEffect(() => { if (settingsOpen) setEditMl(defaultMl); }, [settingsOpen, defaultMl]);
 
-function CustomAmountButton({ logWater }) {
-  const [open, setOpen] = useState(false);
-  const [ml, setMl] = useState(350);
+  const handleDrink = useCallback(() => logWater(defaultMl), [defaultMl, logWater]);
+  const handleSavePreset = useCallback((ml) => {
+    setWaterDefault(ml);
+    setSettingsOpen(false);
+  }, [setWaterDefault]);
+  const handleLogCustom = useCallback(() => {
+    logWater(editMl);
+    setSettingsOpen(false);
+  }, [logWater, editMl]);
 
   return (
     <div className="mx-5 mb-5">
-      <motion.button
-        whileTap={{ scale: 0.97 }}
-        onClick={() => setOpen(o => !o)}
-        className="w-full py-3.5 rounded-2xl font-display text-[13px] uppercase tracking-wider flex items-center justify-center gap-2"
-        style={{ background: CARD_BG, border: `1px solid ${CARD_BORDER}`, color: GOLD }}
-      >
-        <Droplets size={14} strokeWidth={1.5} />
-        + Add Custom Amount
-      </motion.button>
+      <div className="flex items-stretch gap-2">
+        <motion.button
+          whileTap={{ scale: 0.97 }}
+          onClick={handleDrink}
+          className="flex-1 py-4 rounded-2xl font-display text-[15px] uppercase tracking-wider text-black flex items-center justify-center gap-2"
+          style={{ background: `linear-gradient(135deg, ${STEEL_BRIGHT}, #9CC3DF)` }}
+        >
+          <Droplets size={18} strokeWidth={2} />
+          Drink ({defaultMl}ml)
+        </motion.button>
+        <motion.button
+          whileTap={{ scale: 0.93 }}
+          onClick={() => setSettingsOpen(o => !o)}
+          aria-label="Customize amount"
+          className="shrink-0 w-14 rounded-2xl flex items-center justify-center"
+          style={{ background: CARD_BG, border: `1px solid ${CARD_BORDER}` }}
+        >
+          <Settings2 size={18} strokeWidth={1.5} className="text-white/55" />
+        </motion.button>
+      </div>
 
       <AnimatePresence>
-        {open && (
+        {settingsOpen && (
           <motion.div
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            className="overflow-hidden mt-2"
+            className="overflow-hidden"
           >
             <div
-              className="flex items-center gap-2 p-3 rounded-xl"
+              className="mt-2 p-4 rounded-2xl"
               style={{ background: CARD_BG, border: `1px solid ${CARD_BORDER}` }}
             >
-              <input
-                type="number" min={50} max={2000} step={50} value={ml}
-                onChange={e => setMl(Math.max(50, Math.min(2000, Number(e.target.value))))}
-                className="flex-1 bg-transparent font-display text-[18px] text-white tabular-nums outline-none px-3 py-2 rounded-lg"
-                style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}
-              />
-              <span className="font-body text-[11px] text-white/30">ml</span>
-              <motion.button
-                whileTap={{ scale: 0.93 }}
-                onClick={() => { logWater(ml); setOpen(false); }}
-                className="px-4 py-2.5 rounded-lg font-display text-[12px] uppercase tracking-wider text-black"
-                style={{ background: `linear-gradient(135deg, ${STEEL}, ${STEEL_BRIGHT})` }}
-              >
-                Add
-              </motion.button>
+              <p className="font-display text-[10px] text-white/40 uppercase tracking-[0.2em] mb-2.5">
+                Default Drink Size
+              </p>
+              <div className="grid grid-cols-3 gap-2 mb-4">
+                {presets.map(ml => {
+                  const active = ml === defaultMl;
+                  return (
+                    <button
+                      key={ml}
+                      onClick={() => handleSavePreset(ml)}
+                      className="py-2.5 rounded-xl font-display text-[12px] tabular-nums uppercase tracking-wider"
+                      style={{
+                        background: active ? 'rgba(123,167,201,0.18)' : 'rgba(255,255,255,0.03)',
+                        border: `1px solid ${active ? 'rgba(123,167,201,0.5)' : CARD_BORDER}`,
+                        color: active ? STEEL_BRIGHT : 'rgba(255,255,255,0.6)',
+                      }}
+                    >
+                      {ml}ml
+                    </button>
+                  );
+                })}
+              </div>
+
+              <p className="font-display text-[10px] text-white/40 uppercase tracking-[0.2em] mb-2">
+                Log Custom Amount
+              </p>
+              <div className="flex items-center gap-2">
+                <input
+                  type="number" min={50} max={2000} step={50} value={editMl}
+                  onChange={e => setEditMl(Math.max(50, Math.min(2000, Number(e.target.value) || 0)))}
+                  className="flex-1 bg-transparent font-display text-[18px] text-white tabular-nums outline-none px-3 py-2.5 rounded-xl"
+                  style={{ background: 'rgba(255,255,255,0.03)', border: `1px solid ${CARD_BORDER}` }}
+                />
+                <span className="font-body text-[11px] text-white/30">ml</span>
+                <motion.button
+                  whileTap={{ scale: 0.93 }}
+                  onClick={handleLogCustom}
+                  className="px-4 py-2.5 rounded-xl font-display text-[12px] uppercase tracking-wider text-black"
+                  style={{ background: `linear-gradient(135deg, ${STEEL}, ${STEEL_BRIGHT})` }}
+                >
+                  Log
+                </motion.button>
+              </div>
             </div>
           </motion.div>
         )}
@@ -1421,12 +1429,18 @@ function RecentHistory({ waterLog, removeWaterEntry }) {
   );
 }
 
-function HydrationView({ hydration, logWater, history, waterLog, removeWaterEntry }) {
+function HydrationView({
+  hydration, logWater, history, waterLog, removeWaterEntry,
+  waterDefaultMl, setWaterDefault,
+}) {
   return (
     <div className="pb-4">
       <HydrationHero hydration={hydration} />
-      <GlassRow hydration={hydration} logWater={logWater} />
-      <CustomAmountButton logWater={logWater} />
+      <DrinkButton
+        defaultMl={waterDefaultMl}
+        logWater={logWater}
+        setWaterDefault={setWaterDefault}
+      />
       <WeeklyOverview history={history} hydration={hydration} />
       <HydrationStats history={history} hydration={hydration} />
       <RecentHistory waterLog={waterLog} removeWaterEntry={removeWaterEntry} />
@@ -1439,8 +1453,9 @@ function HydrationView({ hydration, logWater, history, waterLog, removeWaterEntr
 // ═════════════════════════════════════════════
 export default function Nutrition({ onMacroDetail }) {
   const {
-    meals, logged, hydration, history, waterLog,
-    logMeal, adjustMeal, updateMealFoods, addMeal, logWater, removeWaterEntry,
+    meals, logged, hydration, history, waterLog, waterDefaultMl,
+    logMeal, adjustMeal, updateMealFoods, addMeal,
+    logWater, removeWaterEntry, setWaterDefault,
   } = useApp();
 
   const shouldReduce = useReducedMotion();
@@ -1552,6 +1567,8 @@ export default function Nutrition({ onMacroDetail }) {
           history={history}
           waterLog={waterLog || []}
           removeWaterEntry={removeWaterEntry}
+          waterDefaultMl={waterDefaultMl ?? 300}
+          setWaterDefault={setWaterDefault}
         />
       )}
 

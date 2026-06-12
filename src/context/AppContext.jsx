@@ -36,6 +36,7 @@ function createInitialState() {
     meals: clone(MEAL_PLAN),
     hydration: 0,
     waterLog: [], // [{ ml, t: ISOString }]
+    waterDefaultMl: 300, // user-configurable default for the Drink button
     history,
     training: session,
     trainingSetsCompleted: 0,
@@ -135,6 +136,13 @@ export function AppProvider({ children }) {
     }));
   }, [setState]);
 
+  const setWaterDefault = useCallback((ml) => {
+    setState(prev => ({
+      ...prev,
+      waterDefaultMl: Math.max(50, Math.min(2000, Number(ml) || 300)),
+    }));
+  }, [setState]);
+
   const removeWaterEntry = useCallback((index) => {
     setState(prev => {
       const log = prev.waterLog || [];
@@ -180,11 +188,12 @@ export function AppProvider({ children }) {
     updateMealFoods,
     addMeal,
     logWater,
+    setWaterDefault,
     removeWaterEntry,
     toggleSet,
     setStateOverride,
     resetData,
-  }), [state, computed, logMeal, adjustMeal, swapMealFood, updateMealFoods, addMeal, logWater, removeWaterEntry, toggleSet, setStateOverride, resetData]);
+  }), [state, computed, logMeal, adjustMeal, swapMealFood, updateMealFoods, addMeal, logWater, setWaterDefault, removeWaterEntry, toggleSet, setStateOverride, resetData]);
 
   return (
     <AppContext.Provider value={value}>

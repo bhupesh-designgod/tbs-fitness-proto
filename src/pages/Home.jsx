@@ -141,6 +141,7 @@ export default function Home({ onProfileClick }) {
   const {
     behaviorState, training, meals,
     hydration, isRestDay, history,
+    logMeal, logWater,
   } = useApp();
 
   const shouldReduce = useReducedMotion();
@@ -183,6 +184,47 @@ export default function Home({ onProfileClick }) {
   const mealsLogged = meals.filter(m => m.logged).length;
   const totalMeals = meals.length;
   const nutritionPct = Math.round((mealsLogged / totalMeals) * 100);
+
+  // ── Up-next task queue (up to 2 actionable cards) ──
+  const tasks = useMemo(() => {
+    const queue = [];
+
+    // 1. Next unlogged meal (priority: earliest in plan)
+    const nextMealIdx = meals.findIndex(m => !m.logged);
+    if (nextMealIdx !== -1) {
+      const meal = meals[nextMealIdx];
+      const totalCal = meal.foods.reduce((s, f) => s + (f.calories || 0), 0);
+      const totalProtein = meal.foods.reduce((s, f) => s + (f.protein || 0), 0);
+      queue.push({
+        key: `meal-${nextMealIdx}`,
+        kind: 'meal',
+        icon: Utensils,
+        accent: EMERALD,
+        title: `Log ${meal.label}`,
+        subtitle: `${Math.round(totalCal)} cal · ${Math.round(totalProtein)}g protein`,
+        cta: 'Log',
+        onAction: () => logMeal(nextMealIdx),
+      });
+    }
+
+    // 2. Hydration: nudge until target is hit
+    if (hydration < DAILY_TARGETS.water) {
+      const remaining = DAILY_TARGETS.water - hydration;
+      const nextPour = Math.min(500, remaining);
+      queue.push({
+        key: 'hydration',
+        kind: 'hydration',
+        icon: Droplets,
+        accent: STEEL,
+        title: 'Drink Water',
+        subtitle: `${nextPour} ml · ${Math.round((hydration / DAILY_TARGETS.water) * 100)}% of goal`,
+        cta: `+${nextPour}ml`,
+        onAction: () => logWater(nextPour),
+      });
+    }
+
+    return queue.slice(0, 2);
+  }, [meals, hydration, logMeal, logWater]);
 
   // Training info
   const exerciseCount = training.exercises?.length || 0;
@@ -428,6 +470,75 @@ export default function Home({ onProfileClick }) {
           ))}
         </div>
       </motion.div>
+
+      {/* ═══════════════════════════════════════════
+          4.5  UP NEXT — actionable task queue (max 2)
+          ═══════════════════════════════════════════ */}
+      {tasks.length > 0 && (
+        <motion.div
+          className="mx-5 mb-3"
+          initial={shouldReduce ? {} : { opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.28 }}
+        >
+          <p className="font-display text-[13px] text-white/25 uppercase tracking-[0.2em] mb-3">
+            Up Next
+          </p>
+          <div className="flex flex-col gap-2">
+            {tasks.map((t, i) => {
+              const Icon = t.icon;
+              return (
+                <motion.div
+                  key={t.key}
+                  initial={shouldReduce ? {} : { opacity: 0, x: -8 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.32 + i * 0.05, duration: 0.3 }}
+                  className="flex items-center gap-3 rounded-2xl p-3 pr-3"
+                  style={{
+                    background: CARD_BG,
+                    border: `1px solid ${CARD_BORDER}`,
+                  }}
+                >
+                  {/* Icon badge */}
+                  <div
+                    className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0"
+                    style={{
+                      background: `${t.accent}1A`,
+                      border: `1px solid ${t.accent}33`,
+                    }}
+                  >
+                    <Icon size={20} strokeWidth={1.75} style={{ color: t.accent }} />
+                  </div>
+
+                  {/* Title + subtitle */}
+                  <div className="flex-1 min-w-0">
+                    <p className="font-display text-[14px] text-white uppercase tracking-wider leading-tight">
+                      {t.title}
+                    </p>
+                    <p className="font-body text-[11px] text-white/40 mt-0.5 truncate">
+                      {t.subtitle}
+                    </p>
+                  </div>
+
+                  {/* Action button */}
+                  <motion.button
+                    whileTap={{ scale: 0.94 }}
+                    onClick={t.onAction}
+                    className="font-display text-[12px] uppercase tracking-wider px-4 py-2 rounded-lg flex-shrink-0"
+                    style={{
+                      background: t.accent,
+                      color: '#0A0A0A',
+                      fontWeight: 700,
+                    }}
+                  >
+                    {t.cta}
+                  </motion.button>
+                </motion.div>
+              );
+            })}
+          </div>
+        </motion.div>
+      )}
 
       {/* ═══════════════════════════════════════════
           5. TODAY'S PLAN — Nutrition & Hydration rings

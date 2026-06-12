@@ -115,6 +115,14 @@ export function AppProvider({ children }) {
     });
   }, [setState]);
 
+  // Append a brand-new meal to today's plan
+  const addMeal = useCallback((meal) => {
+    setState(prev => ({
+      ...prev,
+      meals: [...clone(prev.meals), meal],
+    }));
+  }, [setState]);
+
   const logWater = useCallback((ml) => {
     setState(prev => ({
       ...prev,
@@ -152,11 +160,12 @@ export function AppProvider({ children }) {
     adjustMeal,
     swapMealFood,
     updateMealFoods,
+    addMeal,
     logWater,
     toggleSet,
     setStateOverride,
     resetData,
-  }), [state, computed, logMeal, adjustMeal, swapMealFood, updateMealFoods, logWater, toggleSet, setStateOverride, resetData]);
+  }), [state, computed, logMeal, adjustMeal, swapMealFood, updateMealFoods, addMeal, logWater, toggleSet, setStateOverride, resetData]);
 
   return (
     <AppContext.Provider value={value}>

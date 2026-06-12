@@ -688,6 +688,198 @@ function MealSheet({ meal, mealIndex, isOpen, onClose, logged, logMeal, adjustMe
 }
 
 // ═════════════════════════════════════════════
+// ── Add Meal Sheet ── (blank form, placeholders)
+// ═════════════════════════════════════════════
+const BLANK_FOOD = { name: '', protein: '', carbs: '', fat: '' };
+
+function AddMealSheet({ isOpen, onClose, addMeal }) {
+  const [mealName, setMealName] = useState('');
+  const [mealTime, setMealTime] = useState('');
+  const [foods, setFoods] = useState([{ ...BLANK_FOOD }]);
+
+  useEffect(() => {
+    if (isOpen) {
+      setMealName('');
+      setMealTime('');
+      setFoods([{ ...BLANK_FOOD }]);
+    }
+  }, [isOpen]);
+
+  const handleFoodChange = useCallback((fi, field, value) => {
+    setFoods(prev => {
+      const next = [...prev];
+      next[fi] = { ...next[fi], [field]: value };
+      return next;
+    });
+  }, []);
+
+  const handleAddRow = useCallback(() => {
+    setFoods(prev => [...prev, { ...BLANK_FOOD }]);
+  }, []);
+
+  const handleRemoveRow = useCallback((fi) => {
+    setFoods(prev => (prev.length > 1 ? prev.filter((_, i) => i !== fi) : prev));
+  }, []);
+
+  // Foods that have at least a name
+  const validFoods = foods.filter(f => f.name.trim());
+  const canSave = mealName.trim() && validFoods.length > 0;
+
+  const totalCal = validFoods.reduce((sum, f) => {
+    const p = Number(f.protein) || 0;
+    const c = Number(f.carbs) || 0;
+    const fat = Number(f.fat) || 0;
+    return sum + Math.round(p * 4 + c * 4 + fat * 9);
+  }, 0);
+
+  const buildMeal = useCallback((logged) => ({
+    id: `meal-custom-${Date.now()}`,
+    time: mealTime.trim(),
+    label: mealName.trim(),
+    foods: validFoods.map(f => {
+      const p = Number(f.protein) || 0;
+      const c = Number(f.carbs) || 0;
+      const fat = Number(f.fat) || 0;
+      return {
+        name: f.name.trim(),
+        portion: 'custom',
+        protein: p,
+        carbs: c,
+        fat,
+        calories: Math.round(p * 4 + c * 4 + fat * 9),
+      };
+    }),
+    logged,
+  }), [mealName, mealTime, validFoods]);
+
+  const handleSave = useCallback((logged) => {
+    if (!canSave) return;
+    addMeal(buildMeal(logged));
+    onClose();
+  }, [canSave, addMeal, buildMeal, onClose]);
+
+  return (
+    <BottomSheet isOpen={isOpen} onClose={onClose}>
+      <h2 className="font-display text-[20px] text-white uppercase tracking-wider leading-none mb-5">
+        Add Meal
+      </h2>
+
+      {/* Meal name + time */}
+      <div className="flex gap-2 mb-4">
+        <div className="flex-1">
+          <label className="font-body text-[9px] text-white/25 uppercase tracking-wider block mb-1.5">
+            Meal Name
+          </label>
+          <input
+            type="text" value={mealName} onChange={e => setMealName(e.target.value)}
+            placeholder="e.g. Evening Snack"
+            className="w-full bg-transparent font-body text-[14px] text-white/85 placeholder:text-white/15 outline-none px-3 py-2.5 rounded-xl"
+            style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}
+          />
+        </div>
+        <div className="w-[110px]">
+          <label className="font-body text-[9px] text-white/25 uppercase tracking-wider block mb-1.5">
+            Time
+          </label>
+          <input
+            type="text" value={mealTime} onChange={e => setMealTime(e.target.value)}
+            placeholder="4:00 PM"
+            className="w-full bg-transparent font-body text-[14px] text-white/85 placeholder:text-white/15 outline-none px-3 py-2.5 rounded-xl"
+            style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}
+          />
+        </div>
+      </div>
+
+      {/* Food rows */}
+      <label className="font-body text-[9px] text-white/25 uppercase tracking-wider block mb-1.5">
+        Foods
+      </label>
+      <div className="space-y-2.5 mb-3">
+        {foods.map((food, fi) => (
+          <div
+            key={fi}
+            className="rounded-xl p-3 relative"
+            style={{ background: 'rgba(255,255,255,0.03)', border: `1px solid ${CARD_BORDER}` }}
+          >
+            {foods.length > 1 && (
+              <button
+                onClick={() => handleRemoveRow(fi)}
+                className="absolute top-2 right-2 w-5 h-5 rounded-full flex items-center justify-center"
+                style={{ background: 'rgba(255,255,255,0.06)' }}
+              >
+                <X size={10} strokeWidth={2} className="text-white/40" />
+              </button>
+            )}
+
+            <input
+              type="text" value={food.name}
+              onChange={e => handleFoodChange(fi, 'name', e.target.value)}
+              placeholder="Food name, e.g. Greek Yogurt"
+              className="w-full bg-transparent font-body text-[13px] text-white/85 placeholder:text-white/15 outline-none px-2.5 py-2 rounded-lg mb-2"
+              style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}
+            />
+            <div className="grid grid-cols-3 gap-2">
+              {[
+                { key: 'protein', placeholder: 'Protein g', color: GOLD },
+                { key: 'carbs',   placeholder: 'Carbs g',   color: CARB_BRONZE },
+                { key: 'fat',     placeholder: 'Fat g',     color: FAT_GREY },
+              ].map(m => (
+                <input
+                  key={m.key}
+                  type="number" min={0} value={food[m.key]}
+                  onChange={e => handleFoodChange(fi, m.key, e.target.value)}
+                  placeholder={m.placeholder}
+                  className="bg-transparent font-display text-[14px] tabular-nums outline-none px-2.5 py-2 rounded-lg placeholder:text-white/15 placeholder:font-body placeholder:text-[11px]"
+                  style={{ color: m.color, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}
+                />
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Add another food */}
+      <button
+        onClick={handleAddRow}
+        className="w-full py-2.5 rounded-xl font-body text-[12px] text-white/30 flex items-center justify-center gap-1.5 mb-4"
+        style={{ border: '1px dashed rgba(255,255,255,0.1)' }}
+      >
+        <Plus size={12} strokeWidth={1.5} /> Add another food
+      </button>
+
+      {/* Estimated calories */}
+      {totalCal > 0 && (
+        <p className="font-body text-[11px] text-white/30 text-center mb-4 tabular-nums">
+          ~{totalCal} cal estimated
+        </p>
+      )}
+
+      {/* Actions */}
+      <motion.button
+        whileTap={{ scale: 0.97 }}
+        onClick={() => handleSave(true)}
+        disabled={!canSave}
+        className="w-full py-3.5 rounded-xl font-display text-[14px] uppercase tracking-wider text-black mb-2.5 disabled:opacity-30"
+        style={{ background: `linear-gradient(135deg, ${GOLD_START}, ${GOLD_END})` }}
+      >
+        <div className="flex items-center justify-center gap-2">
+          <Check size={16} strokeWidth={2.5} /> Add & Log
+        </div>
+      </motion.button>
+      <motion.button
+        whileTap={{ scale: 0.97 }}
+        onClick={() => handleSave(false)}
+        disabled={!canSave}
+        className="w-full py-3 rounded-xl font-display text-[12px] uppercase tracking-wider text-white/60 disabled:opacity-30"
+        style={{ border: `1px solid ${CARD_BORDER}` }}
+      >
+        Add to Plan Only
+      </motion.button>
+    </BottomSheet>
+  );
+}
+
+// ═════════════════════════════════════════════
 // ── Hydration View ──
 // ═════════════════════════════════════════════
 function HydrationView({ hydration, logWater }) {
@@ -777,26 +969,20 @@ function HydrationView({ hydration, logWater }) {
 export default function Nutrition({ onMacroDetail }) {
   const {
     meals, logged, hydration,
-    logMeal, adjustMeal, updateMealFoods, logWater,
+    logMeal, adjustMeal, updateMealFoods, addMeal, logWater,
   } = useApp();
 
   const shouldReduce = useReducedMotion();
   const [activeTab, setActiveTab] = useState('meals');
   const [selectedMeal, setSelectedMeal] = useState(null);
   const [sheetOpen, setSheetOpen] = useState(false);
+  const [addMealOpen, setAddMealOpen] = useState(false);
 
   const handleMealTap = useCallback(idx => { setSelectedMeal(idx); setSheetOpen(true); }, []);
   const handleClose = useCallback(() => {
     setSheetOpen(false);
     setTimeout(() => setSelectedMeal(null), 300);
   }, []);
-
-  const handleAddMeal = useCallback(() => {
-    // Jump into the first unlogged meal's sheet, or last meal if all logged
-    const idx = meals.findIndex(m => !m.logged);
-    setSelectedMeal(idx >= 0 ? idx : meals.length - 1);
-    setSheetOpen(true);
-  }, [meals]);
 
   return (
     <div className="min-h-screen pb-28" style={{ background: '#000' }}>
@@ -879,7 +1065,7 @@ export default function Nutrition({ onMacroDetail }) {
           >
             <motion.button
               whileTap={{ scale: 0.98 }}
-              onClick={handleAddMeal}
+              onClick={() => setAddMealOpen(true)}
               className="w-full py-4 rounded-2xl font-display text-[14px] uppercase tracking-wider text-black flex items-center justify-center gap-2"
               style={{ background: `linear-gradient(135deg, ${GOLD_START}, ${GOLD_END})` }}
             >
@@ -901,6 +1087,12 @@ export default function Nutrition({ onMacroDetail }) {
         logMeal={logMeal}
         adjustMeal={adjustMeal}
         updateMealFoods={updateMealFoods}
+      />
+
+      <AddMealSheet
+        isOpen={addMealOpen}
+        onClose={() => setAddMealOpen(false)}
+        addMeal={addMeal}
       />
     </div>
   );

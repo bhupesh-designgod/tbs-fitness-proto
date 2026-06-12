@@ -435,25 +435,37 @@ export const CHECK_IN_HISTORY = [
     id: 'wk-11', week: 11, label: 'Week 11',
     date: '2026-06-02', dateLabel: 'Jun 2', reviewedOn: 'Jun 3', status: 'reviewed',
     thumbnail: PHOTOS.pullHero,
+    photos: { front: PHOTOS.pullHero,  side: PHOTOS.legsHero, back: PHOTOS.restHero },
     preview: { label: 'Protein', value: '92%', delta: '10%', deltaDir: 'up', deltaTone: 'good' },
   },
   {
     id: 'wk-10', week: 10, label: 'Week 10',
     date: '2026-05-26', dateLabel: 'May 26', reviewedOn: 'May 27', status: 'reviewed',
     thumbnail: PHOTOS.legsHero,
+    photos: { front: PHOTOS.legsHero,  side: PHOTOS.pushHero, back: PHOTOS.pullHero },
     preview: { label: 'Waist', value: '86 cm', delta: '2 cm', deltaDir: 'down', deltaTone: 'good' },
   },
   {
     id: 'wk-9', week: 9, label: 'Week 9',
     date: '2026-05-19', dateLabel: 'May 19', reviewedOn: 'May 20', status: 'reviewed',
     thumbnail: PHOTOS.restHero,
+    photos: { front: PHOTOS.restHero,  side: PHOTOS.sessionComplete, back: PHOTOS.legsHero },
     preview: { label: 'Steps', value: '10,280 avg', delta: '1,240', deltaDir: 'up', deltaTone: 'good' },
   },
   {
     id: 'wk-8', week: 8, label: 'Week 8',
     date: '2026-05-12', dateLabel: 'May 12', reviewedOn: 'May 13', status: 'reviewed',
     thumbnail: PHOTOS.sessionComplete,
+    photos: { front: PHOTOS.sessionComplete, side: PHOTOS.bikiPortrait, back: PHOTOS.pushHero },
     preview: { label: 'Weight', value: '79.1 kg', delta: '1.1 kg', deltaDir: 'down', deltaTone: 'good' },
+  },
+  // Baseline reference — Week 1, used as the long-range comparison target
+  {
+    id: 'wk-1', week: 1, label: 'Week 1',
+    date: '2026-03-24', dateLabel: 'Mar 24', reviewedOn: 'Mar 25', status: 'reviewed',
+    thumbnail: PHOTOS.restHero,
+    photos: { front: PHOTOS.restHero, side: PHOTOS.sessionComplete, back: PHOTOS.bikiPortrait },
+    preview: { label: 'Weight', value: '82.0 kg', delta: 'Baseline', deltaDir: 'up', deltaTone: 'neutral' },
   },
 ];
 
@@ -461,6 +473,6 @@ export const CHECK_IN_HISTORY = [
 // Falls within 3 days of seed date 2026-06-13 to demo the reminder card.
 export const NEXT_CHECKIN = {
   week: 13,
-  date: '2026-06-16',
-  dateLabel: 'Jun 16',
+  date: '2026-06-15',
+  dateLabel: 'Jun 15',
 };

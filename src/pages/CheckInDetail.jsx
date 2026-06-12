@@ -2,7 +2,7 @@
 // Coach summary, photo compare, 2-col submitted data grid,
 // plan changes, message Biki CTA.
 
-import { useState, useMemo } from 'react';
+import { useMemo } from 'react';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import {
   ArrowLeft, MoreHorizontal, ArrowUp, ArrowDown,
@@ -95,101 +95,6 @@ function CoachSummaryCard({ summary }) {
         </p>
       </div>
     </motion.div>
-  );
-}
-
-// ─────────────────────────────────────────────
-// Angle toggle
-// ─────────────────────────────────────────────
-function AngleToggle({ active, onChange }) {
-  const angles = ['front', 'side', 'back'];
-  return (
-    <div
-      className="rounded-xl p-1 flex"
-      style={{ background: 'rgba(0,0,0,0.4)', border: `1px solid ${CARD_BORDER}` }}
-    >
-      {angles.map(a => {
-        const isActive = active === a;
-        return (
-          <motion.button
-            key={a}
-            onClick={() => onChange(a)}
-            whileTap={{ scale: 0.96 }}
-            className="flex-1 py-2 rounded-lg font-display text-[11px] uppercase tracking-wider"
-            style={{
-              background: isActive ? `linear-gradient(135deg, ${GOLD_START}, ${GOLD_END})` : 'transparent',
-              color: isActive ? '#000' : 'rgba(255,255,255,0.5)',
-            }}
-          >
-            {a.charAt(0).toUpperCase() + a.slice(1)}
-          </motion.button>
-        );
-      })}
-    </div>
-  );
-}
-
-// ─────────────────────────────────────────────
-// Photo compare
-// ─────────────────────────────────────────────
-function PhotoCompare({ checkIn, angle, onAngleChange }) {
-  const left = checkIn.photosBaseline?.[angle];
-  const right = checkIn.photos?.[angle];
-  return (
-    <div className="mx-5 mb-5">
-      <p className="font-display text-[12px] text-white/40 uppercase tracking-[0.2em] mb-3">
-        Photos Comparison
-      </p>
-      <AngleToggle active={angle} onChange={onAngleChange} />
-
-      <div
-        className="relative mt-3 rounded-xl overflow-hidden"
-        style={{ aspectRatio: '4 / 3', background: '#0A0A0A' }}
-      >
-        <img
-          src={left}
-          alt={checkIn.baselineLabel}
-          className="absolute top-0 left-0 w-1/2 h-full object-cover"
-          style={{ filter: 'grayscale(30%) contrast(1.05) brightness(0.85)' }}
-          loading="lazy"
-        />
-        <img
-          src={right}
-          alt={checkIn.label}
-          className="absolute top-0 right-0 w-1/2 h-full object-cover"
-          style={{ filter: 'contrast(1.05)' }}
-          loading="lazy"
-        />
-        <div
-          className="absolute top-0 bottom-0 left-1/2 -translate-x-1/2 w-px"
-          style={{ background: 'rgba(212,167,78,0.55)' }}
-        />
-        <div
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-9 h-9 rounded-full flex items-center justify-center"
-          style={{ background: 'rgba(0,0,0,0.65)', border: `1px solid ${GOLD}88` }}
-        >
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-            <path d="M5 2L2 7l3 5M9 2l3 5-3 5" stroke={GOLD} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-        </div>
-        <div className="absolute top-2 left-2">
-          <p className="font-display text-[11px] text-white/85 uppercase tracking-wider leading-none">
-            {checkIn.baselineLabel}
-          </p>
-          <p className="font-body text-[10px] text-white/55 mt-0.5">
-            {checkIn.baselineDateLabel}
-          </p>
-        </div>
-        <div className="absolute top-2 right-2 text-right">
-          <p className="font-display text-[11px] text-white/85 uppercase tracking-wider leading-none">
-            {checkIn.label}
-          </p>
-          <p className="font-body text-[10px] text-white/55 mt-0.5">
-            {checkIn.dateLabel}
-          </p>
-        </div>
-      </div>
-    </div>
   );
 }
 
@@ -349,7 +254,6 @@ export default function CheckInDetail({ checkInId, onBack, onMessageBiki }) {
     () => CHECK_IN_HISTORY.find(c => c.id === checkInId) || CHECK_IN_HISTORY[0],
     [checkInId]
   );
-  const [angle, setAngle] = useState('front');
 
   const hasFullData = !!checkIn.submittedData;
   const subtitle = checkIn.reviewedOn ? `Reviewed on ${checkIn.reviewedOn}` : null;
@@ -371,7 +275,6 @@ export default function CheckInDetail({ checkInId, onBack, onMessageBiki }) {
             transition={{ duration: 0.2 }}
           >
             <CoachSummaryCard summary={checkIn.coachSummary} />
-            <PhotoCompare checkIn={checkIn} angle={angle} onAngleChange={setAngle} />
             <SubmittedData data={checkIn.submittedData} />
             <PlanChanges changes={checkIn.planChanges} />
           </motion.div>

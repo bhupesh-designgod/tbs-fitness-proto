@@ -2,6 +2,7 @@
 // Latest weekly review, conditional next-check-in card (≤3 days),
 // review-history list. (Internal tab id remains "progress".)
 
+import { useState } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 import {
   Bell, ChevronRight, ArrowRight, ArrowUp, ArrowDown,
@@ -244,6 +245,132 @@ function NextCheckInCard({ next, onStart }) {
 }
 
 // ─────────────────────────────────────────────
+// Compare Progress — pick any week, split-view vs current
+// ─────────────────────────────────────────────
+function AngleToggle({ active, onChange }) {
+  const angles = ['front', 'side', 'back'];
+  return (
+    <div
+      className="rounded-xl p-1 flex"
+      style={{ background: 'rgba(0,0,0,0.4)', border: `1px solid ${CARD_BORDER}` }}
+    >
+      {angles.map(a => {
+        const isActive = active === a;
+        return (
+          <motion.button
+            key={a}
+            onClick={() => onChange(a)}
+            whileTap={{ scale: 0.96 }}
+            className="flex-1 py-2 rounded-lg font-display text-[11px] uppercase tracking-wider"
+            style={{
+              background: isActive ? `linear-gradient(135deg, ${GOLD_START}, ${GOLD_END})` : 'transparent',
+              color: isActive ? '#000' : 'rgba(255,255,255,0.5)',
+            }}
+          >
+            {a.charAt(0).toUpperCase() + a.slice(1)}
+          </motion.button>
+        );
+      })}
+    </div>
+  );
+}
+
+function CompareProgress({ current, options, selectedId, onSelect, angle, onAngleChange }) {
+  const selected = options.find(o => o.id === selectedId) || options[0];
+  const leftPhoto = selected?.photos?.[angle] || selected?.thumbnail;
+  const rightPhoto = current?.photos?.[angle];
+
+  return (
+    <div className="mb-5">
+      <div className="px-5 mb-3 flex items-center justify-between">
+        <p className="font-display text-[13px] text-white/55 uppercase tracking-[0.2em]">
+          Compare Progress
+        </p>
+        <span className="font-body text-[10px] text-white/30">Current vs any week</span>
+      </div>
+
+      {/* Week picker chips */}
+      <div className="flex gap-2 px-5 mb-3 overflow-x-auto no-scrollbar">
+        {options.map(opt => {
+          const isActive = opt.id === selected.id;
+          return (
+            <motion.button
+              key={opt.id}
+              onClick={() => onSelect(opt.id)}
+              whileTap={{ scale: 0.95 }}
+              className="shrink-0 px-3.5 py-2 rounded-full"
+              style={{
+                background: isActive ? `linear-gradient(135deg, ${GOLD_START}, ${GOLD_END})` : CARD_BG,
+                border: isActive ? '1px solid transparent' : `1px solid ${CARD_BORDER}`,
+              }}
+            >
+              <span
+                className="font-display text-[11px] uppercase tracking-wider"
+                style={{ color: isActive ? '#000' : 'rgba(255,255,255,0.6)' }}
+              >
+                vs {opt.label}
+                <span className={isActive ? 'opacity-60' : 'text-white/30'}> · {opt.dateLabel}</span>
+              </span>
+            </motion.button>
+          );
+        })}
+      </div>
+
+      <div
+        className="mx-5 rounded-2xl p-3"
+        style={{ background: CARD_BG, border: `1px solid ${CARD_BORDER}` }}
+      >
+        <AngleToggle active={angle} onChange={onAngleChange} />
+
+        <div
+          className="relative mt-3 rounded-xl overflow-hidden"
+          style={{ aspectRatio: '4 / 3', background: '#0A0A0A' }}
+        >
+          <img
+            src={leftPhoto}
+            alt={selected?.label}
+            className="absolute top-0 left-0 w-1/2 h-full object-cover"
+            style={{ filter: 'grayscale(30%) contrast(1.05) brightness(0.85)' }}
+            loading="lazy"
+          />
+          <img
+            src={rightPhoto}
+            alt={current?.label}
+            className="absolute top-0 right-0 w-1/2 h-full object-cover"
+            style={{ filter: 'contrast(1.05)' }}
+            loading="lazy"
+          />
+          <div
+            className="absolute top-0 bottom-0 left-1/2 -translate-x-1/2 w-px"
+            style={{ background: 'rgba(212,167,78,0.55)' }}
+          />
+          <div
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-9 h-9 rounded-full flex items-center justify-center"
+            style={{ background: 'rgba(0,0,0,0.65)', border: `1px solid ${GOLD}88` }}
+          >
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <path d="M5 2L2 7l3 5M9 2l3 5-3 5" stroke={GOLD} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </div>
+          <div className="absolute top-2 left-2">
+            <p className="font-display text-[11px] text-white/85 uppercase tracking-wider leading-none">
+              {selected?.label}
+            </p>
+            <p className="font-body text-[10px] text-white/55 mt-0.5">{selected?.dateLabel}</p>
+          </div>
+          <div className="absolute top-2 right-2 text-right">
+            <p className="font-display text-[11px] uppercase tracking-wider leading-none" style={{ color: GOLD }}>
+              Current
+            </p>
+            <p className="font-body text-[10px] text-white/55 mt-0.5">{current?.dateLabel}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────
 // History row
 // ─────────────────────────────────────────────
 function HistoryRow({ item, delay, onOpen }) {
@@ -332,8 +459,17 @@ function HistoryRow({ item, delay, onOpen }) {
 // Main
 // ─────────────────────────────────────────────
 export default function Progress({ onOpenCheckIn, onStartCheckIn }) {
+  // Latest reviewed check-in (acts as "current" in comparisons)
   const latest = CHECK_IN_HISTORY[0];
-  const olderHistory = CHECK_IN_HISTORY; // include latest in the list too
+  // Anything else with photos can be a comparison target
+  const compareOptions = CHECK_IN_HISTORY
+    .filter(c => c.id !== latest.id && c.photos)
+    .sort((a, b) => a.week - b.week); // oldest first so Week 1 leads
+  // History list excludes the baseline marker (Week 1) to keep recent weeks focused
+  const historyList = CHECK_IN_HISTORY.filter(c => c.week !== 1);
+
+  const [compareId, setCompareId] = useState(compareOptions[0]?.id);
+  const [angle, setAngle] = useState('front');
 
   const openLatest = () => onOpenCheckIn?.(latest.id);
   const startCheckIn = () => onStartCheckIn?.();
@@ -346,6 +482,17 @@ export default function Progress({ onOpenCheckIn, onStartCheckIn }) {
 
       <NextCheckInCard next={NEXT_CHECKIN} onStart={startCheckIn} />
 
+      {compareOptions.length > 0 && (
+        <CompareProgress
+          current={latest}
+          options={compareOptions}
+          selectedId={compareId}
+          onSelect={setCompareId}
+          angle={angle}
+          onAngleChange={setAngle}
+        />
+      )}
+
       <div className="px-5 mb-3 flex items-center justify-between">
         <p className="font-display text-[13px] text-white/55 uppercase tracking-[0.2em]">
           Review History
@@ -356,7 +503,7 @@ export default function Progress({ onOpenCheckIn, onStartCheckIn }) {
       </div>
 
       <div className="px-5 flex flex-col gap-2.5">
-        {olderHistory.map((item, i) => (
+        {historyList.map((item, i) => (
           <HistoryRow key={item.id} item={item} delay={i} onOpen={onOpenCheckIn} />
         ))}
       </div>

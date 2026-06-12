@@ -6,7 +6,7 @@ import { useState, useMemo, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import {
   Check, X, ChevronRight, Droplets, BookOpen, Plus, MoreHorizontal,
-  RefreshCw, Trophy, Flame, GlassWater, Settings2,
+  RefreshCw, Trophy, Flame, GlassWater, Settings2, Undo2,
 } from 'lucide-react';
 import { BottomSheet, NumericCounter, RingCounter } from '../components/ui/Components';
 import { useApp } from '../context/AppContext';
@@ -1042,7 +1042,7 @@ function HydrationHero({ hydration }) {
   );
 }
 
-function DrinkButton({ defaultMl, logWater, setWaterDefault }) {
+function DrinkButton({ defaultMl, logWater, setWaterDefault, hasEntries, undoLast }) {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [editMl, setEditMl] = useState(defaultMl);
   const presets = [150, 200, 250, 300, 500, 750];
@@ -1070,6 +1070,21 @@ function DrinkButton({ defaultMl, logWater, setWaterDefault }) {
         >
           <Droplets size={18} strokeWidth={2} />
           Drink ({defaultMl}ml)
+        </motion.button>
+        <motion.button
+          whileTap={hasEntries ? { scale: 0.97 } : undefined}
+          onClick={hasEntries ? undoLast : undefined}
+          disabled={!hasEntries}
+          aria-label="Undo last drink"
+          className="flex-1 py-4 rounded-2xl font-display text-[14px] uppercase tracking-wider flex items-center justify-center gap-1.5 disabled:opacity-35"
+          style={{
+            background: CARD_BG,
+            border: `1px solid ${hasEntries ? 'rgba(255,180,80,0.25)' : CARD_BORDER}`,
+            color: hasEntries ? '#FFB450' : 'rgba(255,255,255,0.35)',
+          }}
+        >
+          <Undo2 size={15} strokeWidth={1.8} />
+          −{defaultMl}ml
         </motion.button>
         <motion.button
           whileTap={{ scale: 0.93 }}
@@ -1433,6 +1448,11 @@ function HydrationView({
   hydration, logWater, history, waterLog, removeWaterEntry,
   waterDefaultMl, setWaterDefault,
 }) {
+  const hasEntries = (waterLog?.length || 0) > 0;
+  const undoLast = useCallback(() => {
+    if (hasEntries) removeWaterEntry(0);
+  }, [hasEntries, removeWaterEntry]);
+
   return (
     <div className="pb-4">
       <HydrationHero hydration={hydration} />
@@ -1440,6 +1460,8 @@ function HydrationView({
         defaultMl={waterDefaultMl}
         logWater={logWater}
         setWaterDefault={setWaterDefault}
+        hasEntries={hasEntries}
+        undoLast={undoLast}
       />
       <WeeklyOverview history={history} hydration={hydration} />
       <HydrationStats history={history} hydration={hydration} />

@@ -45,7 +45,7 @@ function AppContent() {
     if (overlay === 'macroDetail') return <MacroDetail onBack={() => setOverlay(null)} />;
 
     switch (activeTab) {
-      case 'home': return <Home />;
+      case 'home': return <Home onProfileClick={() => setOverlay('profile')} />;
       case 'nutrition': return <Nutrition onMacroDetail={() => setOverlay('macroDetail')} />;
       case 'train': return <Train />;
       case 'coach': return <Coach onCheckIn={() => setOverlay('checkin')} />;

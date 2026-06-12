@@ -137,7 +137,7 @@ function StatusRing({ percentage, size = 60, strokeWidth = 4, color, children })
   );
 }
 
-export default function Home() {
+export default function Home({ onProfileClick }) {
   const {
     behaviorState, training, meals,
     hydration, isRestDay, history,
@@ -218,7 +218,9 @@ export default function Home() {
         transition={{ duration: 0.35 }}
       >
         <div className="flex items-center gap-3">
-          <div
+          <motion.button
+            whileTap={{ scale: 0.92 }}
+            onClick={onProfileClick}
             className="w-11 h-11 rounded-full flex items-center justify-center font-display text-[18px]"
             style={{
               background: `linear-gradient(135deg, rgba(184,137,60,0.15), rgba(224,192,116,0.08))`,
@@ -227,7 +229,7 @@ export default function Home() {
             }}
           >
             {USER_PROFILE.name.charAt(0)}
-          </div>
+          </motion.button>
           <div>
             <p className="font-body text-[13px] text-white/40 font-medium">{greeting},</p>
             <p

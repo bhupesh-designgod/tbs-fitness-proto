@@ -87,7 +87,7 @@ export function MacroBar({ label, current, target, color, size = 'normal' }) {
 export function NumericCounter({ value, suffix = '', className = '', duration = 0.8 }) {
   const shouldReduce = useReducedMotion();
   const [display, setDisplay] = useState(shouldReduce ? value : 0);
-  const prevRef = useRef(value);
+  const prevRef = useRef(0);
 
   useEffect(() => {
     if (shouldReduce) {

@@ -77,9 +77,14 @@ export default function Auth({ onLogin, onSignup }) {
   };
 
   const social = (provider) => {
-    // Prototype: social auth is treated as a returning login.
-    track('logged_in', { method: provider });
-    onLogin({ email: `demo@${provider}.com` });
+    // Respect the current mode: signing up via social still runs onboarding.
+    if (isSignup) {
+      track('signed_up', { method: provider });
+      onSignup({ name: '', email: `demo@${provider}.com`, provider });
+    } else {
+      track('logged_in', { method: provider });
+      onLogin({ email: `demo@${provider}.com`, provider });
+    }
   };
 
   const switchMode = () => {

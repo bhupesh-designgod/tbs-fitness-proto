@@ -5,13 +5,13 @@
 import { useState, useMemo, useRef, useEffect } from 'react';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import {
-  Phone, MoreHorizontal, Video, ArrowLeft,
+  MoreHorizontal, ArrowLeft,
   Play, Pause, Plus, Mic, Send, ChevronDown,
   BadgeCheck, CalendarDays,
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import {
-  BIKI, NEXT_CALL, CHECKIN_DUE, PHOTOS, BIKI_MESSAGES,
+  BIKI, NEXT_CALL, PHOTOS, BIKI_MESSAGES,
 } from '../data/mockData';
 import { T } from '../tokens';
 
@@ -48,7 +48,10 @@ const INITIAL_MESSAGES = [
 // ─────────────────────────────────────────────
 function CoachHeader({ onBack }) {
   return (
-    <div className="px-5 pt-4 pb-3 flex items-center gap-3">
+    <div
+      className="sticky top-0 z-30 px-5 pt-4 pb-3 flex items-center gap-3"
+      style={{ background: T.bg, borderBottom: `1px solid ${T.hairline}` }}
+    >
       {/* Back (kept for visual parity; tab nav makes it no-op by default) */}
       <button
         onClick={onBack}
@@ -62,7 +65,7 @@ function CoachHeader({ onBack }) {
       <div className="relative shrink-0">
         <div
           className="w-12 h-12 rounded-full overflow-hidden"
-          style={{ border: `1.5px solid rgba(215,255,62,0.4)` }}
+          style={{ border: `1.5px solid ${T.hairlineStrong}` }}
         >
           <img
             src={PHOTOS.bikiPortrait}
@@ -79,7 +82,7 @@ function CoachHeader({ onBack }) {
           <h1 className="display-sm text-[#F4F2EC] uppercase leading-tight truncate">
             {BIKI.name}
           </h1>
-          <BadgeCheck size={15} strokeWidth={2} style={{ color: T.gold }} className="shrink-0" />
+          <BadgeCheck size={15} strokeWidth={2} style={{ color: ONLINE_GREEN }} className="shrink-0" />
         </div>
         <p className="font-body text-[11px] text-white/45 leading-tight mt-0.5 truncate">
           IFBB Pro · Head Coach
@@ -93,9 +96,6 @@ function CoachHeader({ onBack }) {
       </div>
 
       {/* Actions */}
-      <button aria-label="Call" className="w-9 h-9 rounded-full flex items-center justify-center shrink-0">
-        <Phone size={18} strokeWidth={T.stroke} className="text-white/70" />
-      </button>
       <button aria-label="More" className="w-9 h-9 rounded-full flex items-center justify-center shrink-0">
         <MoreHorizontal size={18} strokeWidth={T.stroke} className="text-white/70" />
       </button>
@@ -131,11 +131,10 @@ function NextCallCard() {
       <motion.button
         whileTap={{ scale: 0.95 }}
         className="shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-lg"
-        style={{ border: `1px solid rgba(212,168,72,0.40)` }}
+        style={{ border: `1px solid ${T.hairlineStrong}` }}
       >
-        <Video size={14} strokeWidth={T.stroke} style={{ color: GOLD }} />
-        <span className="font-body text-[11px] font-extrabold uppercase tracking-wider" style={{ color: GOLD }}>
-          Join call
+        <span className="font-body text-[11px] font-extrabold uppercase tracking-wider text-white/70">
+          Reschedule
         </span>
       </motion.button>
     </motion.div>
@@ -233,11 +232,11 @@ function VoiceBubble({ duration }) {
         whileTap={{ scale: 0.92 }}
         onClick={() => setPlaying(p => !p)}
         className="shrink-0 w-9 h-9 rounded-full flex items-center justify-center"
-        style={{ background: T.volt }}
+        style={{ background: T.text }}
       >
         {playing
-          ? <Pause size={14} strokeWidth={2.5} color="#000" fill="#000" />
-          : <Play  size={14} strokeWidth={2.5} color="#000" fill="#000" style={{ marginLeft: 1 }} />}
+          ? <Pause size={14} strokeWidth={2.5} color="#0B0B0C" fill="#0B0B0C" />
+          : <Play  size={14} strokeWidth={2.5} color="#0B0B0C" fill="#0B0B0C" style={{ marginLeft: 1 }} />}
       </motion.button>
 
       {/* Waveform */}
@@ -513,29 +512,10 @@ export default function Coach({ onCheckIn, onBack }) {
   return (
     <div className="min-h-screen pb-44" style={{ background: T.bg }}>
       <CoachHeader onBack={onBack} />
-      <NextCallCard />
 
-      {/* Check-in chip — quiet reminder, only when pending */}
-      {CHECKIN_DUE.status === 'pending' && (
-        <motion.button
-          onClick={onCheckIn}
-          whileTap={{ scale: 0.98 }}
-          className="mx-5 mb-5 w-[calc(100%-2.5rem)] flex items-center justify-between px-4 py-2.5 rounded-xl"
-          style={{ background: 'rgba(215,255,62,0.08)', border: '1px solid rgba(212,168,72,0.40)' }}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-        >
-          <div className="flex items-center gap-2">
-            <span className="w-1.5 h-1.5 rounded-full" style={{ background: GOLD }} />
-            <span className="font-body text-[11px] font-extrabold uppercase tracking-wider" style={{ color: GOLD }}>
-              Weekly check-in due
-            </span>
-          </div>
-          <span className="font-body text-[11px]" style={{ color: GOLD }}>
-            Start →
-          </span>
-        </motion.button>
-      )}
+      <div className="pt-4">
+        <NextCallCard />
+      </div>
 
       <DaySeparator label="Today" />
 

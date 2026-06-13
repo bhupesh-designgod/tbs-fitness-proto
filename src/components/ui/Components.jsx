@@ -295,42 +295,6 @@ export function FivePointSelector({ value, onChange, labels = ['1', '2', '3', '4
   );
 }
 
-// ── Header ──
-export function Header({ onProfileClick, onBikiClick }) {
-  return (
-    <div className="flex items-center justify-between px-5 py-3">
-      {/* User avatar */}
-      <motion.button
-        whileTap={{ scale: 0.95 }}
-        onClick={onProfileClick}
-        className="w-9 h-9 rounded-full flex items-center justify-center font-body text-[12px] font-extrabold"
-        style={{ background: T.surface, border: `1px solid ${T.hairlineStrong}` }}
-      >
-        A
-      </motion.button>
-
-      {/* Biki avatar with notification dot */}
-      <motion.button
-        whileTap={{ scale: 0.95 }}
-        onClick={onBikiClick}
-        className="relative w-9 h-9 rounded-full overflow-hidden"
-        style={{ border: '1px solid rgba(255,255,255,0.12)' }}
-      >
-        <img
-          src="https://images.unsplash.com/photo-1567013127542-490d757e51fc?w=100&q=80&auto=format&fit=crop"
-          alt="Coach Biki"
-          className="w-full h-full object-cover"
-          style={{ filter: 'grayscale(100%)' }}
-        />
-        <div
-          className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full"
-          style={{ background: T.volt, border: '2px solid #0B0B0C' }}
-        />
-      </motion.button>
-    </div>
-  );
-}
-
 // ── Tab Bar ──
 export function TabBar({ activeTab, onTabChange, tabs }) {
   const shouldReduce = useReducedMotion();

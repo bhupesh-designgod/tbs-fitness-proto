@@ -3,8 +3,8 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
-import { Home as HomeIcon, Utensils, Dumbbell, MessageCircle, Star } from 'lucide-react';
-import { TabBar, Header } from './components/ui/Components';
+import { Home as HomeIcon, Utensils, Dumbbell, MessageCircle, ClipboardCheck } from 'lucide-react';
+import { TabBar } from './components/ui/Components';
 import { AppProvider } from './context/AppContext';
 
 // Pages
@@ -21,9 +21,9 @@ import MacroDetail from './pages/MacroDetail';
 const TABS = [
   { id: 'home', label: 'Home', icon: <HomeIcon size={20} strokeWidth={1.75} /> },
   { id: 'nutrition', label: 'Nutrition', icon: <Utensils size={20} strokeWidth={1.75} /> },
-  { id: 'train', label: 'Train', icon: <Dumbbell size={20} strokeWidth={1.75} /> },
   { id: 'coach', label: 'Coach', icon: <MessageCircle size={20} strokeWidth={1.75} /> },
-  { id: 'progress', label: 'Reviews', icon: <Star size={20} strokeWidth={1.75} /> },
+  { id: 'train', label: 'Train', icon: <Dumbbell size={20} strokeWidth={1.75} /> },
+  { id: 'progress', label: 'Reviews', icon: <ClipboardCheck size={20} strokeWidth={1.75} /> },
 ];
 
 function AppContent() {
@@ -80,14 +80,6 @@ function AppContent() {
 
   return (
     <div className="app-shell">
-      {/* Header (always visible unless in overlay) */}
-      {!overlay && activeTab !== 'home' && (
-        <Header
-          onProfileClick={() => setOverlay('profile')}
-          onBikiClick={() => handleTabChange('coach')}
-        />
-      )}
-
       {/* Overlay back button — pages with their own header don't need this */}
       {overlay && overlay !== 'checkinDetail' && (
         <div className="px-5 pt-3">

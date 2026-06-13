@@ -26,6 +26,8 @@ export const T = {
   successBorder: 'rgba(74,222,128,0.30)',
   danger: '#F87171',
   water: '#7BA7C9',
+  macroFat: '#C8C8C6',
+  macroCarbs: '#9A7B4F',
   waterTint: 'rgba(123,167,201,0.14)',
   waterBorder: 'rgba(123,167,201,0.35)',
 

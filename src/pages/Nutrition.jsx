@@ -10,18 +10,19 @@ import {
 } from 'lucide-react';
 import { BottomSheet, NumericCounter, RingCounter } from '../components/ui/Components';
 import { useApp } from '../context/AppContext';
+import { T } from '../tokens';
 import { DAILY_TARGETS, MEAL_PLAN, USER_PROFILE } from '../data/mockData';
 
-// ── Tokens shared with Home ──
-const CARD_BG = '#131318';
-const CARD_BORDER = 'rgba(255,255,255,0.07)';
-const GOLD = '#D4A74E';
-const GOLD_START = '#B8893C';
-const GOLD_END = '#E0C074';
-const STEEL = '#5B7C99';
-const FAT_GREY = '#C8C8C6';
-const CARB_BRONZE = '#9A7B4F';
-const ON_TRACK = '#5B7C5A';
+// ── Aliases from the token sheet — no local values ──
+const CARD_BG = T.surface;
+const CARD_BORDER = T.hairline;
+const GOLD = T.gold;
+const GOLD_START = T.goldStart;
+const GOLD_END = T.goldEnd;
+const STEEL = T.water;
+const FAT_GREY = T.macroFat;
+const CARB_BRONZE = T.macroCarbs;
+const ON_TRACK = T.success;
 
 // ── Helpers ──
 function sumFoods(foods) {
@@ -61,10 +62,10 @@ function TabToggle({ active, onChange }) {
             key={tab}
             onClick={() => onChange(key)}
             whileTap={{ scale: 0.97 }}
-            className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-full font-display text-[12px] uppercase tracking-wider"
+            className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-full font-body text-[12px] font-extrabold uppercase tracking-wider"
             style={{
-              background: isActive ? `linear-gradient(135deg, ${GOLD_START}, ${GOLD_END})` : 'transparent',
-              color: isActive ? '#000' : 'rgba(255,255,255,0.45)',
+              background: isActive ? T.goldGrad : 'transparent',
+              color: isActive ? '#000' : T.textLow,
             }}
           >
             {tab === 'Meals'
@@ -104,9 +105,7 @@ function WeekStrip() {
 
   return (
     <div className="px-5 mb-4">
-      <p className="font-display text-[13px] text-white/25 uppercase tracking-[0.2em] mb-3">
-        This Week
-      </p>
+      <p className="kicker mb-3">This week</p>
       <div className="grid grid-cols-7 gap-1.5">
         {weekDays.map((day, i) => (
           <motion.div
@@ -129,7 +128,7 @@ function WeekStrip() {
               }}
             >
               <span
-                className="font-display text-[16px] leading-none"
+                className="font-display text-[18px] leading-none"
                 style={{ color: day.isToday ? '#000' : 'rgba(255,255,255,0.7)' }}
               >
                 {day.date}
@@ -164,34 +163,29 @@ function MacrosOverview({ logged }) {
       transition={{ delay: 0.1 }}
     >
       <div className="flex items-center justify-between mb-4">
-        <p className="font-display text-[12px] text-white/25 uppercase tracking-[0.2em]">
-          Macros Overview
-        </p>
+        <p className="kicker">Macros</p>
         {logged.calories > 0 && (
           <span
-            className="font-display text-[10px] uppercase tracking-wider"
+            className="font-body text-[11px] font-extrabold uppercase tracking-wider"
             style={{ color: isBehind ? GOLD : ON_TRACK }}
           >
-            {isBehind ? 'Behind Target' : 'On Track'}
+            {isBehind ? 'Catch up' : 'On track'}
           </span>
         )}
       </div>
 
       <div className="flex items-center gap-5">
-        {/* Big calorie ring */}
+        {/* Big calorie ring — the hero number */}
         <div className="shrink-0">
-          <RingCounter percentage={calPct} size={104} strokeWidth={5} delay={0.1}>
+          <RingCounter percentage={calPct} size={118} strokeWidth={5} delay={0.1}>
             <div className="flex flex-col items-center">
               <NumericCounter
                 value={logged.calories}
-                className="text-[26px] leading-none text-white"
+                className="text-[38px] leading-none text-white"
                 duration={0.6}
               />
-              <span className="font-body text-[10px] text-white/30 mt-0.5">
-                / {DAILY_TARGETS.calories}
-              </span>
-              <span className="font-body text-[9px] text-white/25 uppercase tracking-wider">
-                kcal
+              <span className="font-body text-[10px] font-bold mt-1" style={{ color: T.textFaint }}>
+                / {DAILY_TARGETS.calories} KCAL
               </span>
             </div>
           </RingCounter>
@@ -205,8 +199,8 @@ function MacrosOverview({ logged }) {
             return (
               <div key={m.key}>
                 <div className="flex items-center gap-1 mb-1">
-                  <span className="font-display text-[12px]" style={{ color: m.color }}>{m.short}</span>
-                  <span className="font-display text-[9px] text-white/35 uppercase tracking-wider">
+                  <span className="font-body text-[11px] font-extrabold" style={{ color: m.color }}>{m.short}</span>
+                  <span className="font-body text-[9px] font-bold uppercase tracking-wider" style={{ color: T.textFaint }}>
                     {m.label}
                   </span>
                 </div>
@@ -245,9 +239,9 @@ function MacrosOverview({ logged }) {
 // ═════════════════════════════════════════════
 function MacroChip({ value, suffix, color }) {
   return (
-    <span className="font-display text-[13px] tabular-nums" style={{ color }}>
+    <span className="font-body text-[13px] font-bold tabular-nums" style={{ color }}>
       {value}
-      <span className="font-body text-[10px] ml-0.5" style={{ color }}>{suffix}</span>
+      <span className="font-body text-[10px] font-bold ml-0.5 opacity-70">{suffix}</span>
     </span>
   );
 }
@@ -316,7 +310,7 @@ function MealTimelineCard({ meal, mealIndex, onTap, delay = 0 }) {
           <div className={`flex items-start justify-between ${isLogged ? 'mb-3' : ''}`}>
             <div className="min-w-0 flex-1 pr-3">
               <p
-                className="font-display text-[16px] uppercase tracking-wider leading-tight"
+                className="display-xs uppercase leading-tight"
                 style={{ color: isLogged ? '#fff' : 'rgba(255,255,255,0.55)' }}
               >
                 {meal.label}
@@ -327,10 +321,10 @@ function MealTimelineCard({ meal, mealIndex, onTap, delay = 0 }) {
             </div>
             <div className="flex items-center gap-1 shrink-0">
               <span
-                className="font-display text-[10px] uppercase tracking-wider"
-                style={{ color: isLogged ? GOLD : 'rgba(255,255,255,0.25)' }}
+                className="font-body text-[10px] font-extrabold uppercase tracking-wider"
+                style={{ color: isLogged ? GOLD : 'rgba(255,255,255,0.28)' }}
               >
-                {isLogged ? 'Logged' : 'Not Logged'}
+                {isLogged ? 'Logged' : 'Not logged'}
               </span>
               <ChevronRight size={14} strokeWidth={1.5} className="text-white/25" />
             </div>
@@ -480,7 +474,7 @@ function MealSheet({ meal, mealIndex, isOpen, onClose, logged, logMeal, adjustMe
         </div>
         {meal.logged && (
           <span
-            className="font-display text-[10px] uppercase tracking-wider px-2 py-1 rounded-md"
+            className="font-body text-[10px] font-extrabold uppercase tracking-wider px-2 py-1 rounded-md"
             style={{ background: 'rgba(212,167,78,0.1)', color: GOLD, border: '1px solid rgba(212,167,78,0.25)' }}
           >
             Logged
@@ -539,34 +533,21 @@ function MealSheet({ meal, mealIndex, isOpen, onClose, logged, logMeal, adjustMe
             {/* Primary action */}
             {!meal.logged && (
               <motion.button
-                whileTap={{ scale: 0.97 }}
+                whileTap={T.tap}
                 onClick={handleLogAsIs}
-                className="w-full py-3.5 rounded-xl font-display text-[14px] uppercase tracking-wider text-black mb-2.5"
-                style={{ background: `linear-gradient(135deg, ${GOLD_START}, ${GOLD_END})` }}
+                className="btn-primary mb-2.5"
               >
-                <div className="flex items-center justify-center gap-2">
-                  <Check size={16} strokeWidth={2.5} /> Log as is
-                </div>
+                <Check size={16} strokeWidth={2.5} /> Log as is
               </motion.button>
             )}
 
             {/* Secondary actions */}
             <div className="flex gap-2">
-              <motion.button
-                whileTap={{ scale: 0.97 }}
-                onClick={() => setView('adjust')}
-                className="flex-1 py-3 rounded-xl font-display text-[12px] uppercase tracking-wider text-white/60 flex items-center justify-center gap-1.5"
-                style={{ border: `1px solid ${CARD_BORDER}` }}
-              >
+              <motion.button whileTap={T.tap} onClick={() => setView('adjust')} className="btn-secondary flex-1">
                 Adjust
               </motion.button>
-              <motion.button
-                whileTap={{ scale: 0.97 }}
-                onClick={() => setView('replace')}
-                className="flex-1 py-3 rounded-xl font-display text-[12px] uppercase tracking-wider text-white/60 flex items-center justify-center gap-1.5"
-                style={{ border: `1px solid ${CARD_BORDER}` }}
-              >
-                <RefreshCw size={13} strokeWidth={1.5} /> Replace
+              <motion.button whileTap={T.tap} onClick={() => setView('replace')} className="btn-secondary flex-1">
+                <RefreshCw size={13} strokeWidth={T.stroke} /> Replace
               </motion.button>
             </div>
           </motion.div>
@@ -611,7 +592,7 @@ function MealSheet({ meal, mealIndex, isOpen, onClose, logged, logMeal, adjustMe
                         <input
                           type="number" min={0} value={food[m.key]}
                           onChange={e => handleFieldChange(fi, m.key, e.target.value)}
-                          className="w-full bg-transparent font-display text-[15px] tabular-nums outline-none px-2.5 py-2 rounded-lg"
+                          className="w-full bg-transparent font-body font-bold text-[15px] tabular-nums outline-none px-2.5 py-2 rounded-lg"
                           style={{ color: m.color, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}
                         />
                       </div>
@@ -628,7 +609,7 @@ function MealSheet({ meal, mealIndex, isOpen, onClose, logged, logMeal, adjustMe
                 className="rounded-xl p-3.5"
                 style={{ background: 'rgba(255,255,255,0.02)', border: '1px dashed rgba(255,255,255,0.1)' }}
               >
-                <p className="font-display text-[11px] text-white/35 uppercase tracking-wider mb-2.5">Add Food</p>
+                <p className="kicker mb-2.5">Add food</p>
                 <input
                   type="text" value={customName} onChange={e => setCustomName(e.target.value)}
                   placeholder="Name (e.g. Chicken Breast)"
@@ -645,7 +626,7 @@ function MealSheet({ meal, mealIndex, isOpen, onClose, logged, logMeal, adjustMe
                       key={m.label}
                       type="number" min={0} value={m.value} onChange={e => m.set(e.target.value)}
                       placeholder={`${m.label} g`}
-                      className="bg-transparent font-display text-[14px] tabular-nums outline-none px-2.5 py-2 rounded-lg placeholder:text-white/15"
+                      className="bg-transparent font-body font-bold text-[14px] tabular-nums outline-none px-2.5 py-2 rounded-lg placeholder:text-white/15"
                       style={{ color: m.color, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}
                     />
                   ))}
@@ -653,7 +634,7 @@ function MealSheet({ meal, mealIndex, isOpen, onClose, logged, logMeal, adjustMe
                 <button
                   onClick={handleAddCustom}
                   disabled={!customName.trim()}
-                  className="w-full py-2 rounded-lg font-display text-[11px] uppercase tracking-wider text-white/60 disabled:opacity-30 flex items-center justify-center gap-1"
+                  className="w-full py-2 rounded-lg font-body text-[11px] font-bold text-white/60 disabled:opacity-30 flex items-center justify-center gap-1"
                   style={{ border: `1px solid ${CARD_BORDER}` }}
                 >
                   <Plus size={12} strokeWidth={1.5} /> Add to meal
@@ -662,12 +643,11 @@ function MealSheet({ meal, mealIndex, isOpen, onClose, logged, logMeal, adjustMe
             </div>
 
             <motion.button
-              whileTap={{ scale: 0.97 }}
+              whileTap={T.tap}
               onClick={handleConfirmAdjust}
-              className="w-full py-3.5 rounded-xl font-display text-[14px] uppercase tracking-wider text-black mt-4"
-              style={{ background: `linear-gradient(135deg, ${GOLD_START}, ${GOLD_END})` }}
+              className="btn-primary mt-4"
             >
-              Confirm & Log
+              Confirm & log
             </motion.button>
           </motion.div>
         )}
@@ -682,9 +662,7 @@ function MealSheet({ meal, mealIndex, isOpen, onClose, logged, logMeal, adjustMe
               <ChevronRight size={12} strokeWidth={1.5} className="rotate-180" /> Back
             </button>
 
-            <p className="font-display text-[12px] text-white/25 uppercase tracking-[0.2em] mb-1">
-              Replace {meal.label}
-            </p>
+            <p className="kicker mb-1">Replace {meal.label}</p>
             <p className="font-body text-[11px] text-white/30 mb-4">
               Build this meal from scratch.
             </p>
@@ -724,7 +702,7 @@ function MealSheet({ meal, mealIndex, isOpen, onClose, logged, logMeal, adjustMe
                         type="number" min={0} value={food[m.key]}
                         onChange={e => handleReplaceChange(fi, m.key, e.target.value)}
                         placeholder={m.placeholder}
-                        className="bg-transparent font-display text-[14px] tabular-nums outline-none px-2.5 py-2 rounded-lg placeholder:text-white/15 placeholder:font-body placeholder:text-[11px]"
+                        className="bg-transparent font-body font-bold text-[14px] tabular-nums outline-none px-2.5 py-2 rounded-lg placeholder:text-white/15 placeholder:font-body placeholder:text-[11px]"
                         style={{ color: m.color, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}
                       />
                     ))}
@@ -748,13 +726,12 @@ function MealSheet({ meal, mealIndex, isOpen, onClose, logged, logMeal, adjustMe
             )}
 
             <motion.button
-              whileTap={{ scale: 0.97 }}
+              whileTap={T.tap}
               onClick={handleConfirmReplace}
               disabled={replaceValidCount === 0}
-              className="w-full py-3.5 rounded-xl font-display text-[14px] uppercase tracking-wider text-black disabled:opacity-30"
-              style={{ background: `linear-gradient(135deg, ${GOLD_START}, ${GOLD_END})` }}
+              className="btn-primary"
             >
-              Replace & Log
+              Replace & log
             </motion.button>
           </motion.div>
         )}
@@ -905,7 +882,7 @@ function AddMealSheet({ isOpen, onClose, addMeal }) {
                   type="number" min={0} value={food[m.key]}
                   onChange={e => handleFoodChange(fi, m.key, e.target.value)}
                   placeholder={m.placeholder}
-                  className="bg-transparent font-display text-[14px] tabular-nums outline-none px-2.5 py-2 rounded-lg placeholder:text-white/15 placeholder:font-body placeholder:text-[11px]"
+                  className="bg-transparent font-body font-bold text-[14px] tabular-nums outline-none px-2.5 py-2 rounded-lg placeholder:text-white/15 placeholder:font-body placeholder:text-[11px]"
                   style={{ color: m.color, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}
                 />
               ))}
@@ -932,24 +909,20 @@ function AddMealSheet({ isOpen, onClose, addMeal }) {
 
       {/* Actions */}
       <motion.button
-        whileTap={{ scale: 0.97 }}
+        whileTap={T.tap}
         onClick={() => handleSave(true)}
         disabled={!canSave}
-        className="w-full py-3.5 rounded-xl font-display text-[14px] uppercase tracking-wider text-black mb-2.5 disabled:opacity-30"
-        style={{ background: `linear-gradient(135deg, ${GOLD_START}, ${GOLD_END})` }}
+        className="btn-primary mb-2.5"
       >
-        <div className="flex items-center justify-center gap-2">
-          <Check size={16} strokeWidth={2.5} /> Add & Log
-        </div>
+        <Check size={16} strokeWidth={2.5} /> Add & log
       </motion.button>
       <motion.button
-        whileTap={{ scale: 0.97 }}
+        whileTap={T.tap}
         onClick={() => handleSave(false)}
         disabled={!canSave}
-        className="w-full py-3 rounded-xl font-display text-[12px] uppercase tracking-wider text-white/60 disabled:opacity-30"
-        style={{ border: `1px solid ${CARD_BORDER}` }}
+        className="btn-secondary w-full"
       >
-        Add to Plan Only
+        Add to plan only
       </motion.button>
     </BottomSheet>
   );
@@ -959,8 +932,8 @@ function AddMealSheet({ isOpen, onClose, addMeal }) {
 // ── Hydration View ── (detailed)
 // ═════════════════════════════════════════════
 const GLASS_ML = 250;
-const STEEL_BRIGHT = '#7BA7C9';
-const STREAK_GREEN = '#4ADE80';
+const STEEL_BRIGHT = T.water;
+const STREAK_GREEN = T.success;
 
 // Format ISO timestamp → "9:30 PM"
 function formatTime(iso) {
@@ -997,26 +970,26 @@ function HydrationHero({ hydration }) {
         <div className="shrink-0">
           <RingCounter percentage={pct} size={110} strokeWidth={5} color={STEEL_BRIGHT} delay={0.1}>
             <div className="flex flex-col items-center">
-              <span className="font-display text-[24px] text-white leading-none tabular-nums">
+              <span className="font-display text-[26px] text-white leading-none tabular-nums">
                 {hydrationL}L
               </span>
-              <span className="font-display text-[10px] uppercase tracking-wider mt-1" style={{ color: STEEL_BRIGHT }}>
+              <span className="font-body text-[10px] font-bold uppercase tracking-wider mt-1" style={{ color: STEEL_BRIGHT }}>
                 of {targetL}L
               </span>
-              <span className="font-body text-[9px] text-white/30 uppercase tracking-wider mt-0.5">
-                Daily Goal
+              <span className="font-body text-[9px] font-bold text-white/30 uppercase tracking-wider mt-0.5">
+                Daily goal
               </span>
             </div>
           </RingCounter>
         </div>
 
         <div className="flex-1 min-w-0">
-          <p className="font-display text-[10px] text-white/35 uppercase tracking-[0.2em] mb-1">Today</p>
+          <p className="kicker mb-1">Today</p>
           <div className="flex items-baseline gap-1 mb-1" style={{ color: STEEL_BRIGHT }}>
-            <NumericCounter value={pct} className="text-[40px] leading-none" duration={0.6} />
-            <span className="font-display text-[20px]">%</span>
+            <NumericCounter value={pct} className="text-[56px] leading-none" duration={0.6} />
+            <span className="display-sm">%</span>
           </div>
-          <p className="font-display text-[10px] text-white/35 uppercase tracking-wider mb-3">Of Goal</p>
+          <p className="kicker mb-3">Of goal</p>
 
           {/* Progress bar */}
           <div className="w-full h-[4px] rounded-full mb-3" style={{ background: 'rgba(255,255,255,0.06)' }}>
@@ -1031,10 +1004,10 @@ function HydrationHero({ hydration }) {
 
           <div className="flex items-center gap-2">
             <GlassWater size={14} strokeWidth={1.5} style={{ color: STEEL_BRIGHT }} />
-            <span className="font-display text-[14px] text-white tabular-nums">
+            <span className="font-body text-[14px] font-bold text-white tabular-nums">
               {glassesCurr} / {glassesTarget}
             </span>
-            <span className="font-display text-[9px] text-white/35 uppercase tracking-wider">Glasses</span>
+            <span className="font-body text-[9px] font-bold text-white/35 uppercase tracking-wider">Glasses</span>
           </div>
         </div>
       </div>
@@ -1063,27 +1036,22 @@ function DrinkButton({ defaultMl, logWater, setWaterDefault, hasEntries, undoLas
     <div className="mx-5 mb-5">
       <div className="flex items-stretch gap-2">
         <motion.button
-          whileTap={{ scale: 0.97 }}
+          whileTap={T.tap}
           onClick={handleDrink}
-          className="flex-1 py-4 rounded-2xl font-display text-[15px] uppercase tracking-wider text-black flex items-center justify-center gap-2"
-          style={{ background: `linear-gradient(135deg, ${STEEL_BRIGHT}, #9CC3DF)` }}
+          className="btn-primary flex-1"
+          style={{ width: 'auto' }}
         >
           <Droplets size={18} strokeWidth={2} />
           Drink ({defaultMl}ml)
         </motion.button>
         <motion.button
-          whileTap={hasEntries ? { scale: 0.97 } : undefined}
+          whileTap={hasEntries ? T.tap : undefined}
           onClick={hasEntries ? undoLast : undefined}
           disabled={!hasEntries}
           aria-label="Undo last drink"
-          className="flex-1 py-4 rounded-2xl font-display text-[14px] uppercase tracking-wider flex items-center justify-center gap-1.5 disabled:opacity-35"
-          style={{
-            background: CARD_BG,
-            border: `1px solid ${hasEntries ? 'rgba(255,180,80,0.25)' : CARD_BORDER}`,
-            color: hasEntries ? '#FFB450' : 'rgba(255,255,255,0.35)',
-          }}
+          className="btn-secondary flex-1"
         >
-          <Undo2 size={15} strokeWidth={1.8} />
+          <Undo2 size={15} strokeWidth={T.stroke} />
           −{defaultMl}ml
         </motion.button>
         <motion.button
@@ -1109,9 +1077,7 @@ function DrinkButton({ defaultMl, logWater, setWaterDefault, hasEntries, undoLas
               className="mt-2 p-4 rounded-2xl"
               style={{ background: CARD_BG, border: `1px solid ${CARD_BORDER}` }}
             >
-              <p className="font-display text-[10px] text-white/40 uppercase tracking-[0.2em] mb-2.5">
-                Default Drink Size
-              </p>
+              <p className="kicker mb-2.5">Default drink size</p>
               <div className="grid grid-cols-3 gap-2 mb-4">
                 {presets.map(ml => {
                   const active = ml === defaultMl;
@@ -1119,11 +1085,11 @@ function DrinkButton({ defaultMl, logWater, setWaterDefault, hasEntries, undoLas
                     <button
                       key={ml}
                       onClick={() => handleSavePreset(ml)}
-                      className="py-2.5 rounded-xl font-display text-[12px] tabular-nums uppercase tracking-wider"
+                      className="py-2.5 rounded-xl font-body text-[12px] font-bold tabular-nums"
                       style={{
-                        background: active ? 'rgba(123,167,201,0.18)' : 'rgba(255,255,255,0.03)',
-                        border: `1px solid ${active ? 'rgba(123,167,201,0.5)' : CARD_BORDER}`,
-                        color: active ? STEEL_BRIGHT : 'rgba(255,255,255,0.6)',
+                        background: active ? T.goldTint : 'rgba(255,255,255,0.03)',
+                        border: `1px solid ${active ? T.goldBorder : CARD_BORDER}`,
+                        color: active ? GOLD : 'rgba(255,255,255,0.6)',
                       }}
                     >
                       {ml}ml
@@ -1132,9 +1098,7 @@ function DrinkButton({ defaultMl, logWater, setWaterDefault, hasEntries, undoLas
                 })}
               </div>
 
-              <p className="font-display text-[10px] text-white/40 uppercase tracking-[0.2em] mb-2">
-                Log Custom Amount
-              </p>
+              <p className="kicker mb-2">Log custom amount</p>
               <div className="flex items-center gap-2">
                 <input
                   type="number" min={50} max={2000} step={50} value={editMl}
@@ -1144,10 +1108,10 @@ function DrinkButton({ defaultMl, logWater, setWaterDefault, hasEntries, undoLas
                 />
                 <span className="font-body text-[11px] text-white/30">ml</span>
                 <motion.button
-                  whileTap={{ scale: 0.93 }}
+                  whileTap={T.tapSmall}
                   onClick={handleLogCustom}
-                  className="px-4 py-2.5 rounded-xl font-display text-[12px] uppercase tracking-wider text-black"
-                  style={{ background: `linear-gradient(135deg, ${STEEL}, ${STEEL_BRIGHT})` }}
+                  className="px-4 py-2.5 rounded-xl font-body text-[12px] font-bold text-black"
+                  style={{ background: T.goldGrad }}
                 >
                   Log
                 </motion.button>
@@ -1199,9 +1163,7 @@ function WeeklyOverview({ history, hydration }) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.2 }}
     >
-      <p className="font-display text-[11px] text-white/40 uppercase tracking-[0.2em] mb-4">
-        Weekly Overview
-      </p>
+      <p className="kicker mb-4">Weekly overview</p>
 
       <div className="flex" style={{ height: chartH + 32 }}>
         {/* Y-axis labels */}
@@ -1231,7 +1193,7 @@ function WeeklyOverview({ history, hydration }) {
               }}
             />
             <span
-              className="font-display text-[9px] uppercase tracking-wider ml-1.5 leading-none"
+              className="font-body text-[9px] font-extrabold uppercase tracking-wider ml-1.5 leading-none"
               style={{ color: GOLD }}
             >
               Goal
@@ -1246,7 +1208,7 @@ function WeeklyOverview({ history, hydration }) {
               return (
                 <div key={i} className="flex flex-col items-center" style={{ width: `${100 / 7}%` }}>
                   {day.ml > 0 && (
-                    <span className="font-display text-[10px] text-white/75 tabular-nums mb-1 leading-none">
+                    <span className="font-body text-[10px] font-bold text-white/75 tabular-nums mb-1 leading-none">
                       {(day.ml / 1000).toFixed(1)}L
                     </span>
                   )}
@@ -1276,7 +1238,7 @@ function WeeklyOverview({ history, hydration }) {
             {days.map((day, i) => (
               <span
                 key={i}
-                className="font-display text-[9px] uppercase tracking-wider"
+                className="font-body text-[9px] font-bold uppercase tracking-wider"
                 style={{
                   width: `${100 / 7}%`,
                   textAlign: 'center',
@@ -1328,7 +1290,7 @@ function HydrationStats({ history, hydration }) {
       <div className="flex items-start gap-2 px-2">
         <Droplets size={18} strokeWidth={1.5} style={{ color: STEEL_BRIGHT }} className="mt-0.5 shrink-0" />
         <div className="min-w-0">
-          <p className="font-display text-[9px] text-white/35 uppercase tracking-wider leading-none">Weekly Avg</p>
+          <p className="font-body text-[9px] font-extrabold text-white/35 uppercase tracking-wider leading-none">Weekly avg</p>
           <p className="font-display text-[18px] text-white tabular-nums leading-none mt-1.5">
             {(avgMl / 1000).toFixed(1)}L
           </p>
@@ -1340,7 +1302,7 @@ function HydrationStats({ history, hydration }) {
       <div className="flex items-start gap-2 px-2 border-l border-r" style={{ borderColor: CARD_BORDER }}>
         <Trophy size={18} strokeWidth={1.5} style={{ color: GOLD }} className="mt-0.5 shrink-0" />
         <div className="min-w-0">
-          <p className="font-display text-[9px] text-white/35 uppercase tracking-wider leading-none">Best Day</p>
+          <p className="font-body text-[9px] font-extrabold text-white/35 uppercase tracking-wider leading-none">Best day</p>
           <p className="font-display text-[18px] text-white tabular-nums leading-none mt-1.5" style={{ color: GOLD }}>
             {bestDay ? `${(bestDay.waterMl / 1000).toFixed(1)}L` : '—'}
           </p>
@@ -1352,7 +1314,7 @@ function HydrationStats({ history, hydration }) {
       <div className="flex items-start gap-2 px-2">
         <Flame size={18} strokeWidth={1.5} style={{ color: STREAK_GREEN }} className="mt-0.5 shrink-0" />
         <div className="min-w-0">
-          <p className="font-display text-[9px] text-white/35 uppercase tracking-wider leading-none">Streak</p>
+          <p className="font-body text-[9px] font-extrabold text-white/35 uppercase tracking-wider leading-none">Streak</p>
           <p className="font-display text-[18px] tabular-nums leading-none mt-1.5" style={{ color: STREAK_GREEN }}>
             {streak} {streak === 1 ? 'day' : 'days'}
           </p>
@@ -1379,28 +1341,22 @@ function RecentHistory({ waterLog, removeWaterEntry }) {
       transition={{ delay: 0.3 }}
     >
       <div className="flex items-center justify-between mb-3">
-        <p className="font-display text-[11px] text-white/40 uppercase tracking-[0.2em]">
-          Recent History
-        </p>
+        <p className="kicker">Recent history</p>
         {entries.length > 5 && (
-          <button
-            onClick={() => setShowAll(s => !s)}
-            className="font-display text-[10px] uppercase tracking-wider"
-            style={{ color: GOLD }}
-          >
-            {showAll ? 'Show Less' : 'View All'}
+          <button onClick={() => setShowAll(s => !s)} className="btn-ghost !py-0 text-[12px]">
+            {showAll ? 'Show less' : 'View all'}
           </button>
         )}
       </div>
 
       {entries.length === 0 ? (
         <div className="py-8 flex flex-col items-center gap-2">
-          <GlassWater size={28} strokeWidth={1.25} className="text-white/15" />
-          <p className="font-body text-[12px] text-white/30">
-            No water logged yet today.
+          <GlassWater size={28} strokeWidth={T.stroke} className="text-white/15" />
+          <p className="font-body text-[13px] font-medium" style={{ color: T.textLow }}>
+            Nothing logged yet. Thirsty?
           </p>
-          <p className="font-body text-[11px] text-white/20">
-            Tap a glass above to start.
+          <p className="font-body text-[12px]" style={{ color: T.textFaint }}>
+            Tap Drink to start the count.
           </p>
         </div>
       ) : (
@@ -1416,17 +1372,17 @@ function RecentHistory({ waterLog, removeWaterEntry }) {
             >
               <div
                 className="w-7 h-7 rounded-full flex items-center justify-center shrink-0"
-                style={{ background: 'rgba(212,167,78,0.12)', border: `1.5px solid ${GOLD}` }}
+                style={{ background: T.surface2, border: `1px solid ${T.hairlineStrong}` }}
               >
-                <Check size={12} strokeWidth={2.5} style={{ color: GOLD }} />
+                <Check size={12} strokeWidth={2.5} style={{ color: T.textMid }} />
               </div>
-              <span className="font-display text-[11px] text-white/45 uppercase tracking-wider w-[60px] shrink-0 tabular-nums">
+              <span className="font-body text-[11px] font-semibold text-white/45 w-[60px] shrink-0 tabular-nums">
                 {formatTime(entry.t)}
               </span>
-              <span className="flex-1 font-body text-[13px] text-white/80">
-                {entry.ml}ml Water
+              <span className="flex-1 font-body text-[13px] font-medium text-white/80">
+                {entry.ml}ml water
               </span>
-              <span className="font-display text-[12px] tabular-nums" style={{ color: GOLD }}>
+              <span className="font-body text-[12px] font-bold tabular-nums" style={{ color: T.textMid }}>
                 +{entry.ml}ml
               </span>
               <button
@@ -1504,23 +1460,21 @@ export default function Nutrition({ onMacroDetail }) {
         transition={{ duration: 0.35 }}
       >
         <div>
-          <h1
-            className="font-display text-[32px] text-white leading-none tracking-wider"
-          >
+          <h1 className="display-md text-white">
             NUTRITION
           </h1>
-          <p className="font-body text-[12px] text-white/40 mt-2">
-            Track your macros. Fuel your progress.
+          <p className="font-body text-[13px] font-medium mt-2" style={{ color: T.textLow }}>
+            Fuel the work.
           </p>
         </div>
 
         <motion.button
           whileTap={{ scale: 0.93 }}
-          className="flex items-center gap-1.5 px-3 py-2 rounded-lg"
-          style={{ border: `1px solid rgba(212,167,78,0.25)` }}
+          className="flex items-center gap-1.5 px-3 py-2 rounded-xl"
+          style={{ border: `1px solid ${T.hairlineStrong}` }}
         >
-          <BookOpen size={14} strokeWidth={1.5} style={{ color: GOLD }} />
-          <span className="font-display text-[11px] uppercase tracking-wider" style={{ color: GOLD }}>
+          <BookOpen size={14} strokeWidth={T.stroke} style={{ color: T.textMid }} />
+          <span className="font-body text-[12px] font-bold" style={{ color: T.textMid }}>
             Guide
           </span>
         </motion.button>
@@ -1536,9 +1490,7 @@ export default function Nutrition({ onMacroDetail }) {
 
           {/* Section header */}
           <div className="px-5 mb-3 flex items-center justify-between">
-            <p className="font-display text-[13px] text-white/25 uppercase tracking-[0.2em]">
-              Today's Meals
-            </p>
+            <p className="kicker">Today's meals</p>
             <MoreHorizontal size={16} strokeWidth={1.5} className="text-white/25" />
           </div>
 
@@ -1572,13 +1524,12 @@ export default function Nutrition({ onMacroDetail }) {
             transition={{ delay: 0.5 }}
           >
             <motion.button
-              whileTap={{ scale: 0.98 }}
+              whileTap={T.tap}
               onClick={() => setAddMealOpen(true)}
-              className="w-full py-4 rounded-2xl font-display text-[14px] uppercase tracking-wider text-black flex items-center justify-center gap-2"
-              style={{ background: `linear-gradient(135deg, ${GOLD_START}, ${GOLD_END})` }}
+              className="btn-primary"
             >
               <Plus size={16} strokeWidth={2.5} />
-              Add Meal
+              Add meal
             </motion.button>
           </motion.div>
         </>

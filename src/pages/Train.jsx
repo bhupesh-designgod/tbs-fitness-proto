@@ -11,6 +11,7 @@ import { useApp } from '../context/AppContext';
 import {
   HeroPhoto, RingCounter, GoldMarquee, SplitCTA, NumericCounter,
 } from '../components/ui/Components';
+import { WeekStrip, MonthSheet } from '../components/ui/Calendar';
 import { PLAN_PROGRESS, BIKI_MESSAGES, PHOTOS } from '../data/mockData';
 import { T } from '../tokens';
 
@@ -61,7 +62,7 @@ function estimateLevel(exercises) {
 // ─────────────────────────────────────────────
 // Hero
 // ─────────────────────────────────────────────
-function WorkoutHero({ training, planPercentage }) {
+function WorkoutHero({ training, planPercentage, onCalendar }) {
   const shouldReduce = useReducedMotion();
   const title = (training.name || 'Workout').toUpperCase().split(' ');
 
@@ -105,6 +106,7 @@ function WorkoutHero({ training, planPercentage }) {
 
         <motion.button
           whileTap={{ scale: 0.93 }}
+          onClick={onCalendar}
           className="flex items-center gap-1.5 px-3 py-2 rounded-lg"
           style={{ border: `1px solid rgba(212,167,78,0.3)`, background: 'rgba(0,0,0,0.4)' }}
         >
@@ -537,6 +539,7 @@ export default function Train() {
   const shouldReduce = useReducedMotion();
   const [showTakeover, setShowTakeover] = useState(true);
   const [expandedSet, setExpandedSet] = useState(() => new Set());
+  const [monthOpen, setMonthOpen] = useState(false);
 
   const isRest = training.type === 'rest';
   const planPercentage = (PLAN_PROGRESS.currentDay / PLAN_PROGRESS.totalDays) * 100;
@@ -584,6 +587,10 @@ export default function Train() {
             Recovery is part of the plan
           </motion.p>
         </HeroPhoto>
+
+        <div className="mt-5 mb-1">
+          <WeekStrip mode="training" />
+        </div>
 
         <div className="px-5 mt-5">
           <motion.div
@@ -634,6 +641,8 @@ export default function Train() {
             "{BIKI_MESSAGES.REST[0]}"
           </motion.p>
         </div>
+
+        <MonthSheet isOpen={monthOpen} onClose={() => setMonthOpen(false)} mode="training" />
       </div>
     );
   }
@@ -653,9 +662,14 @@ export default function Train() {
         )}
       </AnimatePresence>
 
-      <WorkoutHero training={training} planPercentage={planPercentage} />
+      <WorkoutHero training={training} planPercentage={planPercentage} onCalendar={() => setMonthOpen(true)} />
 
       <StatStrip exerciseCount={exerciseCount} minutes={minutes} level={level} />
+
+      {/* Week at a glance — workout vs rest */}
+      <div className="mt-5">
+        <WeekStrip mode="training" />
+      </div>
 
       {/* Session progress (slim) */}
       <div className="px-5 mt-5 mb-1">
@@ -710,6 +724,8 @@ export default function Train() {
           />
         ))}
       </div>
+
+      <MonthSheet isOpen={monthOpen} onClose={() => setMonthOpen(false)} mode="training" />
     </div>
   );
 }

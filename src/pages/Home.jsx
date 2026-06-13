@@ -1,19 +1,20 @@
 // ── Home — "Scoreboard" ──
-// Open-air score hero with oversized number, week strip,
-// task queue, plan rings, workout card, coach quote, sleep note.
+// Greeting, week strip, coach quote, open-air score hero,
+// task queue, plan rings, workout card, sleep note.
 
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 import {
   Utensils, Droplets, Dumbbell, Clock, ChevronRight,
-  Bell, Moon, Check,
+  Bell, Moon, Check, CalendarDays,
 } from 'lucide-react';
 import { NumericCounter } from '../components/ui/Components';
+import { WeekStrip, MonthSheet } from '../components/ui/Calendar';
 import { useApp } from '../context/AppContext';
 import { T, enter, stagger } from '../tokens';
 import {
   USER_PROFILE, PHOTOS, DAILY_TARGETS,
-  BIKI_MESSAGES, PLAN_PROGRESS,
+  PLAN_PROGRESS,
 } from '../data/mockData';
 
 // ── Greeting by time of day ──
@@ -41,44 +42,6 @@ function calcDailyScore(meals, hydration, targets) {
   if (hydration >= targets.water * 0.5) pts += 5;
   if (hydration >= targets.water) pts += 5;
   return { earned: pts, total: 30 };
-}
-
-function calcHistoryPts(day) {
-  if (!day || day.adherence === null || day.adherence === undefined) return null;
-  return Math.round((day.adherence / 100) * 30);
-}
-
-const DAY_ABBR = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
-
-// ── Mini ring for weekly strip ──
-function MiniRing({ percentage, size = 42, strokeWidth = 3, isToday = false }) {
-  const radius = (size - strokeWidth) / 2;
-  const circumference = 2 * Math.PI * radius;
-  const offset = circumference - (Math.min(percentage, 100) / 100) * circumference;
-
-  const ringColor = isToday ? 'rgba(0,0,0,0.55)' : 'rgba(255,255,255,0.30)';
-
-  return (
-    <svg width={size} height={size} className="absolute inset-0 -rotate-90">
-      <circle
-        cx={size / 2} cy={size / 2} r={radius}
-        fill="none"
-        stroke={isToday ? 'rgba(0,0,0,0.15)' : 'rgba(255,255,255,0.06)'}
-        strokeWidth={strokeWidth}
-      />
-      {percentage > 0 && (
-        <circle
-          cx={size / 2} cy={size / 2} r={radius}
-          fill="none"
-          stroke={ringColor}
-          strokeWidth={strokeWidth}
-          strokeLinecap="round"
-          strokeDasharray={circumference}
-          strokeDashoffset={offset}
-        />
-      )}
-    </svg>
-  );
 }
 
 // ── Status ring for plan cards ──
@@ -114,41 +77,16 @@ function StatusRing({ percentage, size = 60, strokeWidth = 4, color, children })
 }
 
 export default function Home({ onProfileClick, onNavigate }) {
-  const { training, meals, hydration, isRestDay, history } = useApp();
+  const { training, meals, hydration, isRestDay } = useApp();
 
   const shouldReduce = useReducedMotion();
   const today = new Date();
+  const [monthOpen, setMonthOpen] = useState(false);
 
   const score = useMemo(
     () => calcDailyScore(meals, hydration, DAILY_TARGETS),
     [meals, hydration],
   );
-
-  // Week strip (Mon–Sun)
-  const weekStrip = useMemo(() => {
-    const startOfWeek = new Date(today);
-    const daysSinceMonday = (today.getDay() + 6) % 7;
-    startOfWeek.setDate(today.getDate() - daysSinceMonday);
-
-    const days = [];
-    let completedDays = 0;
-
-    for (let i = 0; i < 7; i++) {
-      const d = new Date(startOfWeek);
-      d.setDate(startOfWeek.getDate() + i);
-      const dateStr = d.toISOString().split('T')[0];
-      const histDay = history.find(h => h.date === dateStr);
-      const isToday = d.toDateString() === today.toDateString();
-      const isPast = d < new Date(today.toDateString());
-      const pts = isToday ? score.earned : calcHistoryPts(histDay);
-      const pct = pts !== null ? Math.round((pts / 30) * 100) : 0;
-
-      if ((isPast || isToday) && pts !== null && pts > 0) completedDays++;
-
-      days.push({ label: DAY_ABBR[d.getDay()], date: d.getDate(), isToday, isPast, pts, pct });
-    }
-    return { days, completedDays };
-  }, [today, history, score.earned]);
 
   const hydrationPct = Math.min(Math.round((hydration / DAILY_TARGETS.water) * 100), 100);
   const mealsLogged = meals.filter(m => m.logged).length;
@@ -232,23 +170,70 @@ export default function Home({ onProfileClick, onNavigate }) {
           </div>
         </div>
 
-        <div
-          className="relative w-11 h-11 rounded-full flex items-center justify-center"
-          style={{ background: T.surface, border: `1px solid ${T.hairline}` }}
-        >
-          <Bell size={18} strokeWidth={T.stroke} style={{ color: T.textLow }} />
+        <div className="flex items-center gap-2">
           <div
-            className="absolute top-2 right-2.5 w-2 h-2 rounded-full"
-            style={{ background: T.gold }}
-          />
+            className="relative w-11 h-11 rounded-full flex items-center justify-center"
+            style={{ background: T.surface, border: `1px solid ${T.hairline}` }}
+          >
+            <Bell size={18} strokeWidth={T.stroke} style={{ color: T.textLow }} />
+            <div
+              className="absolute top-2 right-2.5 w-2 h-2 rounded-full"
+              style={{ background: T.gold }}
+            />
+          </div>
+          <motion.button
+            whileTap={T.tapSmall}
+            onClick={() => setMonthOpen(true)}
+            aria-label="Month view"
+            className="w-11 h-11 rounded-full flex items-center justify-center"
+            style={{ background: T.surface, border: `1px solid ${T.hairline}` }}
+          >
+            <CalendarDays size={18} strokeWidth={T.stroke} style={{ color: T.textLow }} />
+          </motion.button>
         </div>
       </motion.div>
 
-      {/* ═══ 2. SCORE HERO — open air, number bleeds right ═══ */}
-      <motion.div className="pl-5 pt-6 pb-2 relative overflow-hidden" {...enter(0.05)}>
+      {/* ═══ 2. THIS WEEK STRIP ═══ */}
+      <motion.div {...enter(0.04)} className="pt-3 mb-4">
+        <WeekStrip mode="score" />
+      </motion.div>
+
+      {/* ═══ 3. COACH QUOTE ═══ */}
+      <motion.div className="mx-5 mb-4" {...enter(0.08)}>
+        <div className="coach-quote-card p-4 pl-5">
+          <div className="flex items-start gap-3">
+            <div className="shrink-0 relative">
+              <div
+                className="w-10 h-10 rounded-full overflow-hidden"
+                style={{ border: `2px solid ${T.goldBorder}` }}
+              >
+                <img
+                  src={PHOTOS.bikiPortrait}
+                  alt="Coach Biki"
+                  className="w-full h-full object-cover"
+                  style={{ filter: 'grayscale(40%) contrast(1.1)' }}
+                />
+              </div>
+              <div
+                className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full"
+                style={{ background: T.success, border: `2px solid ${T.surface}` }}
+              />
+            </div>
+
+            <div className="flex-1 min-w-0">
+              <p className="kicker kicker-gold mb-1.5">Coach Biki</p>
+              <p className="font-body text-[14px] font-medium leading-relaxed" style={{ color: T.textMid }}>
+                "{coachQuote}"
+              </p>
+            </div>
+          </div>
+        </div>
+      </motion.div>
+
+      {/* ═══ 4. SCORE HERO — open air, number bleeds right ═══ */}
+      <motion.div className="pl-5 pt-2 pb-2 relative overflow-hidden" {...enter(0.12)}>
         <div className="flex items-center gap-2">
           <span className="kicker">Today's score</span>
-          {/* Tilted plan-day badge */}
           <motion.span
             className="font-body text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-md inline-block"
             style={{
@@ -256,7 +241,7 @@ export default function Home({ onProfileClick, onNavigate }) {
               border: `1px solid ${T.hairlineStrong}`,
               rotate: '-2.5deg',
             }}
-            {...enter(0.15)}
+            {...enter(0.2)}
           >
             Day {PLAN_PROGRESS.currentDay} of {PLAN_PROGRESS.totalDays}
           </motion.span>
@@ -298,9 +283,9 @@ export default function Home({ onProfileClick, onNavigate }) {
         </div>
       </motion.div>
 
-      {/* ═══ 3. UP NEXT ═══ */}
+      {/* ═══ 5. UP NEXT ═══ */}
       {tasks.length > 0 && (
-        <motion.div className="mx-5 mt-6 mb-3" {...enter(0.1)}>
+        <motion.div className="mx-5 mt-6 mb-3" {...enter(0.16)}>
           <p className="kicker mb-3">Up next</p>
           <div className="flex flex-col gap-2">
             {tasks.map((t, i) => {
@@ -308,7 +293,7 @@ export default function Home({ onProfileClick, onNavigate }) {
               return (
                 <motion.button
                   key={t.key}
-                  {...stagger(i, 0.14)}
+                  {...stagger(i, 0.2)}
                   whileTap={T.tap}
                   onClick={() => onNavigate && onNavigate(t.target)}
                   className="card w-full flex items-center gap-3 p-3 text-left"
@@ -349,8 +334,8 @@ export default function Home({ onProfileClick, onNavigate }) {
         </motion.div>
       )}
 
-      {/* ═══ 4. TODAY'S PLAN — 2-col rings ═══ */}
-      <motion.div className="mx-5 mb-3" {...enter(0.16)}>
+      {/* ═══ 6. TODAY'S PLAN — 2-col rings ═══ */}
+      <motion.div className="mx-5 mb-3" {...enter(0.2)}>
         <p className="kicker mb-3">Today's plan</p>
         <div className="grid grid-cols-2 gap-3">
           <div className="card flex flex-col items-center gap-2.5 py-5 px-4">
@@ -387,8 +372,8 @@ export default function Home({ onProfileClick, onNavigate }) {
         </div>
       </motion.div>
 
-      {/* ═══ 5. WORKOUT CARD ═══ */}
-      <motion.div className="card mx-5 mb-3 overflow-hidden relative" {...enter(0.2)}>
+      {/* ═══ 7. WORKOUT CARD ═══ */}
+      <motion.div className="card mx-5 mb-3 overflow-hidden relative" {...enter(0.24)}>
         <div className="flex">
           <div className="flex-1 p-5">
             <p className="kicker mb-2">
@@ -443,96 +428,8 @@ export default function Home({ onProfileClick, onNavigate }) {
         </div>
       </motion.div>
 
-      {/* ═══ 6. THIS WEEK STRIP ═══ */}
-      <motion.div className="px-5 pt-3 mb-4" {...enter(0.24)}>
-        <p className="kicker mb-3">This week</p>
-        <div className="grid grid-cols-7 gap-1.5">
-          {weekStrip.days.map((day, i) => (
-            <motion.div
-              key={i}
-              className="flex flex-col items-center gap-1"
-              {...stagger(i, 0.26)}
-            >
-              <span className="font-body text-[9px] font-bold uppercase tracking-wider" style={{ color: T.textFaint }}>
-                {day.label}
-              </span>
-
-              <div
-                className="w-[42px] h-[42px] rounded-full flex items-center justify-center relative"
-                style={{
-                  background: day.isToday ? T.goldGrad : T.surface,
-                  border: day.isToday ? 'none' : `1px solid ${T.hairline}`,
-                }}
-              >
-                <MiniRing percentage={day.pct} isToday={day.isToday} />
-                <span
-                  className="font-display text-[18px] leading-none relative z-10"
-                  style={{
-                    color: day.isToday ? '#000'
-                      : day.pts !== null ? 'rgba(255,255,255,0.8)'
-                      : 'rgba(255,255,255,0.22)',
-                  }}
-                >
-                  {day.date}
-                </span>
-              </div>
-
-              <span
-                className="font-body text-[9px] font-bold tabular-nums"
-                style={{
-                  color: day.isToday ? T.gold
-                    : day.pts !== null && day.isPast ? T.textLow
-                    : 'rgba(255,255,255,0.14)',
-                }}
-              >
-                {day.pts !== null ? `${day.pts}` : '—'}
-              </span>
-            </motion.div>
-          ))}
-        </div>
-
-        <p className="font-body text-[12px] font-medium mt-3" style={{ color: T.textLow }}>
-          <span className="font-display text-[18px] mr-1" style={{ color: T.gold }}>
-            {weekStrip.completedDays}
-          </span>
-          of 7 days on the board
-        </p>
-      </motion.div>
-
-      {/* ═══ 7. COACH QUOTE ═══ */}
-      <motion.div className="mx-5 mb-3" {...enter(0.28)}>
-        <div className="coach-quote-card p-4 pl-5">
-          <div className="flex items-start gap-3">
-            <div className="shrink-0 relative">
-              <div
-                className="w-10 h-10 rounded-full overflow-hidden"
-                style={{ border: `2px solid ${T.goldBorder}` }}
-              >
-                <img
-                  src={PHOTOS.bikiPortrait}
-                  alt="Coach Biki"
-                  className="w-full h-full object-cover"
-                  style={{ filter: 'grayscale(40%) contrast(1.1)' }}
-                />
-              </div>
-              <div
-                className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full"
-                style={{ background: T.success, border: `2px solid ${T.surface}` }}
-              />
-            </div>
-
-            <div className="flex-1 min-w-0">
-              <p className="kicker kicker-gold mb-1.5">Coach Biki</p>
-              <p className="font-body text-[14px] font-medium leading-relaxed" style={{ color: T.textMid }}>
-                "{coachQuote}"
-              </p>
-            </div>
-          </div>
-        </div>
-      </motion.div>
-
       {/* ═══ 8. SLEEP NOTE ═══ */}
-      <motion.div className="card mx-5 mb-4 p-4 pl-5" {...enter(0.32)}>
+      <motion.div className="card mx-5 mb-4 p-4 pl-5" {...enter(0.28)}>
         <div className="flex items-start gap-3">
           <div
             className="w-9 h-9 rounded-full flex items-center justify-center shrink-0"
@@ -551,6 +448,9 @@ export default function Home({ onProfileClick, onNavigate }) {
           </div>
         </div>
       </motion.div>
+
+      {/* Month overlay */}
+      <MonthSheet isOpen={monthOpen} onClose={() => setMonthOpen(false)} mode="score" />
     </div>
   );
 }

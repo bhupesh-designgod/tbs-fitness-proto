@@ -6,9 +6,10 @@ import { useState, useMemo, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import {
   Check, X, ChevronRight, Droplets, BookOpen, Plus, MoreHorizontal,
-  RefreshCw, Trophy, Flame, GlassWater, Settings2, Undo2,
+  RefreshCw, Trophy, Flame, GlassWater, Settings2, Undo2, CalendarDays,
 } from 'lucide-react';
 import { BottomSheet, NumericCounter, RingCounter } from '../components/ui/Components';
+import { WeekStrip, MonthSheet } from '../components/ui/Calendar';
 import { useApp } from '../context/AppContext';
 import { T } from '../tokens';
 import { DAILY_TARGETS, MEAL_PLAN, USER_PROFILE } from '../data/mockData';
@@ -79,64 +80,6 @@ function TabToggle({ active, onChange }) {
           </motion.button>
         );
       })}
-    </div>
-  );
-}
-
-// ═════════════════════════════════════════════
-// ── Week Strip (matches Home palette) ──
-// ═════════════════════════════════════════════
-function WeekStrip() {
-  const shouldReduce = useReducedMotion();
-  const today = new Date();
-  const weekDays = useMemo(() => {
-    const start = new Date(today);
-    start.setDate(today.getDate() - ((today.getDay() + 6) % 7));
-    return Array.from({ length: 7 }, (_, i) => {
-      const d = new Date(start);
-      d.setDate(start.getDate() + i);
-      return {
-        label: DAY_ABBR[d.getDay()],
-        date: d.getDate(),
-        isToday: d.toDateString() === today.toDateString(),
-      };
-    });
-  }, []);
-
-  return (
-    <div className="px-5 mb-4">
-      <p className="kicker mb-3">This week</p>
-      <div className="grid grid-cols-7 gap-1.5">
-        {weekDays.map((day, i) => (
-          <motion.div
-            key={i}
-            className="flex flex-col items-center gap-1.5"
-            initial={shouldReduce ? {} : { opacity: 0, y: 4 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.03, duration: 0.2 }}
-          >
-            <span className="font-body text-[9px] text-white/30 uppercase font-semibold tracking-wider">
-              {day.label}
-            </span>
-            <div
-              className="w-[40px] h-[40px] rounded-full flex items-center justify-center"
-              style={{
-                background: day.isToday
-                  ? `linear-gradient(135deg, ${GOLD_START}, ${GOLD_END})`
-                  : CARD_BG,
-                border: day.isToday ? 'none' : `1px solid ${CARD_BORDER}`,
-              }}
-            >
-              <span
-                className="font-display text-[18px] leading-none"
-                style={{ color: day.isToday ? '#000' : 'rgba(255,255,255,0.7)' }}
-              >
-                {day.date}
-              </span>
-            </div>
-          </motion.div>
-        ))}
-      </div>
     </div>
   );
 }
@@ -1441,6 +1384,7 @@ export default function Nutrition({ onMacroDetail }) {
   const [selectedMeal, setSelectedMeal] = useState(null);
   const [sheetOpen, setSheetOpen] = useState(false);
   const [addMealOpen, setAddMealOpen] = useState(false);
+  const [monthOpen, setMonthOpen] = useState(false);
 
   const handleMealTap = useCallback(idx => { setSelectedMeal(idx); setSheetOpen(true); }, []);
   const handleClose = useCallback(() => {
@@ -1468,24 +1412,37 @@ export default function Nutrition({ onMacroDetail }) {
           </p>
         </div>
 
-        <motion.button
-          whileTap={{ scale: 0.93 }}
-          className="flex items-center gap-1.5 px-3 py-2 rounded-xl"
-          style={{ border: `1px solid ${T.hairlineStrong}` }}
-        >
-          <BookOpen size={14} strokeWidth={T.stroke} style={{ color: T.textMid }} />
-          <span className="font-body text-[12px] font-bold" style={{ color: T.textMid }}>
-            Guide
-          </span>
-        </motion.button>
+        <div className="flex items-center gap-2">
+          <motion.button
+            whileTap={{ scale: 0.93 }}
+            className="flex items-center gap-1.5 px-3 py-2 rounded-xl"
+            style={{ border: `1px solid ${T.hairlineStrong}` }}
+          >
+            <BookOpen size={14} strokeWidth={T.stroke} style={{ color: T.textMid }} />
+            <span className="font-body text-[12px] font-bold" style={{ color: T.textMid }}>
+              Guide
+            </span>
+          </motion.button>
+          <motion.button
+            whileTap={{ scale: 0.93 }}
+            onClick={() => setMonthOpen(true)}
+            aria-label="Month view"
+            className="w-10 h-10 rounded-xl flex items-center justify-center"
+            style={{ border: `1px solid ${T.hairlineStrong}` }}
+          >
+            <CalendarDays size={16} strokeWidth={T.stroke} style={{ color: T.textMid }} />
+          </motion.button>
+        </div>
       </motion.div>
+
+      <div className="mb-4">
+        <WeekStrip mode="score" />
+      </div>
 
       <TabToggle active={activeTab} onChange={setActiveTab} />
 
       {activeTab === 'meals' ? (
         <>
-          <WeekStrip />
-
           <MacrosOverview logged={logged} />
 
           {/* Section header */}
@@ -1561,6 +1518,8 @@ export default function Nutrition({ onMacroDetail }) {
         onClose={() => setAddMealOpen(false)}
         addMeal={addMeal}
       />
+
+      <MonthSheet isOpen={monthOpen} onClose={() => setMonthOpen(false)} mode="score" />
     </div>
   );
 }

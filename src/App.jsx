@@ -19,11 +19,11 @@ import CheckInDetail from './pages/CheckInDetail';
 import MacroDetail from './pages/MacroDetail';
 
 const TABS = [
-  { id: 'home', label: 'Home', icon: <HomeIcon size={20} strokeWidth={1.5} /> },
-  { id: 'nutrition', label: 'Nutrition', icon: <Utensils size={20} strokeWidth={1.5} /> },
-  { id: 'train', label: 'Train', icon: <Dumbbell size={20} strokeWidth={1.5} /> },
-  { id: 'coach', label: 'Coach', icon: <MessageCircle size={20} strokeWidth={1.5} /> },
-  { id: 'progress', label: 'Reviews', icon: <Star size={20} strokeWidth={1.5} /> },
+  { id: 'home', label: 'Home', icon: <HomeIcon size={20} strokeWidth={1.75} /> },
+  { id: 'nutrition', label: 'Nutrition', icon: <Utensils size={20} strokeWidth={1.75} /> },
+  { id: 'train', label: 'Train', icon: <Dumbbell size={20} strokeWidth={1.75} /> },
+  { id: 'coach', label: 'Coach', icon: <MessageCircle size={20} strokeWidth={1.75} /> },
+  { id: 'progress', label: 'Reviews', icon: <Star size={20} strokeWidth={1.75} /> },
 ];
 
 function AppContent() {

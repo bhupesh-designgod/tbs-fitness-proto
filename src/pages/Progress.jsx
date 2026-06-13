@@ -355,7 +355,7 @@ function PhotoCard({ entry, angle, accent }) {
   return (
     <div
       className="relative aspect-square rounded-2xl overflow-hidden"
-      style={{ background: '#0A0A0A', border: `1px solid ${CARD_BORDER}` }}
+      style={{ background: T.bg, border: `1px solid ${CARD_BORDER}` }}
     >
       {photo ? (
         <img
@@ -476,7 +476,7 @@ function HistoryRow({ item, delay, onOpen }) {
       transition={{ delay: delay * 0.04 + 0.25 }}
     >
       {/* Thumbnail */}
-      <div className="w-16 h-20 rounded-xl overflow-hidden shrink-0" style={{ background: '#0A0A0A' }}>
+      <div className="w-16 h-20 rounded-xl overflow-hidden shrink-0" style={{ background: T.bg }}>
         {item.thumbnail && (
           <img
             src={item.thumbnail}

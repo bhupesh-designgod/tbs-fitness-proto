@@ -173,11 +173,6 @@ html, body, #root {
   );
 }
 
-/* ── Dashed timeline rail ── */
-.timeline-rail {
-  border-left: 1px dashed rgba(255, 255, 255, 0.12);
-}
-
 /* ── Scrollbar hide ── */
 .scrollbar-hide {
   -ms-overflow-style: none;
@@ -237,52 +232,12 @@ html, body, #root {
   background: #000000;
 }
 
-/* ── Pill chip ── */
-.pill-chip {
-  display: inline-flex;
-  align-items: center;
-  padding: 4px 12px;
-  border-radius: 9999px;
-  background: #121212;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  font-family: 'Manrope', sans-serif;
-  font-size: 13px;
-  font-weight: 400;
-  color: rgba(255, 255, 255, 0.6);
-  white-space: nowrap;
-}
-
-/* ── Calendar cell ── */
-.calendar-cell {
-  width: 40px;
-  height: 40px;
-  border-radius: 14px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: 'Bebas Neue', sans-serif;
-  font-weight: 400;
-  font-size: 14px;
-  color: rgba(255, 255, 255, 0.6);
-  position: relative;
-}
-
-.calendar-cell.today {
-  border-color: #D4A74E;
-  color: #ffffff;
-}
-
-.calendar-cell.logged {
-  color: rgba(255, 255, 255, 0.8);
-}
-
 /* ── Coach quote card ── */
 .coach-quote-card {
   position: relative;
-  background: #131318;
-  border: 1px solid rgba(212,167,78,0.10);
-  border-radius: 16px;
+  background: #101014;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
   overflow: hidden;
 }
 
@@ -295,44 +250,4 @@ html, body, #root {
   width: 3px;
   background: linear-gradient(180deg, #B8893C, #E0C074);
   border-radius: 3px 0 0 3px;
-}
-
-/* ── Sleep banner ── */
-.sleep-banner {
-  position: relative;
-  background: #131318;
-  border: 1px solid rgba(91,124,153,0.10);
-  border-radius: 16px;
-  overflow: hidden;
-}
-
-.sleep-banner::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 3px;
-  background: linear-gradient(180deg, #5B7C99, #7BA3C4);
-  border-radius: 3px 0 0 3px;
-}
-
-/* ── Status card ── */
-.status-card {
-  background: #131318;
-  border: 1px solid rgba(255,255,255,0.07);
-  border-radius: 16px;
-  padding: 20px 16px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-}
-
-/* ── Weekly ring ── */
-.weekly-ring-cell {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
 }

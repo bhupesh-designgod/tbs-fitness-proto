@@ -3,41 +3,24 @@
 
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { useState, useEffect, useRef, useCallback } from 'react';
-
-// ── Pill Chip ──
-export function PillChip({ children, active = false, onClick, delay = 0 }) {
-  const shouldReduce = useReducedMotion();
-  return (
-    <motion.button
-      onClick={onClick}
-      className={`pill-chip transition-colors ${active ? '!border-gold !text-gold' : ''}`}
-      style={active ? { borderColor: '#D4A74E', color: '#D4A74E' } : {}}
-      initial={shouldReduce ? {} : { opacity: 0, y: 6 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: delay * 0.03, duration: 0.25 }}
-      whileTap={{ scale: 0.97 }}
-    >
-      {children}
-    </motion.button>
-  );
-}
+import { T } from '../../tokens';
 
 // ── Split CTA ──
 export function SplitCTA({ leftLabel, rightLabel, onLeft, onRight }) {
   return (
     <div className="flex gap-3 w-full">
       <motion.button
-        whileTap={{ scale: 0.97 }}
+        whileTap={T.tap}
         onClick={onLeft}
-        className="flex-1 py-3.5 rounded-xl border font-body text-[15px] font-medium text-white/80 transition-colors"
-        style={{ borderColor: 'rgba(255,255,255,0.2)' }}
+        className="btn-secondary flex-1"
       >
         {leftLabel}
       </motion.button>
       <motion.button
-        whileTap={{ scale: 0.97 }}
+        whileTap={T.tap}
         onClick={onRight}
-        className="flex-1 py-3.5 rounded-xl bg-gold-gradient font-body text-[15px] font-medium text-black transition-colors"
+        className="btn-primary flex-1"
+        style={{ width: 'auto' }}
       >
         {rightLabel}
       </motion.button>
@@ -66,7 +49,7 @@ export function MacroBar({ label, current, target, color, size = 'normal' }) {
     <div className={isSmall ? 'flex-1 min-w-0' : 'w-full'}>
       <div className="flex justify-between items-baseline mb-1">
         <span className="font-body text-[11px] text-white/50 uppercase tracking-wider">{label}</span>
-        <span className="font-display tabular-nums text-[13px] font-bold" style={{ color: over > 0 ? 'rgba(255,255,255,0.4)' : 'rgba(255,255,255,0.8)' }}>
+        <span className="font-body tabular-nums text-[12px] font-bold" style={{ color: over > 0 ? 'rgba(255,255,255,0.4)' : 'rgba(255,255,255,0.8)' }}>
           {over > 0 ? `+${over}g over` : `${left}${label === 'Calories' ? '' : 'g'} left`}
         </span>
       </div>
@@ -170,50 +153,6 @@ export function RingCounter({ percentage, size = 120, strokeWidth = 5, color = '
   );
 }
 
-// ── Calendar Cell ──
-export function CalendarCell({ day, isToday, adherence, onClick, delay = 0 }) {
-  const shouldReduce = useReducedMotion();
-  const hasData = adherence !== null && adherence !== undefined;
-  
-  return (
-    <motion.button
-      onClick={onClick}
-      className={`calendar-cell ${isToday ? 'today' : ''} ${hasData ? 'logged' : ''}`}
-      initial={shouldReduce ? {} : { opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ delay: delay * 0.04, duration: 0.3 }}
-      whileTap={{ scale: 0.95 }}
-    >
-      {/* Mini adherence ring */}
-      {hasData && (
-        <svg className="absolute inset-0" viewBox="0 0 40 40">
-          <circle
-            cx="20" cy="20" r="17"
-            fill="none"
-            stroke="#D4A74E"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-            strokeDasharray={`${(adherence / 100) * 107} 107`}
-            transform="rotate(-90 20 20)"
-            opacity="0.6"
-          />
-        </svg>
-      )}
-      <span className="relative z-10">{day}</span>
-    </motion.button>
-  );
-}
-
-// ── Timeline Pill ──
-export function TimelinePill({ time }) {
-  return (
-    <div className="flex items-center gap-2 py-1">
-      <div className="w-2 h-2 rounded-full" style={{ background: 'rgba(255,255,255,0.2)' }} />
-      <span className="font-body text-[11px] text-white/40 uppercase tracking-wider">{time}</span>
-    </div>
-  );
-}
-
 // ── Bottom Sheet ──
 export function BottomSheet({ isOpen, onClose, children }) {
   const shouldReduce = useReducedMotion();
@@ -246,7 +185,7 @@ export function BottomSheet({ isOpen, onClose, children }) {
               if (info.offset.y > 100) onClose();
             }}
           >
-            <div className="rounded-t-2xl overflow-hidden" style={{ background: '#0A0A0A' }}>
+            <div className="rounded-t-2xl overflow-hidden" style={{ background: T.surface }}>
               {/* Drag handle */}
               <div className="flex justify-center pt-3 pb-2">
                 <div className="w-10 h-1 rounded-full" style={{ background: 'rgba(255,255,255,0.2)' }} />
@@ -291,7 +230,7 @@ export function GoldMarquee({ text }) {
       <div className="metallic-divider mb-4" />
       <div className="overflow-hidden">
         <motion.div
-          className="whitespace-nowrap text-gold-gradient font-display text-[14px] font-bold uppercase tracking-[0.2em]"
+          className="whitespace-nowrap text-gold-gradient font-display text-[18px] uppercase tracking-[0.2em]"
           animate={shouldReduce ? {} : { x: [0, '-50%'] }}
           transition={{
             x: { duration: 12, repeat: Infinity, ease: 'linear' },
@@ -318,7 +257,7 @@ export function BigNumStepper({ value, onChange, unit = '', min = 0, max = 999, 
         <span className="text-white/60 text-lg">−</span>
       </motion.button>
       <div className="flex items-baseline gap-1">
-        <NumericCounter value={value} className="text-[32px] font-bold text-white" />
+        <NumericCounter value={value} className="text-[36px] text-white" />
         {unit && <span className="font-body text-[14px] text-white/40">{unit}</span>}
       </div>
       <motion.button
@@ -342,9 +281,9 @@ export function FivePointSelector({ value, onChange, labels = ['1', '2', '3', '4
           key={i}
           whileTap={{ scale: 0.95 }}
           onClick={() => onChange(i + 1)}
-          className="flex-1 py-2.5 rounded-xl text-center font-display text-[14px] font-bold transition-all"
+          className="flex-1 py-2.5 rounded-xl text-center font-body text-[13px] font-bold transition-all"
           style={{
-            background: value === i + 1 ? 'linear-gradient(135deg, #B8893C, #E0C074)' : '#121212',
+            background: value === i + 1 ? T.goldGrad : T.surface,
             color: value === i + 1 ? '#000' : 'rgba(255,255,255,0.5)',
             border: `1px solid ${value === i + 1 ? 'transparent' : 'rgba(255,255,255,0.12)'}`,
           }}
@@ -364,8 +303,8 @@ export function Header({ onProfileClick, onBikiClick }) {
       <motion.button
         whileTap={{ scale: 0.95 }}
         onClick={onProfileClick}
-        className="w-9 h-9 rounded-full flex items-center justify-center font-display text-[13px] font-bold"
-        style={{ background: '#121212', border: '1px solid rgba(255,255,255,0.12)' }}
+        className="w-9 h-9 rounded-full flex items-center justify-center font-body text-[12px] font-extrabold"
+        style={{ background: T.surface, border: `1px solid ${T.hairlineStrong}` }}
       >
         A
       </motion.button>
@@ -422,12 +361,12 @@ export function TabBar({ activeTab, onTabChange, tabs }) {
                   transition={{ type: 'spring', stiffness: 400, damping: 30 }}
                 />
               )}
-              <div style={{ color: isActive ? '#D4A74E' : 'rgba(255,255,255,0.35)' }}>
+              <div style={{ color: isActive ? T.gold : 'rgba(255,255,255,0.38)' }}>
                 {tab.icon}
               </div>
               <span
-                className="font-body text-[10px] transition-colors"
-                style={{ color: isActive ? '#D4A74E' : 'rgba(255,255,255,0.35)' }}
+                className="font-body text-[10px] font-bold transition-colors"
+                style={{ color: isActive ? T.gold : 'rgba(255,255,255,0.38)' }}
               >
                 {tab.label}
               </span>

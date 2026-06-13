@@ -492,7 +492,7 @@ export default function Home({ onProfileClick, onNavigate }) {
         </div>
 
         <p className="font-body text-[12px] font-medium mt-3" style={{ color: T.textLow }}>
-          <span className="font-display text-[16px] mr-1" style={{ color: T.gold }}>
+          <span className="font-display text-[18px] mr-1" style={{ color: T.gold }}>
             {weekStrip.completedDays}
           </span>
           of 7 days on the board

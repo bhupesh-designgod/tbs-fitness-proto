@@ -74,7 +74,7 @@ function TabToggle({ active, onChange }) {
                   <path d="M11 2a2 2 0 0 0-2 2v5H7a2 2 0 0 0-2 2v1c0 2.8 2.2 5 5 5v5h4v-5c2.8 0 5-2.2 5-5v-1a2 2 0 0 0-2-2h-2V4a2 2 0 0 0-2-2h-2z"/>
                 </svg>
               )
-              : <Droplets size={14} strokeWidth={1.5} />}
+              : <Droplets size={14} strokeWidth={T.stroke} />}
             {tab}
           </motion.button>
         );
@@ -284,7 +284,7 @@ function MealTimelineCard({ meal, mealIndex, onTap, delay = 0 }) {
         ) : (
           <div
             className="w-6 h-6 rounded-full"
-            style={{ background: '#0A0A0A', border: '1.5px dashed rgba(255,255,255,0.18)' }}
+            style={{ background: T.bg, border: '1.5px dashed rgba(255,255,255,0.18)' }}
           />
         )}
       </div>
@@ -326,7 +326,7 @@ function MealTimelineCard({ meal, mealIndex, onTap, delay = 0 }) {
               >
                 {isLogged ? 'Logged' : 'Not logged'}
               </span>
-              <ChevronRight size={14} strokeWidth={1.5} className="text-white/25" />
+              <ChevronRight size={14} strokeWidth={T.stroke} className="text-white/25" />
             </div>
           </div>
 
@@ -560,7 +560,7 @@ function MealSheet({ meal, mealIndex, isOpen, onClose, logged, logMeal, adjustMe
               onClick={() => setView('main')}
               className="font-body text-[12px] text-white/35 mb-3 flex items-center gap-1 uppercase tracking-wider"
             >
-              <ChevronRight size={12} strokeWidth={1.5} className="rotate-180" /> Back
+              <ChevronRight size={12} strokeWidth={T.stroke} className="rotate-180" /> Back
             </button>
 
             <div className="space-y-3">
@@ -637,7 +637,7 @@ function MealSheet({ meal, mealIndex, isOpen, onClose, logged, logMeal, adjustMe
                   className="w-full py-2 rounded-lg font-body text-[11px] font-bold text-white/60 disabled:opacity-30 flex items-center justify-center gap-1"
                   style={{ border: `1px solid ${CARD_BORDER}` }}
                 >
-                  <Plus size={12} strokeWidth={1.5} /> Add to meal
+                  <Plus size={12} strokeWidth={T.stroke} /> Add to meal
                 </button>
               </div>
             </div>
@@ -659,7 +659,7 @@ function MealSheet({ meal, mealIndex, isOpen, onClose, logged, logMeal, adjustMe
               onClick={() => setView('main')}
               className="font-body text-[12px] text-white/35 mb-3 flex items-center gap-1 uppercase tracking-wider"
             >
-              <ChevronRight size={12} strokeWidth={1.5} className="rotate-180" /> Back
+              <ChevronRight size={12} strokeWidth={T.stroke} className="rotate-180" /> Back
             </button>
 
             <p className="kicker mb-1">Replace {meal.label}</p>
@@ -716,7 +716,7 @@ function MealSheet({ meal, mealIndex, isOpen, onClose, logged, logMeal, adjustMe
               className="w-full py-2.5 rounded-xl font-body text-[12px] text-white/30 flex items-center justify-center gap-1.5 mb-4"
               style={{ border: '1px dashed rgba(255,255,255,0.1)' }}
             >
-              <Plus size={12} strokeWidth={1.5} /> Add another food
+              <Plus size={12} strokeWidth={T.stroke} /> Add another food
             </button>
 
             {replaceTotalCal > 0 && (
@@ -897,7 +897,7 @@ function AddMealSheet({ isOpen, onClose, addMeal }) {
         className="w-full py-2.5 rounded-xl font-body text-[12px] text-white/30 flex items-center justify-center gap-1.5 mb-4"
         style={{ border: '1px dashed rgba(255,255,255,0.1)' }}
       >
-        <Plus size={12} strokeWidth={1.5} /> Add another food
+        <Plus size={12} strokeWidth={T.stroke} /> Add another food
       </button>
 
       {/* Estimated calories */}
@@ -1003,7 +1003,7 @@ function HydrationHero({ hydration }) {
           </div>
 
           <div className="flex items-center gap-2">
-            <GlassWater size={14} strokeWidth={1.5} style={{ color: STEEL_BRIGHT }} />
+            <GlassWater size={14} strokeWidth={T.stroke} style={{ color: STEEL_BRIGHT }} />
             <span className="font-body text-[14px] font-bold text-white tabular-nums">
               {glassesCurr} / {glassesTarget}
             </span>
@@ -1061,7 +1061,7 @@ function DrinkButton({ defaultMl, logWater, setWaterDefault, hasEntries, undoLas
           className="shrink-0 w-14 rounded-2xl flex items-center justify-center"
           style={{ background: CARD_BG, border: `1px solid ${CARD_BORDER}` }}
         >
-          <Settings2 size={18} strokeWidth={1.5} className="text-white/55" />
+          <Settings2 size={18} strokeWidth={T.stroke} className="text-white/55" />
         </motion.button>
       </div>
 
@@ -1288,7 +1288,7 @@ function HydrationStats({ history, hydration }) {
       transition={{ delay: 0.25 }}
     >
       <div className="flex items-start gap-2 px-2">
-        <Droplets size={18} strokeWidth={1.5} style={{ color: STEEL_BRIGHT }} className="mt-0.5 shrink-0" />
+        <Droplets size={18} strokeWidth={T.stroke} style={{ color: STEEL_BRIGHT }} className="mt-0.5 shrink-0" />
         <div className="min-w-0">
           <p className="font-body text-[9px] font-extrabold text-white/35 uppercase tracking-wider leading-none">Weekly avg</p>
           <p className="font-display text-[18px] text-white tabular-nums leading-none mt-1.5">
@@ -1300,7 +1300,7 @@ function HydrationStats({ history, hydration }) {
         </div>
       </div>
       <div className="flex items-start gap-2 px-2 border-l border-r" style={{ borderColor: CARD_BORDER }}>
-        <Trophy size={18} strokeWidth={1.5} style={{ color: GOLD }} className="mt-0.5 shrink-0" />
+        <Trophy size={18} strokeWidth={T.stroke} style={{ color: GOLD }} className="mt-0.5 shrink-0" />
         <div className="min-w-0">
           <p className="font-body text-[9px] font-extrabold text-white/35 uppercase tracking-wider leading-none">Best day</p>
           <p className="font-display text-[18px] text-white tabular-nums leading-none mt-1.5" style={{ color: GOLD }}>
@@ -1312,7 +1312,7 @@ function HydrationStats({ history, hydration }) {
         </div>
       </div>
       <div className="flex items-start gap-2 px-2">
-        <Flame size={18} strokeWidth={1.5} style={{ color: STREAK_GREEN }} className="mt-0.5 shrink-0" />
+        <Flame size={18} strokeWidth={T.stroke} style={{ color: STREAK_GREEN }} className="mt-0.5 shrink-0" />
         <div className="min-w-0">
           <p className="font-body text-[9px] font-extrabold text-white/35 uppercase tracking-wider leading-none">Streak</p>
           <p className="font-display text-[18px] tabular-nums leading-none mt-1.5" style={{ color: STREAK_GREEN }}>
@@ -1491,7 +1491,7 @@ export default function Nutrition({ onMacroDetail }) {
           {/* Section header */}
           <div className="px-5 mb-3 flex items-center justify-between">
             <p className="kicker">Today's meals</p>
-            <MoreHorizontal size={16} strokeWidth={1.5} className="text-white/25" />
+            <MoreHorizontal size={16} strokeWidth={T.stroke} className="text-white/25" />
           </div>
 
           {/* Meal Timeline */}

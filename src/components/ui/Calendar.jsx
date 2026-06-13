@@ -145,7 +145,7 @@ function DayCircle({ day, mode, size = 42 }) {
         height: size,
         background: T.surface,
         border: day.isToday
-          ? `2px solid ${T.gold}`
+          ? `2px solid ${T.text}`
           : mode === 'training' && day.split === 'rest'
             ? `1px dashed ${T.hairlineStrong}`
             : `1px solid ${T.hairline}`,
@@ -160,7 +160,7 @@ function DayCircle({ day, mode, size = 42 }) {
         <span
           className="font-body text-[12px] font-extrabold tabular-nums relative z-10"
           style={{
-            color: day.isToday ? T.gold
+            color: day.isToday ? T.text
               : (mode === 'score' ? day.pts !== null : day.mealPct !== null)
                 ? 'rgba(244,242,236,0.85)'
                 : 'rgba(244,242,236,0.25)',
@@ -199,7 +199,7 @@ export function WeekStrip({ mode = 'score', showPoints = true, className = '' })
               <span
                 className="font-body text-[9px] font-bold tabular-nums"
                 style={{
-                  color: day.isToday ? T.gold
+                  color: day.isToday ? T.text
                     : day.pts !== null && day.isPast ? T.textLow
                     : 'rgba(244,242,236,0.14)',
                 }}
@@ -210,7 +210,7 @@ export function WeekStrip({ mode = 'score', showPoints = true, className = '' })
               <span
                 className="font-body text-[8px] font-extrabold uppercase tracking-wider"
                 style={{
-                  color: day.isToday ? T.gold
+                  color: day.isToday ? T.text
                     : day.split === 'rest' ? T.textFaint
                     : T.textLow,
                 }}
@@ -218,6 +218,11 @@ export function WeekStrip({ mode = 'score', showPoints = true, className = '' })
                 {SPLIT_SHORT[day.split] || '—'}
               </span>
             ) : null}
+
+            {/* Today marker dot */}
+            {day.isToday && (
+              <span className="w-1 h-1 rounded-full" style={{ background: T.gold }} />
+            )}
           </motion.div>
         ))}
       </div>
@@ -316,9 +321,12 @@ export function MonthSheet({ isOpen, onClose, mode = 'score' }) {
             >
               <DayCircle day={c} mode={mode} size={40} />
               {mode === 'training' && (
-                <span className="font-body text-[8px] font-bold tabular-nums" style={{ color: c.isToday ? T.gold : T.textFaint }}>
+                <span className="font-body text-[8px] font-bold tabular-nums" style={{ color: c.isToday ? T.text : T.textFaint }}>
                   {c.date}
                 </span>
+              )}
+              {c.isToday && (
+                <span className="w-1 h-1 rounded-full" style={{ background: T.gold }} />
               )}
             </motion.div>
           );
@@ -360,7 +368,7 @@ export function MonthSheet({ isOpen, onClose, mode = 'score' }) {
           </>
         )}
         <span className="flex items-center gap-1.5 font-body text-[11px] font-medium" style={{ color: T.textLow }}>
-          <span className="inline-block w-4 h-4 rounded-full" style={{ border: `2px solid ${T.gold}`, background: T.surface }} />
+          <span className="inline-block w-4 h-4 rounded-full" style={{ border: `2px solid ${T.text}`, background: T.surface }} />
           Today
         </span>
       </div>

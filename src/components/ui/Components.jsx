@@ -361,12 +361,12 @@ export function TabBar({ activeTab, onTabChange, tabs }) {
                   transition={{ type: 'spring', stiffness: 400, damping: 30 }}
                 />
               )}
-              <div style={{ color: isActive ? T.volt : 'rgba(244,242,236,0.38)' }}>
+              <div style={{ color: isActive ? T.gold : 'rgba(244,242,236,0.38)' }}>
                 {tab.icon}
               </div>
               <span
                 className="font-body text-[10px] font-bold transition-colors"
-                style={{ color: isActive ? T.volt : 'rgba(244,242,236,0.38)' }}
+                style={{ color: isActive ? T.gold : 'rgba(244,242,236,0.38)' }}
               >
                 {tab.label}
               </span>

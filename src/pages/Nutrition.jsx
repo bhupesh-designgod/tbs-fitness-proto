@@ -7,12 +7,13 @@ import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import {
   Check, X, ChevronRight, Droplets, BookOpen, Plus, MoreHorizontal,
   RefreshCw, Trophy, Flame, GlassWater, Settings2, Undo2, CalendarDays,
+  Pill, Clock,
 } from 'lucide-react';
 import { BottomSheet, NumericCounter, RingCounter } from '../components/ui/Components';
 import { WeekStrip, MonthSheet } from '../components/ui/Calendar';
 import { useApp } from '../context/AppContext';
 import { T } from '../tokens';
-import { DAILY_TARGETS, MEAL_PLAN, USER_PROFILE } from '../data/mockData';
+import { DAILY_TARGETS, MEAL_PLAN, USER_PROFILE, SUPPLEMENTS } from '../data/mockData';
 
 // ── Aliases from the token sheet — no local values ──
 const CARD_BG = T.surface;
@@ -872,6 +873,57 @@ function AddMealSheet({ isOpen, onClose, addMeal }) {
 }
 
 // ═════════════════════════════════════════════
+// ── Supplements ── (coach-recommended, info only)
+// ═════════════════════════════════════════════
+function SupplementsSection() {
+  return (
+    <motion.div
+      className="px-5 mt-6"
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.55 }}
+    >
+      <div className="flex items-baseline justify-between mb-3">
+        <p className="kicker">Supplements</p>
+        <span className="font-body text-[10px] font-medium" style={{ color: T.textFaint }}>
+          Coach recommended · no logging needed
+        </span>
+      </div>
+
+      <div className="card overflow-hidden">
+        {SUPPLEMENTS.map((sup, i) => (
+          <div
+            key={sup.name}
+            className="flex items-center gap-3 px-4 py-3"
+            style={{ borderTop: i === 0 ? 'none' : `1px solid ${T.hairline}` }}
+          >
+            <div
+              className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
+              style={{ background: T.surface2, border: `1px solid ${T.hairline}` }}
+            >
+              <Pill size={15} strokeWidth={T.stroke} style={{ color: T.textMid }} />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="font-body text-[13px] font-bold text-[#F4F2EC] leading-tight">
+                {sup.name}
+                <span className="font-medium ml-1.5" style={{ color: T.textFaint }}>{sup.dose}</span>
+              </p>
+            </div>
+            <span
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded-full shrink-0 font-body text-[10px] font-bold"
+              style={{ background: T.surface2, color: T.textLow, border: `1px solid ${T.hairline}` }}
+            >
+              <Clock size={10} strokeWidth={T.stroke} />
+              {sup.timing}
+            </span>
+          </div>
+        ))}
+      </div>
+    </motion.div>
+  );
+}
+
+// ═════════════════════════════════════════════
 // ── Hydration View ── (detailed)
 // ═════════════════════════════════════════════
 const GLASS_ML = 250;
@@ -1489,6 +1541,8 @@ export default function Nutrition({ onMacroDetail }) {
               Add meal
             </motion.button>
           </motion.div>
+
+          <SupplementsSection />
         </>
       ) : (
         <HydrationView

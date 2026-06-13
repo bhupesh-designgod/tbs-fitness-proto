@@ -224,14 +224,20 @@ function NextCheckInCard({ next, onStart }) {
         </div>
       </div>
 
-      <motion.button
-        whileTap={T.tap}
-        onClick={onStart}
-        className="btn-primary mt-4"
-      >
-        Start check-in
-        <ArrowRight size={16} strokeWidth={2} />
-      </motion.button>
+      {days === 0 ? (
+        <motion.button
+          whileTap={T.tap}
+          onClick={onStart}
+          className="btn-primary mt-4"
+        >
+          Start check-in
+          <ArrowRight size={16} strokeWidth={2} />
+        </motion.button>
+      ) : (
+        <p className="font-body text-[11px] font-medium mt-4 text-center" style={{ color: T.textFaint }}>
+          Check-in opens on the day. Nothing to do yet.
+        </p>
+      )}
     </motion.div>
   );
 }
@@ -547,10 +553,10 @@ function HistoryRow({ item, delay, onOpen }) {
 export default function Progress({ onOpenCheckIn, onStartCheckIn }) {
   // Latest reviewed check-in (acts as "current" in comparisons)
   const latest = CHECK_IN_HISTORY[0];
-  // All entries with photos — oldest first — used in both picker dropdowns
+  // All entries with photos — oldest first. The latest week reads "Current".
   const compareEntries = CHECK_IN_HISTORY
     .filter(c => c.photos)
-    .slice()
+    .map(c => (c.id === CHECK_IN_HISTORY[0].id ? { ...c, label: 'Current' } : c))
     .sort((a, b) => a.week - b.week);
   // History list excludes the baseline marker (Week 1) to keep recent weeks focused
   const historyList = CHECK_IN_HISTORY.filter(c => c.week !== 1);

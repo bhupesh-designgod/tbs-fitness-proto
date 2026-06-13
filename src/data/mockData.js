@@ -231,6 +231,15 @@ export const SWAP_OPTIONS = {
   ],
 };
 
+// ── Coach-recommended supplements (info only, not loggable) ──
+export const SUPPLEMENTS = [
+  { name: 'Creatine',     dose: '5g',        timing: 'Morning · empty stomach' },
+  { name: 'Omega-3',      dose: '1 capsule', timing: 'With lunch' },
+  { name: 'Pre-workout',  dose: '1 scoop',   timing: '30 min before training' },
+  { name: 'Whey Protein', dose: '1 scoop',   timing: 'Post-workout' },
+  { name: 'Magnesium',    dose: '400mg',     timing: 'Before bed' },
+];
+
 // ── Food search list ──
 export const FOOD_DATABASE = [
   { name: 'Paneer Bhurji', per100: { protein: 17, carbs: 4, fat: 12, calories: 193 }},

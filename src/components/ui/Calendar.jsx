@@ -136,20 +136,20 @@ function SplitIcon({ split, isToday, isPast, trained, size = 15 }) {
 const SPLIT_SHORT = { push: 'PUSH', pull: 'PULL', legs: 'LEGS', rest: 'REST' };
 
 // ── Shared cell circle — identical structure for every day.
-// Today reads as a softly "lit" panel: faint fill + brighter hairline + bright
-// bold text. The progress ring stays the same diameter as every other day, so
-// the row keeps its rhythm and the ring remains the hero. ──
+// Today is clearly marked: a solid 2px gold ring + gold-tint fill, so the
+// selected day is unmistakable at a glance. The progress ring sits inside the
+// gold edge and keeps the same visual footprint across the row. ──
 function DayCircle({ day, mode, size = 42 }) {
-  const ringSize = size - 2;
+  const ringSize = day.isToday ? size - 5 : size - 2;
   return (
     <div
       className="rounded-full flex items-center justify-center relative"
       style={{
         width: size,
         height: size,
-        background: day.isToday ? 'rgba(244,242,236,0.06)' : T.surface,
+        background: day.isToday ? T.goldTint : T.surface,
         border: day.isToday
-          ? `1px solid ${T.hairlineStrong}`
+          ? `2px solid ${T.gold}`
           : mode === 'training' && day.split === 'rest'
             ? `1px dashed ${T.hairlineStrong}`
             : `1px solid ${T.hairline}`,
@@ -164,7 +164,7 @@ function DayCircle({ day, mode, size = 42 }) {
         <span
           className="font-body text-[12px] font-extrabold tabular-nums relative z-10"
           style={{
-            color: day.isToday ? T.text
+            color: day.isToday ? T.gold
               : (mode === 'score' ? day.pts !== null : day.mealPct !== null)
                 ? 'rgba(244,242,236,0.85)'
                 : 'rgba(244,242,236,0.25)',
@@ -203,7 +203,7 @@ export function WeekStrip({ mode = 'score', showPoints = true, className = '' })
               <span
                 className="font-body text-[9px] font-bold tabular-nums"
                 style={{
-                  color: day.isToday ? T.text
+                  color: day.isToday ? T.gold
                     : day.pts !== null && day.isPast ? T.textLow
                     : 'rgba(244,242,236,0.14)',
                 }}
@@ -214,7 +214,7 @@ export function WeekStrip({ mode = 'score', showPoints = true, className = '' })
               <span
                 className="font-body text-[8px] font-extrabold uppercase tracking-wider"
                 style={{
-                  color: day.isToday ? T.text
+                  color: day.isToday ? T.gold
                     : day.split === 'rest' ? T.textFaint
                     : T.textLow,
                 }}
@@ -320,7 +320,7 @@ export function MonthSheet({ isOpen, onClose, mode = 'score' }) {
             >
               <DayCircle day={c} mode={mode} size={40} />
               {mode === 'training' && (
-                <span className="font-body text-[8px] font-bold tabular-nums" style={{ color: c.isToday ? T.text : T.textFaint }}>
+                <span className="font-body text-[8px] font-bold tabular-nums" style={{ color: c.isToday ? T.gold : T.textFaint }}>
                   {c.date}
                 </span>
               )}
@@ -364,7 +364,7 @@ export function MonthSheet({ isOpen, onClose, mode = 'score' }) {
           </>
         )}
         <span className="flex items-center gap-1.5 font-body text-[11px] font-medium" style={{ color: T.textLow }}>
-          <span className="inline-block w-4 h-4 rounded-full" style={{ border: `1px solid ${T.hairlineStrong}`, background: 'rgba(244,242,236,0.06)' }} />
+          <span className="inline-block w-4 h-4 rounded-full" style={{ border: `2px solid ${T.gold}`, background: T.goldTint }} />
           Today
         </span>
       </div>

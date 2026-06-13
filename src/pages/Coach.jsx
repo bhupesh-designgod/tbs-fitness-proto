@@ -364,7 +364,7 @@ function InputBar({ value, onChange, onSend, topic, onTopicChange }) {
   const topicMeta = TOPICS[topic];
 
   return (
-    <div className="fixed bottom-[72px] left-0 right-0 z-20 px-4 pb-3 mx-auto" style={{ maxWidth: 430 }}>
+    <div className="fixed bottom-[72px] left-0 right-0 z-20 px-4 pb-3 mx-auto flex flex-col" style={{ maxWidth: 430 }}>
       {/* Topic picker pop-up */}
       <AnimatePresence>
         {topicOpen && (
@@ -399,6 +399,27 @@ function InputBar({ value, onChange, onSend, topic, onTopicChange }) {
         )}
       </AnimatePresence>
 
+      {/* Topic selector — its own compact row, keeps the field full-width */}
+      <button
+        onClick={() => setTopicOpen(o => !o)}
+        className="flex items-center gap-1.5 mb-2 ml-1 px-2.5 py-1 rounded-full self-start"
+        style={{ background: CARD_BG, border: `1px solid ${CARD_BORDER}` }}
+      >
+        <span className="w-2 h-2 rounded-full" style={{ background: topicMeta.color }} />
+        <span className="font-body text-[10px] font-extrabold uppercase tracking-wider text-white/45">
+          Topic
+        </span>
+        <span
+          className="font-body text-[11px] font-extrabold uppercase tracking-wider"
+          style={{ color: topicMeta.color }}
+        >
+          {topicMeta.label}
+        </span>
+        <motion.span animate={{ rotate: topicOpen ? 180 : 0 }} transition={{ duration: 0.2 }}>
+          <ChevronDown size={12} strokeWidth={T.stroke} className="text-white/40" />
+        </motion.span>
+      </button>
+
       <div className="flex items-center gap-2">
         <button
           aria-label="Attach"
@@ -409,35 +430,15 @@ function InputBar({ value, onChange, onSend, topic, onTopicChange }) {
         </button>
 
         <div
-          className="flex-1 flex items-stretch rounded-full overflow-hidden"
+          className="flex-1 flex items-center rounded-full"
           style={{ background: CARD_BG, border: `1px solid ${CARD_BORDER}` }}
         >
-          {/* Topic chip */}
-          <button
-            onClick={() => setTopicOpen(o => !o)}
-            className="flex items-center gap-1.5 pl-3 pr-2 my-1 mr-1 rounded-full"
-            style={{ background: 'rgba(255,255,255,0.04)' }}
-          >
-            <div className="flex flex-col items-start leading-none">
-              <span className="font-body text-[8px] text-white/35 uppercase tracking-wider">Topic</span>
-              <span
-                className="font-body text-[11px] font-extrabold uppercase tracking-wider"
-                style={{ color: topicMeta.color }}
-              >
-                {topicMeta.label}
-              </span>
-            </div>
-            <motion.span animate={{ rotate: topicOpen ? 180 : 0 }} transition={{ duration: 0.2 }}>
-              <ChevronDown size={12} strokeWidth={T.stroke} className="text-white/40" />
-            </motion.span>
-          </button>
-
           <input
             value={value}
             onChange={e => onChange(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && onSend()}
             placeholder="Type your message..."
-            className="flex-1 bg-transparent font-body text-[14px] text-[#F4F2EC] placeholder:text-white/25 outline-none px-2"
+            className="flex-1 min-w-0 bg-transparent font-body text-[14px] text-[#F4F2EC] placeholder:text-white/25 outline-none px-4 py-3"
           />
         </div>
 

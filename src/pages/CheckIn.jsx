@@ -2,8 +2,9 @@
 import { useState } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 import { Camera, ChevronRight } from 'lucide-react';
-import { BigNumStepper, FivePointSelector, SplitCTA } from '../components/ui/Components';
+import { BigNumStepper, FivePointSelector } from '../components/ui/Components';
 import { LAST_CHECK_IN } from '../data/mockData';
+import { T } from '../tokens';
 
 const STEPS = ['Photos', 'Measurements', 'How you feel'];
 
@@ -32,11 +33,11 @@ export default function CheckIn({ onDone }) {
         className="flex flex-col items-center justify-center min-h-[60vh] px-5 text-center"
       >
         <div className="w-12 h-12 rounded-full bg-gold-gradient flex items-center justify-center mb-4">
-          <ChevronRight size={20} strokeWidth={1.5} className="text-black" />
+          <ChevronRight size={20} strokeWidth={T.stroke} className="text-black" />
         </div>
-        <p className="font-display text-[20px] font-bold text-white">Sent to Biki</p>
-        <p className="font-body text-[14px] text-white/50 mt-2 max-w-[260px]">
-          He reviews check-ins Sunday evening. You will hear back by Monday.
+        <p className="display-md text-white">SENT TO BIKI</p>
+        <p className="font-body text-[14px] font-medium text-white/50 mt-3 max-w-[260px]">
+          He reviews check-ins Sunday evening. You'll hear back by Monday.
         </p>
       </motion.div>
     );
@@ -54,7 +55,7 @@ export default function CheckIn({ onDone }) {
                 background: i <= step ? 'linear-gradient(135deg, #B8893C, #E0C074)' : 'rgba(255,255,255,0.15)',
               }}
             />
-            <span className="font-body text-[11px]" style={{ color: i <= step ? '#D4A74E' : 'rgba(255,255,255,0.3)' }}>
+            <span className="font-body text-[11px] font-bold" style={{ color: i <= step ? T.gold : 'rgba(255,255,255,0.3)' }}>
               {s}
             </span>
             {i < STEPS.length - 1 && (
@@ -73,7 +74,7 @@ export default function CheckIn({ onDone }) {
         {/* Step 0: Photos */}
         {step === 0 && (
           <div className="space-y-4">
-            <h2 className="font-display text-[24px] font-bold text-white">Progress photos</h2>
+            <h2 className="display-md text-white">PROGRESS PHOTOS</h2>
             <p className="font-body text-[14px] text-white/50">Front, side, and back. Same lighting as last week.</p>
             <div className="grid grid-cols-3 gap-3 mt-4">
               {['Front', 'Side', 'Back'].map((label) => (
@@ -81,9 +82,9 @@ export default function CheckIn({ onDone }) {
                   <input type="file" accept="image/*" className="hidden" />
                   <div
                     className="aspect-[3/4] rounded-xl flex flex-col items-center justify-center gap-2"
-                    style={{ background: '#121212', border: '1px dashed rgba(255,255,255,0.15)' }}
+                    style={{ background: T.surface, border: '1px dashed rgba(255,255,255,0.16)' }}
                   >
-                    <Camera size={20} strokeWidth={1.5} className="text-white/30" />
+                    <Camera size={20} strokeWidth={T.stroke} className="text-white/30" />
                     <span className="font-body text-[11px] text-white/30">{label}</span>
                     {/* Ghost of prior week */}
                     <span className="font-body text-[9px] text-white/15">Last week</span>
@@ -97,10 +98,10 @@ export default function CheckIn({ onDone }) {
         {/* Step 1: Measurements */}
         {step === 1 && (
           <div className="space-y-6">
-            <h2 className="font-display text-[24px] font-bold text-white">Measurements</h2>
+            <h2 className="display-md text-white">MEASUREMENTS</h2>
             <div className="space-y-5">
               <div>
-                <p className="font-body text-[12px] text-white/40 uppercase tracking-wider mb-2">Weight</p>
+                <p className="kicker mb-2">Weight</p>
                 <BigNumStepper
                   value={weight / 10}
                   onChange={(v) => setWeight(Math.round(v * 10))}
@@ -112,7 +113,7 @@ export default function CheckIn({ onDone }) {
               </div>
               {Object.entries(measurements).map(([key, val]) => (
                 <div key={key}>
-                  <p className="font-body text-[12px] text-white/40 uppercase tracking-wider mb-2 capitalize">{key}</p>
+                  <p className="kicker mb-2">{key}</p>
                   <BigNumStepper
                     value={val}
                     onChange={(v) => setMeasurements(prev => ({ ...prev, [key]: v }))}
@@ -130,10 +131,10 @@ export default function CheckIn({ onDone }) {
         {/* Step 2: Feel */}
         {step === 2 && (
           <div className="space-y-5">
-            <h2 className="font-display text-[24px] font-bold text-white">How do you feel</h2>
+            <h2 className="display-md text-white">HOW DO YOU FEEL</h2>
             {['energy', 'hunger', 'sleep', 'stress'].map((metric) => (
               <div key={metric}>
-                <p className="font-body text-[12px] text-white/40 uppercase tracking-wider mb-2 capitalize">{metric}</p>
+                <p className="kicker mb-2">{metric}</p>
                 <FivePointSelector
                   value={feel[metric]}
                   onChange={(v) => setFeel(prev => ({ ...prev, [metric]: v }))}
@@ -142,14 +143,14 @@ export default function CheckIn({ onDone }) {
               </div>
             ))}
             <div>
-              <p className="font-body text-[12px] text-white/40 uppercase tracking-wider mb-2">Note to Biki</p>
+              <p className="kicker mb-2">Note to Biki</p>
               <textarea
                 value={note}
                 onChange={(e) => setNote(e.target.value)}
                 placeholder="Anything to share this week..."
                 rows={3}
                 className="w-full rounded-xl px-4 py-3 font-body text-[14px] text-white placeholder:text-white/25 outline-none resize-none"
-                style={{ background: '#121212', border: '1px solid rgba(255,255,255,0.12)' }}
+                style={{ background: T.surface, border: `1px solid ${T.hairlineStrong}` }}
               />
             </div>
           </div>
@@ -159,9 +160,9 @@ export default function CheckIn({ onDone }) {
       {/* Next button */}
       <div className="mt-8">
         <motion.button
-          whileTap={{ scale: 0.97 }}
+          whileTap={T.tap}
           onClick={next}
-          className="w-full py-3.5 rounded-xl bg-gold-gradient font-body text-[15px] font-medium text-black"
+          className="btn-primary"
         >
           {step < 2 ? 'Continue' : 'Submit check-in'}
         </motion.button>

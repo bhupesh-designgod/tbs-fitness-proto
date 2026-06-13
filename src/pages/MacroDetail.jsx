@@ -5,6 +5,7 @@ import { ChevronLeft } from 'lucide-react';
 import { MacroBar, NumericCounter } from '../components/ui/Components';
 import { useApp } from '../context/AppContext';
 import { DAILY_TARGETS } from '../data/mockData';
+import { T } from '../tokens';
 
 const MACROS = [
   { key: 'protein', label: 'Protein', color: 'gold', unit: 'g' },
@@ -14,9 +15,9 @@ const MACROS = [
 ];
 
 const colorValues = {
-  gold: '#D4A74E',
-  platinum: '#C8C8C6',
-  bronze: '#9A7B4F',
+  gold: T.gold,
+  platinum: T.macroFat,
+  bronze: T.macroCarbs,
   white: '#FFFFFF',
 };
 
@@ -35,12 +36,12 @@ export default function MacroDetail({ onBack }) {
         onClick={onBack}
         className="flex items-center gap-1 py-3 font-body text-[14px] text-white/50"
       >
-        <ChevronLeft size={18} strokeWidth={1.5} />
+        <ChevronLeft size={18} strokeWidth={T.stroke} />
         Back
       </motion.button>
 
       <motion.h1
-        className="font-display text-[28px] font-extrabold text-white mb-6"
+        className="display-md text-white mb-6"
         initial={shouldReduce ? {} : { opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
       >
@@ -67,7 +68,7 @@ export default function MacroDetail({ onBack }) {
               <div className="flex items-baseline gap-2 mb-2">
                 <NumericCounter
                   value={current}
-                  className="text-[36px] font-extrabold"
+                  className="text-[40px]"
                   duration={0.6}
                 />
                 <span className="font-body text-[14px] text-white/30">/ {target}{macro.unit}</span>
@@ -83,7 +84,7 @@ export default function MacroDetail({ onBack }) {
 
               {/* 7-day mini history */}
               <div className="mt-3">
-                <p className="font-body text-[10px] text-white/25 mb-1.5">Last 7 days</p>
+                <p className="font-body text-[10px] font-bold text-white/30 uppercase tracking-wider mb-1.5">Last 7 days</p>
                 <div className="flex items-end gap-1 h-[32px]">
                   {historyValues.map((val, j) => (
                     <motion.div

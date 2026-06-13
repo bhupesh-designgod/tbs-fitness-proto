@@ -4,6 +4,7 @@ import { motion, useReducedMotion } from 'framer-motion';
 import { User, Target, Ruler, Bell, RotateCcw, Eye, ChevronRight } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { USER_PROFILE } from '../data/mockData';
+import { T } from '../tokens';
 
 const STATES = [null, 'ON_TRACK', 'LAGGING', 'REST', 'DEPLETED'];
 const STATE_LABELS = ['Auto', 'On Track', 'Lagging', 'Rest', 'Depleted'];
@@ -25,10 +26,10 @@ export default function Profile() {
   };
 
   const rows = [
-    { icon: <Target size={18} strokeWidth={1.5} />, label: 'Plan', value: USER_PROFILE.plan },
-    { icon: <User size={18} strokeWidth={1.5} />, label: 'Goal', value: USER_PROFILE.goal },
-    { icon: <Ruler size={18} strokeWidth={1.5} />, label: 'Units', value: USER_PROFILE.units === 'metric' ? 'Metric (kg, cm)' : 'Imperial (lb, in)' },
-    { icon: <Bell size={18} strokeWidth={1.5} />, label: 'Notifications', value: 'On' },
+    { icon: <Target size={18} strokeWidth={T.stroke} />, label: 'Plan', value: USER_PROFILE.plan },
+    { icon: <User size={18} strokeWidth={T.stroke} />, label: 'Goal', value: USER_PROFILE.goal },
+    { icon: <Ruler size={18} strokeWidth={T.stroke} />, label: 'Units', value: USER_PROFILE.units === 'metric' ? 'Metric (kg, cm)' : 'Imperial (lb, in)' },
+    { icon: <Bell size={18} strokeWidth={T.stroke} />, label: 'Notifications', value: 'On' },
   ];
 
   return (
@@ -40,14 +41,14 @@ export default function Profile() {
         className="flex items-center gap-4 pt-2 pb-6"
       >
         <div
-          className="w-16 h-16 rounded-full flex items-center justify-center font-display text-[24px] font-bold"
-          style={{ background: 'linear-gradient(135deg, #B8893C, #E0C074)' }}
+          className="w-16 h-16 rounded-full flex items-center justify-center font-display text-[24px]"
+          style={{ background: T.goldGrad }}
         >
           <span className="text-black">{USER_PROFILE.name[0]}</span>
         </div>
         <div>
-          <h1 className="font-display text-[24px] font-extrabold text-white">{USER_PROFILE.name}</h1>
-          <p className="font-body text-[13px] text-white/40">Week {USER_PROFILE.weekNumber} of {USER_PROFILE.totalWeeks}</p>
+          <h1 className="display-md text-white uppercase">{USER_PROFILE.name}</h1>
+          <p className="font-body text-[13px] font-medium text-white/45">Week {USER_PROFILE.weekNumber} of {USER_PROFILE.totalWeeks}</p>
         </div>
       </motion.div>
 
@@ -67,7 +68,7 @@ export default function Profile() {
             <span className="text-white/30">{row.icon}</span>
             <span className="font-body text-[14px] text-white/70 flex-1 text-left">{row.label}</span>
             <span className="font-body text-[13px] text-white/35">{row.value}</span>
-            <ChevronRight size={14} strokeWidth={1.5} className="text-white/15" />
+            <ChevronRight size={14} strokeWidth={T.stroke} className="text-white/15" />
           </motion.button>
         ))}
       </div>
@@ -78,7 +79,7 @@ export default function Profile() {
           onClick={handleHiddenTap}
           className="font-body text-[11px] text-white/15 select-none"
         >
-          <Eye size={12} strokeWidth={1.5} className="inline mr-1 opacity-30" />
+          <Eye size={12} strokeWidth={T.stroke} className="inline mr-1 opacity-30" />
           Preview
         </button>
 
@@ -87,9 +88,9 @@ export default function Profile() {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             className="mt-3 rounded-xl p-4"
-            style={{ background: '#121212', border: '1px solid rgba(255,255,255,0.12)' }}
+            style={{ background: T.surface, border: `1px solid ${T.hairlineStrong}` }}
           >
-            <p className="font-body text-[11px] text-white/40 uppercase tracking-wider mb-3">State preview</p>
+            <p className="kicker mb-3">State preview</p>
             <div className="flex flex-wrap gap-2">
               {STATES.map((state, i) => (
                 <motion.button
@@ -98,7 +99,7 @@ export default function Profile() {
                   onClick={() => setStateOverride(state)}
                   className="px-3 py-1.5 rounded-full font-body text-[12px] transition-all"
                   style={{
-                    background: stateOverride === state ? 'linear-gradient(135deg, #B8893C, #E0C074)' : '#1A1A1A',
+                    background: stateOverride === state ? T.goldGrad : T.surface2,
                     color: stateOverride === state ? '#000' : 'rgba(255,255,255,0.5)',
                     border: `1px solid ${stateOverride === state ? 'transparent' : 'rgba(255,255,255,0.1)'}`,
                   }}
@@ -115,10 +116,9 @@ export default function Profile() {
       <motion.button
         whileTap={{ scale: 0.97 }}
         onClick={resetData}
-        className="mt-8 w-full flex items-center justify-center gap-2 py-3 rounded-xl font-body text-[14px] text-white/40"
-        style={{ border: '1px solid rgba(255,255,255,0.1)' }}
+        className="btn-secondary w-full mt-8"
       >
-        <RotateCcw size={14} strokeWidth={1.5} />
+        <RotateCcw size={14} strokeWidth={T.stroke} />
         Reset demo data
       </motion.button>
 

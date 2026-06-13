@@ -234,7 +234,7 @@ export default function Home({ onProfileClick, onNavigate, onNotifications }) {
       </motion.div>
 
       {/* ═══ 4. SCORE HERO — open air, number bleeds right ═══ */}
-      <motion.div className="pl-5 pt-2 pb-2 relative overflow-hidden" {...enter(0.12)}>
+      <motion.div data-tour="score" className="pl-5 pt-2 pb-2 relative overflow-hidden" {...enter(0.12)}>
         <div className="flex items-center gap-2">
           <span className="kicker">Today's score</span>
           <motion.span

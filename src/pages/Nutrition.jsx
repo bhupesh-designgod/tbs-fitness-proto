@@ -206,6 +206,7 @@ function MealTimelineCard({ meal, mealIndex, onTap, delay = 0 }) {
 
   return (
     <motion.button
+      data-tour={mealIndex === 0 ? 'meal-card' : undefined}
       onClick={() => onTap(mealIndex)}
       whileTap={{ scale: 0.985 }}
       className="relative block w-full text-left"

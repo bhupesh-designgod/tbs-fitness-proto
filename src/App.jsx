@@ -1,13 +1,14 @@
 // ── App Shell ──
 // Tab routing, page transitions, 430px centered layout
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { Home as HomeIcon, Utensils, Dumbbell, MessageCircle, ClipboardCheck } from 'lucide-react';
 import { TabBar } from './components/ui/Components';
 import { AppProvider } from './context/AppContext';
 import { useLocalStorage } from './hooks/useLocalStorage';
 import Onboarding from './onboarding/Onboarding';
+import Walkthrough from './onboarding/Walkthrough';
 import Auth from './auth/Auth';
 
 // Pages
@@ -35,6 +36,8 @@ function AppContent() {
   const [activeTab, setActiveTab] = useState('home');
   const [overlay, setOverlay] = useState(null); // 'profile' | 'checkin' | 'macroDetail' | 'checkinDetail'
   const [checkInId, setCheckInId] = useState(null);
+  // First-run product tour (set by signup; cleared once seen).
+  const [walkthrough, setWalkthrough] = useLocalStorage('tbs-walkthrough', { done: false });
 
   const pageVariants = shouldReduce
     ? { initial: { opacity: 0 }, animate: { opacity: 1 }, exit: { opacity: 0 } }
@@ -83,10 +86,10 @@ function AppContent() {
     }
   };
 
-  const handleTabChange = (tab) => {
+  const handleTabChange = useCallback((tab) => {
     setOverlay(null);
     setActiveTab(tab);
-  };
+  }, []);
 
   return (
     <div className="app-shell">
@@ -125,6 +128,14 @@ function AppContent() {
           tabs={TABS}
         />
       )}
+
+      {/* First-run walkthrough — coachmarks over the live app */}
+      {!walkthrough.done && !overlay && (
+        <Walkthrough
+          onNavigate={handleTabChange}
+          onDone={() => { setWalkthrough({ done: true }); handleTabChange('home'); }}
+        />
+      )}
     </div>
   );
 }
@@ -133,16 +144,19 @@ export default function App() {
   // Persisted gates. Auth first, then onboarding (new sign-ups only), then app.
   const [auth, setAuth] = useLocalStorage('tbs-auth', { loggedIn: false, user: null });
   const [onboarding, setOnboarding] = useLocalStorage('tbs-onboarding', { done: false, answers: null });
+  const [, setWalkthrough] = useLocalStorage('tbs-walkthrough', { done: false });
 
-  // New account → run onboarding.
+  // New account → run onboarding, then the first-run tour.
   const handleSignup = (user) => {
     setOnboarding({ done: false, answers: null });
+    setWalkthrough({ done: false });
     setAuth({ loggedIn: true, user });
   };
 
-  // Returning user → assume already onboarded, straight to home.
+  // Returning user → assume already onboarded + toured, straight to home.
   const handleLogin = (user) => {
     setOnboarding(prev => (prev.done ? prev : { done: true, answers: prev.answers }));
+    setWalkthrough({ done: true });
     setAuth({ loggedIn: true, user });
   };
 

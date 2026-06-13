@@ -6,6 +6,8 @@ import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { Home as HomeIcon, Utensils, Dumbbell, MessageCircle, ClipboardCheck } from 'lucide-react';
 import { TabBar } from './components/ui/Components';
 import { AppProvider } from './context/AppContext';
+import { useLocalStorage } from './hooks/useLocalStorage';
+import Onboarding from './onboarding/Onboarding';
 
 // Pages
 import Home from './pages/Home';
@@ -120,6 +122,17 @@ function AppContent() {
 }
 
 export default function App() {
+  // Persisted onboarding gate — users never see the flow twice.
+  const [onboarding, setOnboarding] = useLocalStorage('tbs-onboarding', { done: false, answers: null });
+
+  const finishOnboarding = (answers) => {
+    setOnboarding({ done: true, answers });
+  };
+
+  if (!onboarding.done) {
+    return <Onboarding onComplete={finishOnboarding} />;
+  }
+
   return (
     <AppProvider>
       <AppContent />

@@ -18,7 +18,7 @@ import { T } from '../tokens';
 // ── Aliases from the token sheet — no local values ──
 const CARD_BG = T.surface;
 const CARD_BORDER = T.hairline;
-const GOLD = T.gold;
+const GOLD = T.volt;
 const GOLD_START = T.goldStart;
 const GOLD_END = T.goldEnd;
 
@@ -108,7 +108,7 @@ function WorkoutHero({ training, planPercentage, onCalendar }) {
           whileTap={{ scale: 0.93 }}
           onClick={onCalendar}
           className="flex items-center gap-1.5 px-3 py-2 rounded-lg"
-          style={{ border: `1px solid rgba(212,167,78,0.3)`, background: 'rgba(0,0,0,0.4)' }}
+          style={{ border: `1px solid rgba(215,255,62,0.3)`, background: 'rgba(0,0,0,0.4)' }}
         >
           <CalendarDays size={14} strokeWidth={T.stroke} style={{ color: GOLD }} />
           <span className="font-body text-[11px] font-extrabold uppercase tracking-wider" style={{ color: GOLD }}>
@@ -123,11 +123,7 @@ function WorkoutHero({ training, planPercentage, onCalendar }) {
           className="font-display leading-[0.85] tracking-tight"
           style={{
             fontSize: 'clamp(56px, 16vw, 78px)',
-            background: `linear-gradient(135deg, ${GOLD_END} 0%, ${GOLD} 45%, ${GOLD_START} 100%)`,
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-            backgroundClip: 'text',
-            textShadow: '0 4px 24px rgba(0,0,0,0.5)',
+            color: T.volt,
           }}
           initial={shouldReduce ? {} : { opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
@@ -147,7 +143,7 @@ function WorkoutHero({ training, planPercentage, onCalendar }) {
         >
           {training.muscles?.map((m, i) => (
             <span key={m} className="flex items-center gap-2">
-              <span className="font-body text-[12px] font-extrabold text-white uppercase tracking-[0.18em]">
+              <span className="font-body text-[12px] font-extrabold text-[#F4F2EC] uppercase tracking-[0.18em]">
                 {m}
               </span>
               {i < training.muscles.length - 1 && (
@@ -203,20 +199,20 @@ function StatStrip({ exerciseCount, minutes, level }) {
           >
             <div
               className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0"
-              style={{ background: 'rgba(212,167,78,0.12)', border: `1px solid rgba(212,167,78,0.22)` }}
+              style={{ background: T.surface2, border: `1px solid ${T.hairline}` }}
             >
-              <Icon size={16} strokeWidth={T.stroke} style={{ color: GOLD }} />
+              <Icon size={16} strokeWidth={T.stroke} style={{ color: T.textMid }} />
             </div>
             <div className="min-w-0">
               {isString ? (
                 <p
-                  className="font-body text-[13px] font-extrabold text-white uppercase tracking-wider leading-none truncate"
+                  className="font-body text-[13px] font-extrabold text-[#F4F2EC] uppercase tracking-wider leading-none truncate"
                   style={{ marginBottom: 4 }}
                 >
                   {s.value}
                 </p>
               ) : (
-                <p className="font-display text-[20px] text-white tabular-nums leading-none">
+                <p className="font-display text-[20px] text-[#F4F2EC] tabular-nums leading-none">
                   {s.value}
                 </p>
               )}
@@ -242,8 +238,8 @@ function SetPill({ set, setIndex, exerciseIndex, toggleSet, shouldReduce }) {
       whileTap={{ scale: 0.95 }}
       className="flex items-center gap-1.5 rounded-lg px-3 py-1.5"
       style={{
-        background: isDone ? 'rgba(212,167,78,0.12)' : 'rgba(255,255,255,0.04)',
-        border: `1px solid ${isDone ? 'rgba(212,167,78,0.35)' : CARD_BORDER}`,
+        background: isDone ? 'rgba(215,255,62,0.12)' : 'rgba(255,255,255,0.04)',
+        border: `1px solid ${isDone ? 'rgba(215,255,62,0.35)' : CARD_BORDER}`,
       }}
     >
       <AnimatePresence mode="wait">
@@ -286,7 +282,7 @@ function ExerciseRow({ exercise, exerciseIndex, toggleSet, shouldReduce, expande
       className="rounded-2xl overflow-hidden"
       style={{
         background: CARD_BG,
-        border: `1px solid ${allComplete ? 'rgba(212,167,78,0.25)' : CARD_BORDER}`,
+        border: `1px solid ${allComplete ? 'rgba(215,255,62,0.25)' : CARD_BORDER}`,
       }}
       initial={shouldReduce ? {} : { opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
@@ -310,7 +306,7 @@ function ExerciseRow({ exercise, exerciseIndex, toggleSet, shouldReduce, expande
           className="w-12 h-12 rounded-full flex items-center justify-center shrink-0 relative"
           style={{
             background: 'rgba(0,0,0,0.35)',
-            border: `1px solid ${allComplete ? 'rgba(212,167,78,0.35)' : CARD_BORDER}`,
+            border: `1px solid ${allComplete ? 'rgba(215,255,62,0.35)' : CARD_BORDER}`,
           }}
         >
           <Dumbbell
@@ -332,7 +328,7 @@ function ExerciseRow({ exercise, exerciseIndex, toggleSet, shouldReduce, expande
         <div className="flex-1 min-w-0">
           <p
             className="display-xs uppercase leading-tight truncate"
-            style={{ color: allComplete ? 'rgba(255,255,255,0.65)' : '#fff' }}
+            style={{ color: allComplete ? 'rgba(255,255,255,0.65)' : '#F4F2EC' }}
           >
             {exercise.name}
           </p>
@@ -425,7 +421,7 @@ function MobilityRow({ item, index, shouldReduce }) {
       <div
         className="w-5 h-5 rounded-md flex items-center justify-center shrink-0"
         style={{
-          background: checked ? `linear-gradient(135deg, ${GOLD_START}, ${GOLD_END})` : 'transparent',
+          background: checked ? T.volt : 'transparent',
           border: `1.5px solid ${checked ? 'transparent' : 'rgba(255,255,255,0.2)'}`,
         }}
       >
@@ -495,17 +491,17 @@ function SessionCompleteTakeover({ training, doneSets, behaviorState, onDismiss,
         >
           <div className="flex flex-col items-center gap-1">
             <Clock size={18} strokeWidth={T.stroke} className="text-white/40 mb-1" />
-            <NumericCounter value={minutes} className="text-[28px] font-bold text-white" />
+            <NumericCounter value={minutes} className="text-[28px] font-bold text-[#F4F2EC]" />
             <span className="font-body text-[11px] text-white/40 uppercase tracking-wider">min</span>
           </div>
           <div className="flex flex-col items-center gap-1">
             <Dumbbell size={18} strokeWidth={T.stroke} className="text-white/40 mb-1" />
-            <NumericCounter value={doneSets} className="text-[28px] font-bold text-white" />
+            <NumericCounter value={doneSets} className="text-[28px] font-bold text-[#F4F2EC]" />
             <span className="font-body text-[11px] text-white/40 uppercase tracking-wider">sets</span>
           </div>
           <div className="flex flex-col items-center gap-1">
             <div className="font-body text-[11px] font-extrabold text-white/40 uppercase mb-1 tracking-wider">vol</div>
-            <NumericCounter value={totalVolume} className="text-[28px] font-bold text-white" duration={1.2} />
+            <NumericCounter value={totalVolume} className="text-[28px] font-bold text-[#F4F2EC]" duration={1.2} />
             <span className="font-body text-[11px] text-white/40 uppercase tracking-wider">kg</span>
           </div>
         </motion.div>
@@ -568,10 +564,13 @@ export default function Train() {
   // ── REST DAY ──
   if (isRest) {
     return (
-      <div className="min-h-screen bg-black pb-24">
+      <div className="min-h-screen bg-[#0B0B0C] pb-24">
+        <div className="pt-4 pb-4">
+          <WeekStrip mode="training" />
+        </div>
         <HeroPhoto src={PHOTOS.restHero} height={300} heavy>
           <motion.h1
-            className="font-display text-[38px] leading-tight text-white tracking-wider"
+            className="font-display text-[38px] leading-tight text-[#F4F2EC] tracking-wider"
             initial={shouldReduce ? {} : { opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4 }}
@@ -588,10 +587,6 @@ export default function Train() {
           </motion.p>
         </HeroPhoto>
 
-        <div className="mt-5 mb-1">
-          <WeekStrip mode="training" />
-        </div>
-
         <div className="px-5 mt-5">
           <motion.div
             className="rounded-2xl px-5 py-4 flex items-center gap-4"
@@ -602,13 +597,13 @@ export default function Train() {
           >
             <div
               className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0"
-              style={{ background: 'rgba(212,167,78,0.1)' }}
+              style={{ background: T.cobaltTint }}
             >
-              <Moon size={22} strokeWidth={T.stroke} color={GOLD} />
+              <Moon size={22} strokeWidth={T.stroke} color={T.cobalt} />
             </div>
             <div>
               <span className="kicker">Sleep target</span>
-              <div className="font-display text-[22px] text-white mt-0.5 tracking-wider">
+              <div className="font-display text-[22px] text-[#F4F2EC] mt-0.5 tracking-wider">
                 {training.recovery?.sleepTarget || '8+ HOURS'}
               </div>
             </div>
@@ -649,7 +644,7 @@ export default function Train() {
 
   // ── TRAINING DAY ──
   return (
-    <div className="min-h-screen bg-black pb-24">
+    <div className="min-h-screen bg-[#0B0B0C] pb-24">
       <AnimatePresence>
         {sessionComplete && showTakeover && (
           <SessionCompleteTakeover
@@ -662,14 +657,14 @@ export default function Train() {
         )}
       </AnimatePresence>
 
+      {/* Week at a glance — top of tab */}
+      <div className="pt-4 pb-4">
+        <WeekStrip mode="training" />
+      </div>
+
       <WorkoutHero training={training} planPercentage={planPercentage} onCalendar={() => setMonthOpen(true)} />
 
       <StatStrip exerciseCount={exerciseCount} minutes={minutes} level={level} />
-
-      {/* Week at a glance — workout vs rest */}
-      <div className="mt-5">
-        <WeekStrip mode="training" />
-      </div>
 
       {/* Session progress (slim) */}
       <div className="px-5 mt-5 mb-1">
@@ -683,7 +678,7 @@ export default function Train() {
         <div className="w-full h-[3px] rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.06)' }}>
           <motion.div
             className="h-full rounded-full"
-            style={{ background: `linear-gradient(90deg, ${GOLD_START}, ${GOLD_END})` }}
+            style={{ background: T.volt }}
             initial={shouldReduce ? { width: `${(doneSets / totalSets) * 100}%` } : { width: '0%' }}
             animate={{ width: totalSets > 0 ? `${(doneSets / totalSets) * 100}%` : '0%' }}
             transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}

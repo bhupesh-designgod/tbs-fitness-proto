@@ -18,7 +18,7 @@ const colorValues = {
   gold: T.gold,
   platinum: T.macroFat,
   bronze: T.macroCarbs,
-  white: '#FFFFFF',
+  white: '#F4F2EC',
 };
 
 export default function MacroDetail({ onBack }) {
@@ -41,7 +41,7 @@ export default function MacroDetail({ onBack }) {
       </motion.button>
 
       <motion.h1
-        className="display-md text-white mb-6"
+        className="display-md text-[#F4F2EC] mb-6"
         initial={shouldReduce ? {} : { opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
       >

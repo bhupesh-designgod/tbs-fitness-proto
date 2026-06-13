@@ -18,18 +18,18 @@ import { T } from '../tokens';
 // ── Aliases from the token sheet — no local values ──
 const CARD_BG = T.surface;
 const CARD_BORDER = T.hairline;
-const GOLD = T.gold;
+const GOLD = T.volt;
 const GOLD_START = T.goldStart;
 const GOLD_END = T.goldEnd;
 const ONLINE_GREEN = T.success;
 
 // ── Topic palette ──
 const TOPICS = {
-  general:  { label: 'General',  color: '#9CA3AF' },
-  workout:  { label: 'Workout',  color: '#FF8855' },
-  diet:     { label: 'Diet',     color: '#4ADE80' },
-  progress: { label: 'Progress', color: '#5B9DD9' },
-  other:    { label: 'Other',    color: '#B57DD9' },
+  general:  { label: 'General',  color: '#9D9C96' },
+  workout:  { label: 'Workout',  color: '#D7FF3E' },
+  diet:     { label: 'Diet',     color: '#F4F2EC' },
+  progress: { label: 'Progress', color: '#2B4BFF' },
+  other:    { label: 'Other',    color: '#FF3B30' },
 };
 const TOPIC_KEYS = Object.keys(TOPICS);
 
@@ -62,7 +62,7 @@ function CoachHeader({ onBack }) {
       <div className="relative shrink-0">
         <div
           className="w-12 h-12 rounded-full overflow-hidden"
-          style={{ border: `1.5px solid rgba(212,167,78,0.4)` }}
+          style={{ border: `1.5px solid rgba(215,255,62,0.4)` }}
         >
           <img
             src={PHOTOS.bikiPortrait}
@@ -76,10 +76,10 @@ function CoachHeader({ onBack }) {
       {/* Name + meta */}
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-1.5">
-          <h1 className="display-sm text-white uppercase leading-tight truncate">
+          <h1 className="display-sm text-[#F4F2EC] uppercase leading-tight truncate">
             {BIKI.name}
           </h1>
-          <BadgeCheck size={15} strokeWidth={2} style={{ color: GOLD }} className="shrink-0" />
+          <BadgeCheck size={15} strokeWidth={2} style={{ color: T.gold }} className="shrink-0" />
         </div>
         <p className="font-body text-[11px] text-white/45 leading-tight mt-0.5 truncate">
           IFBB Pro · Head Coach
@@ -117,13 +117,13 @@ function NextCallCard() {
     >
       <div
         className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0"
-        style={{ background: 'rgba(212,167,78,0.1)', border: `1px solid rgba(212,167,78,0.25)` }}
+        style={{ background: 'rgba(215,255,62,0.1)', border: `1px solid rgba(215,255,62,0.25)` }}
       >
         <CalendarDays size={20} strokeWidth={T.stroke} style={{ color: GOLD }} />
       </div>
       <div className="flex-1 min-w-0">
         <p className="kicker kicker-gold mb-0.5">Next call</p>
-        <p className="display-xs text-white uppercase leading-tight truncate">
+        <p className="display-xs text-[#F4F2EC] uppercase leading-tight truncate">
           {NEXT_CALL.date}
         </p>
         <p className="font-body text-[11px] text-white/40 mt-0.5">{NEXT_CALL.time}</p>
@@ -131,7 +131,7 @@ function NextCallCard() {
       <motion.button
         whileTap={{ scale: 0.95 }}
         className="shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-lg"
-        style={{ border: `1px solid rgba(212,167,78,0.35)` }}
+        style={{ border: `1px solid rgba(215,255,62,0.35)` }}
       >
         <Video size={14} strokeWidth={T.stroke} style={{ color: GOLD }} />
         <span className="font-body text-[11px] font-extrabold uppercase tracking-wider" style={{ color: GOLD }}>
@@ -165,7 +165,7 @@ function CoachAvatar() {
     <div className="relative shrink-0">
       <div
         className="w-9 h-9 rounded-full overflow-hidden"
-        style={{ border: '1.5px solid rgba(212,167,78,0.3)' }}
+        style={{ border: '1.5px solid rgba(215,255,62,0.3)' }}
       >
         <img
           src={PHOTOS.bikiPortrait}
@@ -233,7 +233,7 @@ function VoiceBubble({ duration }) {
         whileTap={{ scale: 0.92 }}
         onClick={() => setPlaying(p => !p)}
         className="shrink-0 w-9 h-9 rounded-full flex items-center justify-center"
-        style={{ background: `linear-gradient(135deg, ${GOLD_START}, ${GOLD_END})` }}
+        style={{ background: T.volt }}
       >
         {playing
           ? <Pause size={14} strokeWidth={2.5} color="#000" fill="#000" />
@@ -437,7 +437,7 @@ function InputBar({ value, onChange, onSend, topic, onTopicChange }) {
             onChange={e => onChange(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && onSend()}
             placeholder="Type your message..."
-            className="flex-1 bg-transparent font-body text-[14px] text-white placeholder:text-white/25 outline-none px-2"
+            className="flex-1 bg-transparent font-body text-[14px] text-[#F4F2EC] placeholder:text-white/25 outline-none px-2"
           />
         </div>
 
@@ -447,7 +447,7 @@ function InputBar({ value, onChange, onSend, topic, onTopicChange }) {
             onClick={onSend}
             aria-label="Send"
             className="shrink-0 w-11 h-11 rounded-full flex items-center justify-center"
-            style={{ background: `linear-gradient(135deg, ${GOLD_START}, ${GOLD_END})` }}
+            style={{ background: T.volt }}
           >
             <Send size={16} strokeWidth={2} color="#000" />
           </motion.button>
@@ -510,7 +510,7 @@ export default function Coach({ onCheckIn, onBack }) {
   };
 
   return (
-    <div className="min-h-screen pb-44" style={{ background: '#000' }}>
+    <div className="min-h-screen pb-44" style={{ background: T.bg }}>
       <CoachHeader onBack={onBack} />
       <NextCallCard />
 
@@ -520,7 +520,7 @@ export default function Coach({ onCheckIn, onBack }) {
           onClick={onCheckIn}
           whileTap={{ scale: 0.98 }}
           className="mx-5 mb-5 w-[calc(100%-2.5rem)] flex items-center justify-between px-4 py-2.5 rounded-xl"
-          style={{ background: 'rgba(212,167,78,0.08)', border: '1px solid rgba(212,167,78,0.25)' }}
+          style={{ background: 'rgba(215,255,62,0.08)', border: '1px solid rgba(215,255,62,0.25)' }}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
         >

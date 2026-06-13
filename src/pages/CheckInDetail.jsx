@@ -14,7 +14,7 @@ import { T } from '../tokens';
 // ── Aliases from the token sheet — no local values ──
 const CARD_BG = T.surface;
 const CARD_BORDER = T.hairline;
-const GOLD = T.gold;
+const GOLD = T.volt;
 const GOLD_START = T.goldStart;
 const GOLD_END = T.goldEnd;
 const ON_TRACK = T.success;
@@ -39,7 +39,7 @@ function TopBar({ title, subtitle, onBack }) {
         <ArrowLeft size={18} strokeWidth={1.75} className="text-white/80" />
       </button>
       <div className="flex-1 text-center min-w-0">
-        <h1 className="display-xs text-white uppercase truncate">
+        <h1 className="display-xs text-[#F4F2EC] uppercase truncate">
           {title}
         </h1>
         {subtitle && (
@@ -64,10 +64,7 @@ function CoachSummaryCard({ summary }) {
   return (
     <motion.div
       className="mx-5 mb-5 rounded-2xl p-5 relative overflow-hidden"
-      style={{
-        background: 'linear-gradient(135deg, rgba(212,167,78,0.08), rgba(212,167,78,0.02))',
-        border: '1px solid rgba(212,167,78,0.3)',
-      }}
+      style={{ background: CARD_BG, border: `1px solid ${CARD_BORDER}` }}
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
     >
@@ -101,12 +98,12 @@ function CoachSummaryCard({ summary }) {
 // Submitted Data 2-column grid
 // ─────────────────────────────────────────────
 const METRIC_ICONS = {
-  weight:  { icon: Scale,      tint: '#5B9DD9' },
-  protein: { icon: Beef,       tint: '#B57DD9' },
-  workout: { icon: Dumbbell,   tint: '#FF8855' },
-  steps:   { icon: Footprints, tint: '#4ADE80' },
-  waist:   { icon: Ruler,      tint: '#7BA7C9' },
-  energy:  { icon: Zap,        tint: GOLD },
+  weight:  { icon: Scale,      tint: T.cobalt },
+  protein: { icon: Beef,       tint: T.volt },
+  workout: { icon: Dumbbell,   tint: T.red },
+  steps:   { icon: Footprints, tint: T.textMid },
+  waist:   { icon: Ruler,      tint: T.cobalt },
+  energy:  { icon: Zap,        tint: T.gold },
 };
 
 function formatNumber(v) {
@@ -147,7 +144,7 @@ function MetricGridCard({ k, m }) {
         </p>
       </div>
       <div className="flex items-baseline gap-1">
-        <span className="font-display text-[26px] text-white tabular-nums leading-none">
+        <span className="font-display text-[26px] text-[#F4F2EC] tabular-nums leading-none">
           {formatNumber(m.value)}
         </span>
         {m.unit && (
@@ -211,7 +208,7 @@ function PlanChanges({ changes }) {
           >
             <div
               className="w-5 h-5 rounded-full flex items-center justify-center shrink-0 mt-0.5"
-              style={{ background: 'rgba(212,167,78,0.12)', border: '1.5px solid rgba(212,167,78,0.45)' }}
+              style={{ background: 'rgba(215,255,62,0.12)', border: '1.5px solid rgba(215,255,62,0.45)' }}
             >
               <Check size={11} strokeWidth={2.5} style={{ color: GOLD }} />
             </div>
@@ -254,7 +251,7 @@ export default function CheckInDetail({ checkInId, onBack, onMessageBiki }) {
   const subtitle = checkIn.reviewedOn ? `Reviewed on ${checkIn.reviewedOn}` : null;
 
   return (
-    <div className="min-h-screen pb-32" style={{ background: '#000' }}>
+    <div className="min-h-screen pb-32" style={{ background: T.bg }}>
       <TopBar
         title={`${checkIn.label} Review`}
         subtitle={subtitle}

@@ -42,12 +42,12 @@ export default function Profile() {
       >
         <div
           className="w-16 h-16 rounded-full flex items-center justify-center font-display text-[24px]"
-          style={{ background: T.goldGrad }}
+          style={{ background: T.gold }}
         >
           <span className="text-black">{USER_PROFILE.name[0]}</span>
         </div>
         <div>
-          <h1 className="display-md text-white uppercase">{USER_PROFILE.name}</h1>
+          <h1 className="display-md text-[#F4F2EC] uppercase">{USER_PROFILE.name}</h1>
           <p className="font-body text-[13px] font-medium text-white/45">Week {USER_PROFILE.weekNumber} of {USER_PROFILE.totalWeeks}</p>
         </div>
       </motion.div>
@@ -100,7 +100,7 @@ export default function Profile() {
                   className="px-3 py-1.5 rounded-full font-body text-[12px] transition-all"
                   style={{
                     background: stateOverride === state ? T.goldGrad : T.surface2,
-                    color: stateOverride === state ? '#000' : 'rgba(255,255,255,0.5)',
+                    color: stateOverride === state ? '#0B0B0C' : 'rgba(255,255,255,0.5)',
                     border: `1px solid ${stateOverride === state ? 'transparent' : 'rgba(255,255,255,0.1)'}`,
                   }}
                 >

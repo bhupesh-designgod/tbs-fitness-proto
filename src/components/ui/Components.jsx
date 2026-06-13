@@ -39,7 +39,7 @@ export function MacroBar({ label, current, target, color, size = 'normal' }) {
     gold: 'linear-gradient(135deg, #B8893C, #E0C074)',
     platinum: '#C8C8C6',
     bronze: '#9A7B4F',
-    white: '#FFFFFF',
+    white: '#F4F2EC',
     steel: '#5B7C99',
   };
 
@@ -105,7 +105,7 @@ export function NumericCounter({ value, suffix = '', className = '', duration = 
 }
 
 // ── Ring Counter (SVG concentric ring) ──
-export function RingCounter({ percentage, size = 120, strokeWidth = 5, color = '#D4A74E', delay = 0, children }) {
+export function RingCounter({ percentage, size = 120, strokeWidth = 5, color = '#D7FF3E', delay = 0, children }) {
   const shouldReduce = useReducedMotion();
   const radius = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
@@ -257,7 +257,7 @@ export function BigNumStepper({ value, onChange, unit = '', min = 0, max = 999, 
         <span className="text-white/60 text-lg">−</span>
       </motion.button>
       <div className="flex items-baseline gap-1">
-        <NumericCounter value={value} className="text-[36px] text-white" />
+        <NumericCounter value={value} className="text-[36px] text-[#F4F2EC]" />
         {unit && <span className="font-body text-[14px] text-white/40">{unit}</span>}
       </div>
       <motion.button
@@ -284,7 +284,7 @@ export function FivePointSelector({ value, onChange, labels = ['1', '2', '3', '4
           className="flex-1 py-2.5 rounded-xl text-center font-body text-[13px] font-bold transition-all"
           style={{
             background: value === i + 1 ? T.goldGrad : T.surface,
-            color: value === i + 1 ? '#000' : 'rgba(255,255,255,0.5)',
+            color: value === i + 1 ? '#0B0B0C' : 'rgba(255,255,255,0.5)',
             border: `1px solid ${value === i + 1 ? 'transparent' : 'rgba(255,255,255,0.12)'}`,
           }}
         >
@@ -324,7 +324,7 @@ export function Header({ onProfileClick, onBikiClick }) {
         />
         <div
           className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full"
-          style={{ background: '#D4A74E', border: '2px solid #000' }}
+          style={{ background: T.volt, border: '2px solid #0B0B0C' }}
         />
       </motion.button>
     </div>
@@ -361,12 +361,12 @@ export function TabBar({ activeTab, onTabChange, tabs }) {
                   transition={{ type: 'spring', stiffness: 400, damping: 30 }}
                 />
               )}
-              <div style={{ color: isActive ? T.gold : 'rgba(255,255,255,0.38)' }}>
+              <div style={{ color: isActive ? T.volt : 'rgba(244,242,236,0.38)' }}>
                 {tab.icon}
               </div>
               <span
                 className="font-body text-[10px] font-bold transition-colors"
-                style={{ color: isActive ? T.gold : 'rgba(255,255,255,0.38)' }}
+                style={{ color: isActive ? T.volt : 'rgba(244,242,236,0.38)' }}
               >
                 {tab.label}
               </span>

@@ -14,7 +14,7 @@ import { T } from '../tokens';
 // ── Aliases from the token sheet — no local values ──
 const CARD_BG = T.surface;
 const CARD_BORDER = T.hairline;
-const GOLD = T.gold;
+const GOLD = T.volt;
 const GOLD_START = T.goldStart;
 const GOLD_END = T.goldEnd;
 const ON_TRACK = T.success;
@@ -42,7 +42,7 @@ function ReviewsHeader() {
       animate={{ opacity: 1, y: 0 }}
     >
       <div>
-        <h1 className="display-md text-white">
+        <h1 className="display-md text-[#F4F2EC]">
           REVIEWS
         </h1>
         <p className="font-body text-[12px] text-white/40 mt-2">
@@ -67,10 +67,7 @@ function LatestReviewCard({ checkIn, onView }) {
   return (
     <motion.div
       className="mx-5 mb-4 rounded-2xl p-5 relative overflow-hidden"
-      style={{
-        background: 'linear-gradient(135deg, rgba(212,167,78,0.08), rgba(212,167,78,0.02))',
-        border: '1px solid rgba(212,167,78,0.3)',
-      }}
+      style={{ background: CARD_BG, border: `1px solid ${CARD_BORDER}` }}
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.05 }}
@@ -96,12 +93,12 @@ function LatestReviewCard({ checkIn, onView }) {
         <p className="kicker kicker-gold">Latest review</p>
 
         <div className="flex items-center gap-2.5 mt-1.5">
-          <h2 className="display-lg text-white uppercase">
+          <h2 className="display-lg text-[#F4F2EC] uppercase">
             {checkIn.label.toUpperCase()}
           </h2>
           <span
             className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md"
-            style={{ background: 'rgba(74,222,128,0.12)', border: '1px solid rgba(74,222,128,0.3)' }}
+            style={{ background: 'rgba(215,255,62,0.12)', border: '1px solid rgba(215,255,62,0.3)' }}
           >
             <span
               className="w-2.5 h-2.5 rounded-full flex items-center justify-center"
@@ -121,7 +118,7 @@ function LatestReviewCard({ checkIn, onView }) {
         <div className="flex items-center gap-2 mt-3">
           <div
             className="w-7 h-7 rounded-full overflow-hidden shrink-0"
-            style={{ border: '1px solid rgba(212,167,78,0.3)' }}
+            style={{ border: '1px solid rgba(215,255,62,0.3)' }}
           >
             <img
               src={PHOTOS.bikiPortrait}
@@ -196,13 +193,13 @@ function NextCheckInCard({ next, onStart }) {
       <div className="flex items-center gap-4">
         <div
           className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0"
-          style={{ background: 'rgba(212,167,78,0.1)', border: '1px solid rgba(212,167,78,0.25)' }}
+          style={{ background: 'rgba(215,255,62,0.1)', border: '1px solid rgba(215,255,62,0.25)' }}
         >
           <CalendarDays size={20} strokeWidth={T.stroke} style={{ color: GOLD }} />
         </div>
         <div className="flex-1 min-w-0">
           <p className="kicker kicker-gold">Next check-in</p>
-          <p className="display-xs text-white uppercase mt-1 leading-tight truncate">
+          <p className="display-xs text-[#F4F2EC] uppercase mt-1 leading-tight truncate">
             {headline}
           </p>
           <p className="font-body text-[11px] text-white/40 mt-1">{sub}</p>
@@ -217,7 +214,7 @@ function NextCheckInCard({ next, onStart }) {
             />
           </svg>
           <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <span className="font-display text-[20px] text-white tabular-nums leading-none">
+            <span className="font-display text-[20px] text-[#F4F2EC] tabular-nums leading-none">
               {days}
             </span>
             <span className="font-body text-[8px] font-extrabold text-white/45 uppercase tracking-wider">
@@ -264,7 +261,7 @@ function WeekPicker({ value, options, onChange }) {
         className="w-full flex items-center justify-between gap-2 px-3.5 py-2.5 rounded-xl"
         style={{ background: CARD_BG, border: `1px solid ${CARD_BORDER}` }}
       >
-        <span className="font-body text-[13px] font-bold text-white truncate">
+        <span className="font-body text-[13px] font-bold text-[#F4F2EC] truncate">
           {current?.label || '—'}
         </span>
         <motion.span
@@ -299,7 +296,7 @@ function WeekPicker({ value, options, onChange }) {
                   key={opt.id}
                   onClick={() => { onChange(opt.id); setOpen(false); }}
                   className="w-full text-left px-3.5 py-2.5 flex items-center justify-between"
-                  style={{ background: isActive ? 'rgba(212,167,78,0.1)' : 'transparent' }}
+                  style={{ background: isActive ? 'rgba(215,255,62,0.1)' : 'transparent' }}
                 >
                   <span
                     className="font-body text-[12px] font-bold"
@@ -332,8 +329,8 @@ function CompareAngleToggle({ active, onChange }) {
             whileTap={{ scale: 0.96 }}
             className="px-4 py-1.5 rounded-full"
             style={{
-              background: isActive ? 'rgba(212,167,78,0.16)' : 'transparent',
-              border: isActive ? '1px solid rgba(212,167,78,0.4)' : '1px solid transparent',
+              background: isActive ? 'rgba(215,255,62,0.16)' : 'transparent',
+              border: isActive ? '1px solid rgba(215,255,62,0.4)' : '1px solid transparent',
             }}
           >
             <span
@@ -378,7 +375,7 @@ function PhotoCard({ entry, angle, accent }) {
       {typeof weight === 'number' && (
         <span
           className="absolute bottom-2 left-2 font-body text-[13px] font-extrabold tabular-nums"
-          style={{ color: accent || '#fff' }}
+          style={{ color: accent || '#F4F2EC' }}
         >
           {weight.toFixed(1)} kg
         </span>
@@ -408,8 +405,8 @@ function DeltaPill({ delta }) {
     <div
       className="rounded-full px-2.5 py-1.5 whitespace-nowrap flex items-center gap-1"
       style={{
-        background: 'rgba(74,222,128,0.14)',
-        border: '1px solid rgba(74,222,128,0.4)',
+        background: 'rgba(215,255,62,0.14)',
+        border: '1px solid rgba(215,255,62,0.4)',
       }}
     >
       {isDown
@@ -489,7 +486,7 @@ function HistoryRow({ item, delay, onOpen }) {
       </div>
 
       <div className="flex-1 min-w-0">
-        <p className="display-xs text-white uppercase leading-tight">
+        <p className="display-xs text-[#F4F2EC] uppercase leading-tight">
           {item.label}
           <span className="text-white/35 mx-1.5">·</span>
           {item.dateLabel}
@@ -533,7 +530,7 @@ function HistoryRow({ item, delay, onOpen }) {
 
       <div
         className="shrink-0 px-3 py-1.5 rounded-lg"
-        style={{ border: '1px solid rgba(212,167,78,0.3)' }}
+        style={{ border: '1px solid rgba(215,255,62,0.3)' }}
       >
         <span className="font-body text-[11px] font-extrabold uppercase tracking-wider" style={{ color: GOLD }}>
           View
@@ -567,7 +564,7 @@ export default function Progress({ onOpenCheckIn, onStartCheckIn }) {
   const startCheckIn = () => onStartCheckIn?.();
 
   return (
-    <div className="min-h-screen pb-24" style={{ background: '#000' }}>
+    <div className="min-h-screen pb-24" style={{ background: T.bg }}>
       <ReviewsHeader />
 
       <LatestReviewCard checkIn={latest} onView={openLatest} />

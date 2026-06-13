@@ -35,7 +35,7 @@ export default function CheckIn({ onDone }) {
         <div className="w-12 h-12 rounded-full bg-gold-gradient flex items-center justify-center mb-4">
           <ChevronRight size={20} strokeWidth={T.stroke} className="text-black" />
         </div>
-        <p className="display-md text-white">SENT TO BIKI</p>
+        <p className="display-md text-[#F4F2EC]">SENT TO BIKI</p>
         <p className="font-body text-[14px] font-medium text-white/50 mt-3 max-w-[260px]">
           He reviews check-ins Sunday evening. You'll hear back by Monday.
         </p>
@@ -52,7 +52,7 @@ export default function CheckIn({ onDone }) {
             <div
               className="w-2.5 h-2.5 rounded-full transition-all"
               style={{
-                background: i <= step ? 'linear-gradient(135deg, #B8893C, #E0C074)' : 'rgba(255,255,255,0.15)',
+                background: i <= step ? T.volt : 'rgba(244,242,236,0.15)',
               }}
             />
             <span className="font-body text-[11px] font-bold" style={{ color: i <= step ? T.gold : 'rgba(255,255,255,0.3)' }}>
@@ -74,7 +74,7 @@ export default function CheckIn({ onDone }) {
         {/* Step 0: Photos */}
         {step === 0 && (
           <div className="space-y-4">
-            <h2 className="display-md text-white">PROGRESS PHOTOS</h2>
+            <h2 className="display-md text-[#F4F2EC]">PROGRESS PHOTOS</h2>
             <p className="font-body text-[14px] text-white/50">Front, side, and back. Same lighting as last week.</p>
             <div className="grid grid-cols-3 gap-3 mt-4">
               {['Front', 'Side', 'Back'].map((label) => (
@@ -98,7 +98,7 @@ export default function CheckIn({ onDone }) {
         {/* Step 1: Measurements */}
         {step === 1 && (
           <div className="space-y-6">
-            <h2 className="display-md text-white">MEASUREMENTS</h2>
+            <h2 className="display-md text-[#F4F2EC]">MEASUREMENTS</h2>
             <div className="space-y-5">
               <div>
                 <p className="kicker mb-2">Weight</p>
@@ -131,7 +131,7 @@ export default function CheckIn({ onDone }) {
         {/* Step 2: Feel */}
         {step === 2 && (
           <div className="space-y-5">
-            <h2 className="display-md text-white">HOW DO YOU FEEL</h2>
+            <h2 className="display-md text-[#F4F2EC]">HOW DO YOU FEEL</h2>
             {['energy', 'hunger', 'sleep', 'stress'].map((metric) => (
               <div key={metric}>
                 <p className="kicker mb-2">{metric}</p>
@@ -149,7 +149,7 @@ export default function CheckIn({ onDone }) {
                 onChange={(e) => setNote(e.target.value)}
                 placeholder="Anything to share this week..."
                 rows={3}
-                className="w-full rounded-xl px-4 py-3 font-body text-[14px] text-white placeholder:text-white/25 outline-none resize-none"
+                className="w-full rounded-xl px-4 py-3 font-body text-[14px] text-[#F4F2EC] placeholder:text-white/25 outline-none resize-none"
                 style={{ background: T.surface, border: `1px solid ${T.hairlineStrong}` }}
               />
             </div>

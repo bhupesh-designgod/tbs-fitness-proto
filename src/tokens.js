@@ -1,47 +1,64 @@
-// ── Design Tokens ──
-// Single source of truth for every color, radius, spring, and stroke
-// used in JS (framer-motion props, SVG attrs, inline styles).
-// CSS-side equivalents live in index.css. Never hardcode these per-file.
+// ── Design Tokens — "Track Jersey" palette ──
+// Black + off-white carry 85% of every screen. Volt is the engine (10%).
+// Red / cobalt / gold split the last 5%. Flat fills only — no gradients.
 
 export const T = {
-  // Surfaces
-  bg: '#000000',
-  surface: '#101014',          // card background
-  surface2: '#17171C',         // raised / inner elements
-  hairline: 'rgba(255,255,255,0.08)',
-  hairlineStrong: 'rgba(255,255,255,0.16)',
+  // Base
+  bg: '#0B0B0C',
+  surface: '#151517',
+  surface2: '#1D1D20',
+  hairline: 'rgba(244,242,236,0.08)',
+  hairlineStrong: 'rgba(244,242,236,0.16)',
 
-  // Accent — gold. Use ONLY for: hero numbers, primary CTAs,
-  // active states, progress fills. Nothing passive.
-  gold: '#D4A74E',
-  goldStart: '#B8893C',
-  goldEnd: '#E0C074',
-  goldGrad: 'linear-gradient(135deg, #B8893C, #E0C074)',
-  goldTint: 'rgba(212,167,78,0.10)',
-  goldBorder: 'rgba(212,167,78,0.30)',
+  // VOLT — the hero. Active states, live progress, primary CTAs.
+  // Always flat, always full saturation, black text on top.
+  volt: '#D7FF3E',
+  voltInk: '#0B0B0C',
+  voltTint: 'rgba(215,255,62,0.10)',
+  voltBorder: 'rgba(215,255,62,0.35)',
 
-  // Functional colors — data only, never decoration
-  success: '#4ADE80',
-  successTint: 'rgba(74,222,128,0.12)',
-  successBorder: 'rgba(74,222,128,0.30)',
-  danger: '#F87171',
-  water: '#7BA7C9',
-  macroFat: '#C8C8C6',
-  macroCarbs: '#9A7B4F',
-  waterTint: 'rgba(123,167,201,0.14)',
-  waterBorder: 'rgba(123,167,201,0.35)',
+  // RED — heat. PRs, max effort, alerts. Small and sharp only.
+  red: '#FF3B30',
+  redTint: 'rgba(255,59,48,0.12)',
 
-  // Text — AA-checked on #000/#101014
-  text: '#FFFFFF',
-  textMid: 'rgba(255,255,255,0.66)',
-  textLow: 'rgba(255,255,255,0.45)',
-  textFaint: 'rgba(255,255,255,0.28)',
+  // COBALT — recovery, hydration, rest. Small doses.
+  cobalt: '#2B4BFF',
+  cobaltTint: 'rgba(43,75,255,0.14)',
+  cobaltBorder: 'rgba(43,75,255,0.40)',
+
+  // GOLD — trophies only. Milestones, brand. Max 1–2 per screen.
+  gold: '#D4A848',
+  goldTintTrophy: 'rgba(212,168,72,0.12)',
+
+  // Legacy accent aliases — all resolve to volt so old call sites stay flat volt
+  goldStart: '#D7FF3E',
+  goldEnd: '#D7FF3E',
+  goldGrad: '#D7FF3E',
+  goldTint: 'rgba(215,255,62,0.10)',
+  goldBorder: 'rgba(215,255,62,0.35)',
+
+  // Functional — data only
+  success: '#D7FF3E',           // "done" is volt — the app lights up
+  successTint: 'rgba(215,255,62,0.12)',
+  successBorder: 'rgba(215,255,62,0.35)',
+  danger: '#FF3B30',
+  water: '#2B4BFF',
+  waterTint: 'rgba(43,75,255,0.14)',
+  waterBorder: 'rgba(43,75,255,0.40)',
+  macroFat: '#9D9C96',
+  macroCarbs: '#2B4BFF',
+
+  // Text — warm off-white ink
+  text: '#F4F2EC',
+  textMid: '#9D9C96',
+  textLow: 'rgba(244,242,236,0.45)',
+  textFaint: 'rgba(244,242,236,0.26)',
 
   // Geometry
   rCard: 20,
   rInner: 12,
   rPill: 999,
-  stroke: 1.75, // icon stroke width — everywhere
+  stroke: 1.75,
 
   // Motion
   spring: { type: 'spring', stiffness: 420, damping: 28 },

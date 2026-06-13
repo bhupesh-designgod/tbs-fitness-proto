@@ -17,7 +17,7 @@ import { DAILY_TARGETS, MEAL_PLAN, USER_PROFILE } from '../data/mockData';
 // ── Aliases from the token sheet — no local values ──
 const CARD_BG = T.surface;
 const CARD_BORDER = T.hairline;
-const GOLD = T.gold;
+const GOLD = T.volt;
 const GOLD_START = T.goldStart;
 const GOLD_END = T.goldEnd;
 const STEEL = T.water;
@@ -66,7 +66,7 @@ function TabToggle({ active, onChange }) {
             className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-full font-body text-[12px] font-extrabold uppercase tracking-wider"
             style={{
               background: isActive ? T.goldGrad : 'transparent',
-              color: isActive ? '#000' : T.textLow,
+              color: isActive ? '#0B0B0C' : T.textLow,
             }}
           >
             {tab === 'Meals'
@@ -124,7 +124,7 @@ function MacrosOverview({ logged }) {
             <div className="flex flex-col items-center">
               <NumericCounter
                 value={logged.calories}
-                className="text-[38px] leading-none text-white"
+                className="text-[38px] leading-none text-[#F4F2EC]"
                 duration={0.6}
               />
               <span className="font-body text-[10px] font-bold mt-1" style={{ color: T.textFaint }}>
@@ -148,7 +148,7 @@ function MacrosOverview({ logged }) {
                   </span>
                 </div>
                 <div className="flex items-baseline gap-0.5 mb-1.5">
-                  <span className="font-display text-[18px] text-white tabular-nums leading-none">
+                  <span className="font-display text-[18px] text-[#F4F2EC] tabular-nums leading-none">
                     {m.curr}
                   </span>
                   <span className="font-body text-[10px] text-white/25">/{m.target}g</span>
@@ -218,7 +218,7 @@ function MealTimelineCard({ meal, mealIndex, onTap, delay = 0 }) {
           <div
             className="w-6 h-6 rounded-full flex items-center justify-center"
             style={{
-              background: 'rgba(212,167,78,0.12)',
+              background: 'rgba(215,255,62,0.12)',
               border: `1.5px solid ${GOLD}`,
             }}
           >
@@ -245,7 +245,7 @@ function MealTimelineCard({ meal, mealIndex, onTap, delay = 0 }) {
           className="rounded-2xl p-4"
           style={{
             background: CARD_BG,
-            border: `1px solid ${isLogged ? 'rgba(212,167,78,0.15)' : CARD_BORDER}`,
+            border: `1px solid ${isLogged ? 'rgba(215,255,62,0.15)' : CARD_BORDER}`,
             opacity: isLogged ? 1 : 0.85,
           }}
         >
@@ -254,7 +254,7 @@ function MealTimelineCard({ meal, mealIndex, onTap, delay = 0 }) {
             <div className="min-w-0 flex-1 pr-3">
               <p
                 className="display-xs uppercase leading-tight"
-                style={{ color: isLogged ? '#fff' : 'rgba(255,255,255,0.55)' }}
+                style={{ color: isLogged ? '#F4F2EC' : 'rgba(255,255,255,0.55)' }}
               >
                 {meal.label}
               </p>
@@ -277,7 +277,7 @@ function MealTimelineCard({ meal, mealIndex, onTap, delay = 0 }) {
           {isLogged && (
             <div className="flex items-baseline gap-3">
               <div className="flex flex-col">
-                <span className="font-display text-[18px] text-white tabular-nums leading-none">
+                <span className="font-display text-[18px] text-[#F4F2EC] tabular-nums leading-none">
                   {totals.calories}
                 </span>
                 <span className="font-body text-[9px] text-white/30 uppercase tracking-wider mt-0.5">
@@ -408,7 +408,7 @@ function MealSheet({ meal, mealIndex, isOpen, onClose, logged, logMeal, adjustMe
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h2 className="font-display text-[20px] text-white uppercase tracking-wider leading-none">
+          <h2 className="font-display text-[20px] text-[#F4F2EC] uppercase tracking-wider leading-none">
             {meal.label}
           </h2>
           <p className="font-body text-[11px] text-white/30 mt-1.5 uppercase tracking-wider">
@@ -418,7 +418,7 @@ function MealSheet({ meal, mealIndex, isOpen, onClose, logged, logMeal, adjustMe
         {meal.logged && (
           <span
             className="font-body text-[10px] font-extrabold uppercase tracking-wider px-2 py-1 rounded-md"
-            style={{ background: 'rgba(212,167,78,0.1)', color: GOLD, border: '1px solid rgba(212,167,78,0.25)' }}
+            style={{ background: 'rgba(215,255,62,0.1)', color: GOLD, border: '1px solid rgba(215,255,62,0.25)' }}
           >
             Logged
           </span>
@@ -435,7 +435,7 @@ function MealSheet({ meal, mealIndex, isOpen, onClose, logged, logMeal, adjustMe
               style={{ background: 'rgba(255,255,255,0.03)', border: `1px solid ${CARD_BORDER}` }}
             >
               <div className="flex flex-col items-center">
-                <span className="font-display text-[18px] text-white tabular-nums leading-none">{totals.calories}</span>
+                <span className="font-display text-[18px] text-[#F4F2EC] tabular-nums leading-none">{totals.calories}</span>
                 <span className="font-body text-[9px] text-white/30 uppercase tracking-wider mt-1">Cal</span>
               </div>
               <div className="flex flex-col items-center">
@@ -756,7 +756,7 @@ function AddMealSheet({ isOpen, onClose, addMeal }) {
 
   return (
     <BottomSheet isOpen={isOpen} onClose={onClose}>
-      <h2 className="font-display text-[20px] text-white uppercase tracking-wider leading-none mb-5">
+      <h2 className="font-display text-[20px] text-[#F4F2EC] uppercase tracking-wider leading-none mb-5">
         Add Meal
       </h2>
 
@@ -876,7 +876,7 @@ function AddMealSheet({ isOpen, onClose, addMeal }) {
 // ═════════════════════════════════════════════
 const GLASS_ML = 250;
 const STEEL_BRIGHT = T.water;
-const STREAK_GREEN = T.success;
+const STREAK_GREEN = T.red;
 
 // Format ISO timestamp → "9:30 PM"
 function formatTime(iso) {
@@ -913,7 +913,7 @@ function HydrationHero({ hydration }) {
         <div className="shrink-0">
           <RingCounter percentage={pct} size={110} strokeWidth={5} color={STEEL_BRIGHT} delay={0.1}>
             <div className="flex flex-col items-center">
-              <span className="font-display text-[26px] text-white leading-none tabular-nums">
+              <span className="font-display text-[26px] text-[#F4F2EC] leading-none tabular-nums">
                 {hydrationL}L
               </span>
               <span className="font-body text-[10px] font-bold uppercase tracking-wider mt-1" style={{ color: STEEL_BRIGHT }}>
@@ -947,7 +947,7 @@ function HydrationHero({ hydration }) {
 
           <div className="flex items-center gap-2">
             <GlassWater size={14} strokeWidth={T.stroke} style={{ color: STEEL_BRIGHT }} />
-            <span className="font-body text-[14px] font-bold text-white tabular-nums">
+            <span className="font-body text-[14px] font-bold text-[#F4F2EC] tabular-nums">
               {glassesCurr} / {glassesTarget}
             </span>
             <span className="font-body text-[9px] font-bold text-white/35 uppercase tracking-wider">Glasses</span>
@@ -1046,7 +1046,7 @@ function DrinkButton({ defaultMl, logWater, setWaterDefault, hasEntries, undoLas
                 <input
                   type="number" min={50} max={2000} step={50} value={editMl}
                   onChange={e => setEditMl(Math.max(50, Math.min(2000, Number(e.target.value) || 0)))}
-                  className="flex-1 bg-transparent font-display text-[18px] text-white tabular-nums outline-none px-3 py-2.5 rounded-xl"
+                  className="flex-1 bg-transparent font-display text-[18px] text-[#F4F2EC] tabular-nums outline-none px-3 py-2.5 rounded-xl"
                   style={{ background: 'rgba(255,255,255,0.03)', border: `1px solid ${CARD_BORDER}` }}
                 />
                 <span className="font-body text-[11px] text-white/30">ml</span>
@@ -1132,7 +1132,7 @@ function WeeklyOverview({ history, hydration }) {
               className="flex-1"
               style={{
                 height: 1,
-                backgroundImage: `repeating-linear-gradient(to right, ${GOLD}88 0px, ${GOLD}88 4px, transparent 4px, transparent 8px)`,
+                backgroundImage: `repeating-linear-gradient(to right, ${GOLD} 0px, ${GOLD} 4px, transparent 4px, transparent 8px)`,
               }}
             />
             <span
@@ -1234,7 +1234,7 @@ function HydrationStats({ history, hydration }) {
         <Droplets size={18} strokeWidth={T.stroke} style={{ color: STEEL_BRIGHT }} className="mt-0.5 shrink-0" />
         <div className="min-w-0">
           <p className="font-body text-[9px] font-extrabold text-white/35 uppercase tracking-wider leading-none">Weekly avg</p>
-          <p className="font-display text-[18px] text-white tabular-nums leading-none mt-1.5">
+          <p className="font-display text-[18px] text-[#F4F2EC] tabular-nums leading-none mt-1.5">
             {(avgMl / 1000).toFixed(1)}L
           </p>
           <p className="font-body text-[9px] text-white/30 uppercase tracking-wider mt-1">
@@ -1243,10 +1243,10 @@ function HydrationStats({ history, hydration }) {
         </div>
       </div>
       <div className="flex items-start gap-2 px-2 border-l border-r" style={{ borderColor: CARD_BORDER }}>
-        <Trophy size={18} strokeWidth={T.stroke} style={{ color: GOLD }} className="mt-0.5 shrink-0" />
+        <Trophy size={18} strokeWidth={T.stroke} style={{ color: T.gold }} className="mt-0.5 shrink-0" />
         <div className="min-w-0">
           <p className="font-body text-[9px] font-extrabold text-white/35 uppercase tracking-wider leading-none">Best day</p>
-          <p className="font-display text-[18px] text-white tabular-nums leading-none mt-1.5" style={{ color: GOLD }}>
+          <p className="font-display text-[18px] tabular-nums leading-none mt-1.5" style={{ color: T.gold }}>
             {bestDay ? `${(bestDay.waterMl / 1000).toFixed(1)}L` : '—'}
           </p>
           <p className="font-body text-[9px] text-white/30 uppercase tracking-wider mt-1">
@@ -1393,7 +1393,7 @@ export default function Nutrition({ onMacroDetail }) {
   }, []);
 
   return (
-    <div className="min-h-screen pb-28" style={{ background: '#000' }}>
+    <div className="min-h-screen pb-28" style={{ background: T.bg }}>
       {/* ═══════════════════════════════════════════
           HEADER — matches Home typography
           ═══════════════════════════════════════════ */}
@@ -1404,7 +1404,7 @@ export default function Nutrition({ onMacroDetail }) {
         transition={{ duration: 0.35 }}
       >
         <div>
-          <h1 className="display-md text-white">
+          <h1 className="display-md text-[#F4F2EC]">
             NUTRITION
           </h1>
           <p className="font-body text-[13px] font-medium mt-2" style={{ color: T.textLow }}>
@@ -1436,7 +1436,7 @@ export default function Nutrition({ onMacroDetail }) {
       </motion.div>
 
       <div className="mb-4">
-        <WeekStrip mode="score" />
+        <WeekStrip mode="score" showPoints={false} />
       </div>
 
       <TabToggle active={activeTab} onChange={setActiveTab} />

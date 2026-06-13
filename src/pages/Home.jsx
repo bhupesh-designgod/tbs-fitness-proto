@@ -140,7 +140,7 @@ export default function Home({ onProfileClick, onNavigate }) {
   const ptsToGo = score.total - score.earned;
 
   return (
-    <div className="min-h-screen bg-black pb-24">
+    <div className="min-h-screen bg-[#0B0B0C] pb-24">
 
       {/* ═══ 1. GREETING ═══ */}
       <motion.div
@@ -153,9 +153,9 @@ export default function Home({ onProfileClick, onNavigate }) {
             onClick={onProfileClick}
             className="w-11 h-11 rounded-full flex items-center justify-center font-display text-[18px]"
             style={{
-              background: T.goldTint,
-              border: `2px solid ${T.goldBorder}`,
-              color: T.gold,
+              background: T.surface,
+              border: `2px solid ${T.hairlineStrong}`,
+              color: T.text,
             }}
           >
             {USER_PROFILE.name.charAt(0)}
@@ -164,7 +164,7 @@ export default function Home({ onProfileClick, onNavigate }) {
             <p className="font-body text-[13px] font-medium" style={{ color: T.textLow }}>
               {greeting},
             </p>
-            <p className="display-md text-white" style={{ marginTop: '-1px' }}>
+            <p className="display-md text-[#F4F2EC]" style={{ marginTop: '-1px' }}>
               {USER_PROFILE.name.toUpperCase()}.
             </p>
           </div>
@@ -178,7 +178,7 @@ export default function Home({ onProfileClick, onNavigate }) {
             <Bell size={18} strokeWidth={T.stroke} style={{ color: T.textLow }} />
             <div
               className="absolute top-2 right-2.5 w-2 h-2 rounded-full"
-              style={{ background: T.gold }}
+              style={{ background: T.red }}
             />
           </div>
           <motion.button
@@ -306,7 +306,7 @@ export default function Home({ onProfileClick, onNavigate }) {
                   </div>
 
                   <div className="flex-1 min-w-0">
-                    <p className="display-xs text-white leading-tight">
+                    <p className="display-xs text-[#F4F2EC] leading-tight">
                       {t.title}
                     </p>
                     <p className="font-body text-[12px] font-medium mt-0.5 truncate" style={{ color: T.textLow }}>
@@ -318,8 +318,8 @@ export default function Home({ onProfileClick, onNavigate }) {
                     <span
                       className="font-body text-[11px] font-extrabold uppercase tracking-wider px-2 py-1 rounded-md inline-block"
                       style={{
-                        color: T.gold,
-                        border: `1px solid ${T.goldBorder}`,
+                        color: T.volt,
+                        border: `1px solid ${T.voltBorder}`,
                         rotate: '-2deg',
                       }}
                     >
@@ -339,9 +339,9 @@ export default function Home({ onProfileClick, onNavigate }) {
         <p className="kicker mb-3">Today's plan</p>
         <div className="grid grid-cols-2 gap-3">
           <div className="card flex flex-col items-center gap-2.5 py-5 px-4">
-            <StatusRing percentage={nutritionPct} color={T.gold} size={60} strokeWidth={4}>
+            <StatusRing percentage={nutritionPct} color={T.volt} size={60} strokeWidth={4}>
               {nutritionPct >= 100 ? (
-                <Check size={22} strokeWidth={2.5} style={{ color: T.gold }} />
+                <Check size={22} strokeWidth={2.5} style={{ color: T.volt }} />
               ) : (
                 <Utensils size={20} strokeWidth={T.stroke} style={{ color: T.textMid }} />
               )}
@@ -349,7 +349,7 @@ export default function Home({ onProfileClick, onNavigate }) {
             <span className="font-body text-[12px] font-bold uppercase tracking-wider" style={{ color: T.textMid }}>
               Nutrition
             </span>
-            <span className="display-xs" style={{ color: nutritionPct >= 100 ? T.gold : '#fff' }}>
+            <span className="display-xs" style={{ color: nutritionPct >= 100 ? T.volt : T.text }}>
               {nutritionPct >= 100 ? 'Done' : `${mealsLogged} of ${totalMeals}`}
             </span>
           </div>
@@ -365,7 +365,7 @@ export default function Home({ onProfileClick, onNavigate }) {
             <span className="font-body text-[12px] font-bold uppercase tracking-wider" style={{ color: T.textMid }}>
               Hydration
             </span>
-            <span className="display-xs" style={{ color: hydrationPct >= 100 ? T.water : '#fff' }}>
+            <span className="display-xs" style={{ color: hydrationPct >= 100 ? T.water : '#F4F2EC' }}>
               {hydrationPct >= 100 ? 'Done' : `${hydrationPct}%`}
             </span>
           </div>
@@ -379,7 +379,7 @@ export default function Home({ onProfileClick, onNavigate }) {
             <p className="kicker mb-2">
               {isRestDay ? 'Recovery' : "Today's workout"}
             </p>
-            <h2 className="display-lg text-white uppercase">
+            <h2 className="display-lg text-[#F4F2EC] uppercase">
               {training.name}
             </h2>
             {!isRestDay && (
@@ -433,13 +433,13 @@ export default function Home({ onProfileClick, onNavigate }) {
         <div className="flex items-start gap-3">
           <div
             className="w-9 h-9 rounded-full flex items-center justify-center shrink-0"
-            style={{ background: T.surface2 }}
+            style={{ background: T.cobaltTint }}
           >
-            <Moon size={16} strokeWidth={T.stroke} style={{ color: T.textMid }} />
+            <Moon size={16} strokeWidth={T.stroke} style={{ color: T.cobalt }} />
           </div>
           <div className="flex-1 min-w-0">
             <p className="kicker mb-1.5">Sleep</p>
-            <p className="display-sm text-white mb-1.5">
+            <p className="display-sm text-[#F4F2EC] mb-1.5">
               7–8 HOURS TONIGHT
             </p>
             <p className="font-body text-[13px] font-medium leading-relaxed" style={{ color: T.textLow }}>

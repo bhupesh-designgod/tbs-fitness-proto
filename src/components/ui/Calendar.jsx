@@ -31,7 +31,7 @@ export function MiniRing({ percentage, size = 42, strokeWidth = 3, isToday = fal
   const radius = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
   const offset = circumference - (Math.min(percentage, 100) / 100) * circumference;
-  const ringColor = isToday ? 'rgba(0,0,0,0.55)' : 'rgba(255,255,255,0.30)';
+  const ringColor = isToday ? 'rgba(11,11,12,0.55)' : T.volt;
 
   return (
     <svg width={size} height={size} className="absolute inset-0 -rotate-90">
@@ -102,9 +102,9 @@ function useWeekDays() {
 // ── Training day cell content ──
 function SplitIcon({ split, isToday, isPast, trained }) {
   const isRest = split === 'rest';
-  const color = isToday ? '#000'
-    : isPast && trained ? T.gold
-    : isPast ? T.textFaint
+  const color = isToday ? T.voltInk
+    : isRest ? T.cobalt
+    : isPast && trained ? T.volt
     : T.textLow;
 
   return isRest
@@ -117,7 +117,7 @@ const SPLIT_SHORT = { push: 'PUSH', pull: 'PULL', legs: 'LEGS', rest: 'REST' };
 // ═════════════════════════════════════════════
 // WeekStrip — mode 'score' | 'training'
 // ═════════════════════════════════════════════
-export function WeekStrip({ mode = 'score', className = '' }) {
+export function WeekStrip({ mode = 'score', showPoints = true, className = '' }) {
   const { days, completedDays } = useWeekDays();
 
   return (
@@ -151,7 +151,7 @@ export function WeekStrip({ mode = 'score', className = '' }) {
                   <span
                     className="font-display text-[18px] leading-none relative z-10"
                     style={{
-                      color: day.isToday ? '#000'
+                      color: day.isToday ? '#0B0B0C'
                         : day.pts !== null ? 'rgba(255,255,255,0.8)'
                         : 'rgba(255,255,255,0.22)',
                     }}
@@ -164,36 +164,36 @@ export function WeekStrip({ mode = 'score', className = '' }) {
               )}
             </div>
 
-            {mode === 'score' ? (
+            {mode === 'score' && showPoints ? (
               <span
                 className="font-body text-[9px] font-bold tabular-nums"
                 style={{
-                  color: day.isToday ? T.gold
+                  color: day.isToday ? T.volt
                     : day.pts !== null && day.isPast ? T.textLow
-                    : 'rgba(255,255,255,0.14)',
+                    : 'rgba(244,242,236,0.14)',
                 }}
               >
                 {day.pts !== null ? `${day.pts}` : '—'}
               </span>
-            ) : (
+            ) : mode === 'training' ? (
               <span
                 className="font-body text-[8px] font-extrabold uppercase tracking-wider"
                 style={{
-                  color: day.isToday ? T.gold
+                  color: day.isToday ? T.volt
                     : day.split === 'rest' ? T.textFaint
                     : T.textLow,
                 }}
               >
                 {SPLIT_SHORT[day.split] || '—'}
               </span>
-            )}
+            ) : null}
           </motion.div>
         ))}
       </div>
 
-      {mode === 'score' && (
+      {mode === 'score' && showPoints && (
         <p className="font-body text-[12px] font-medium mt-3" style={{ color: T.textLow }}>
-          <span className="font-display text-[18px] mr-1" style={{ color: T.gold }}>
+          <span className="font-display text-[18px] mr-1" style={{ color: T.volt }}>
             {completedDays}
           </span>
           of 7 days on the board
@@ -244,7 +244,7 @@ export function MonthSheet({ isOpen, onClose, mode = 'score' }) {
   return (
     <BottomSheet isOpen={isOpen} onClose={onClose}>
       <div className="flex items-baseline justify-between mb-4">
-        <h2 className="display-sm text-white uppercase">{monthLabel}</h2>
+        <h2 className="display-sm text-[#F4F2EC] uppercase">{monthLabel}</h2>
         <span className="kicker">{mode === 'score' ? 'Daily points' : 'Training plan'}</span>
       </div>
 
@@ -291,7 +291,7 @@ export function MonthSheet({ isOpen, onClose, mode = 'score' }) {
                   <span
                     className="font-display text-[16px] leading-none relative z-10"
                     style={{
-                      color: c.isToday ? '#000'
+                      color: c.isToday ? '#0B0B0C'
                         : c.pts !== null ? 'rgba(255,255,255,0.8)'
                         : 'rgba(255,255,255,0.25)',
                     }}
@@ -303,7 +303,7 @@ export function MonthSheet({ isOpen, onClose, mode = 'score' }) {
                 )}
               </div>
               {mode === 'training' && (
-                <span className="font-body text-[8px] font-bold tabular-nums" style={{ color: c.isToday ? T.gold : T.textFaint }}>
+                <span className="font-body text-[8px] font-bold tabular-nums" style={{ color: c.isToday ? T.volt : T.textFaint }}>
                   {c.day}
                 </span>
               )}
@@ -330,11 +330,11 @@ export function MonthSheet({ isOpen, onClose, mode = 'score' }) {
         ) : (
           <>
             <span className="flex items-center gap-1.5 font-body text-[11px] font-medium" style={{ color: T.textLow }}>
-              <Dumbbell size={13} strokeWidth={T.stroke} style={{ color: T.gold }} />
+              <Dumbbell size={13} strokeWidth={T.stroke} style={{ color: T.volt }} />
               Workout
             </span>
             <span className="flex items-center gap-1.5 font-body text-[11px] font-medium" style={{ color: T.textLow }}>
-              <Moon size={13} strokeWidth={T.stroke} style={{ color: T.textFaint }} />
+              <Moon size={13} strokeWidth={T.stroke} style={{ color: T.cobalt }} />
               Rest
             </span>
             <span className="flex items-center gap-1.5 font-body text-[11px] font-medium" style={{ color: T.textLow }}>

@@ -9,15 +9,16 @@ import {
   MessageCircle, Scale, Beef, Dumbbell, Footprints, Ruler, Zap, Check,
 } from 'lucide-react';
 import { CHECK_IN_HISTORY, PHOTOS } from '../data/mockData';
+import { T } from '../tokens';
 
-// ── Tokens ──
-const CARD_BG = '#131318';
-const CARD_BORDER = 'rgba(255,255,255,0.07)';
-const GOLD = '#D4A74E';
-const GOLD_START = '#B8893C';
-const GOLD_END = '#E0C074';
-const ON_TRACK = '#4ADE80';
-const RED = '#F87171';
+// ── Aliases from the token sheet — no local values ──
+const CARD_BG = T.surface;
+const CARD_BORDER = T.hairline;
+const GOLD = T.gold;
+const GOLD_START = T.goldStart;
+const GOLD_END = T.goldEnd;
+const ON_TRACK = T.success;
+const RED = T.danger;
 
 // ─────────────────────────────────────────────
 // Top bar
@@ -38,7 +39,7 @@ function TopBar({ title, subtitle, onBack }) {
         <ArrowLeft size={18} strokeWidth={1.75} className="text-white/80" />
       </button>
       <div className="flex-1 text-center min-w-0">
-        <h1 className="font-display text-[14px] text-white uppercase tracking-[0.2em] truncate">
+        <h1 className="display-xs text-white uppercase truncate">
           {title}
         </h1>
         {subtitle && (
@@ -49,7 +50,7 @@ function TopBar({ title, subtitle, onBack }) {
         aria-label="More"
         className="w-9 h-9 rounded-full flex items-center justify-center shrink-0"
       >
-        <MoreHorizontal size={18} strokeWidth={1.5} className="text-white/70" />
+        <MoreHorizontal size={18} strokeWidth={T.stroke} className="text-white/70" />
       </button>
     </motion.div>
   );
@@ -87,9 +88,7 @@ function CoachSummaryCard({ summary }) {
         />
       </div>
       <div className="relative">
-        <p className="font-display text-[10px] uppercase tracking-[0.2em] mb-2" style={{ color: GOLD }}>
-          Coach Summary
-        </p>
+        <p className="kicker kicker-gold mb-2">Coach summary</p>
         <p className="font-body text-[13px] text-white/85 leading-relaxed whitespace-pre-line max-w-[62%]">
           {summary}
         </p>
@@ -141,9 +140,9 @@ function MetricGridCard({ k, m }) {
           className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
           style={{ background: `${meta.tint}1F`, border: `1px solid ${meta.tint}3D` }}
         >
-          <Icon size={14} strokeWidth={1.6} style={{ color: meta.tint }} />
+          <Icon size={14} strokeWidth={T.stroke} style={{ color: meta.tint }} />
         </div>
-        <p className="font-display text-[10px] text-white/45 uppercase tracking-wider leading-tight">
+        <p className="font-body text-[10px] font-extrabold text-white/45 uppercase tracking-wider leading-tight">
           {m.label}
         </p>
       </div>
@@ -162,7 +161,7 @@ function MetricGridCard({ k, m }) {
               ? <ArrowUp   size={11} strokeWidth={2.5} style={{ color: isGood ? ON_TRACK : RED }} />
               : <ArrowDown size={11} strokeWidth={2.5} style={{ color: isGood ? ON_TRACK : RED }} />}
             <span
-              className="font-display text-[13px] tabular-nums"
+              className="font-body text-[13px] font-extrabold tabular-nums"
               style={{ color: isGood ? ON_TRACK : RED }}
             >
               {formatDelta(m.delta)}{m.unit}
@@ -182,9 +181,7 @@ function SubmittedData({ data }) {
   const keys = Object.keys(data);
   return (
     <div className="mx-5 mb-5">
-      <p className="font-display text-[12px] text-white/40 uppercase tracking-[0.2em] mb-3">
-        Submitted Data
-      </p>
+      <p className="kicker mb-3">Submitted data</p>
       <div className="grid grid-cols-2 gap-2.5">
         {keys.map(k => <MetricGridCard key={k} k={k} m={data[k]} />)}
       </div>
@@ -199,9 +196,7 @@ function PlanChanges({ changes }) {
   if (!changes?.length) return null;
   return (
     <div className="mx-5 mb-5">
-      <p className="font-display text-[12px] text-white/40 uppercase tracking-[0.2em] mb-3">
-        Plan Changes
-      </p>
+      <p className="kicker mb-3">Plan changes</p>
       <div
         className="rounded-2xl p-4 space-y-3"
         style={{ background: CARD_BG, border: `1px solid ${CARD_BORDER}` }}
@@ -236,7 +231,7 @@ function PlanChanges({ changes }) {
 function EmptyState({ label }) {
   return (
     <div className="px-5 py-12 text-center">
-      <p className="font-display text-[14px] text-white/55 uppercase tracking-wider mb-2">
+      <p className="display-xs text-white/55 uppercase mb-2">
         {label}
       </p>
       <p className="font-body text-[12px] text-white/35">
@@ -289,10 +284,9 @@ export default function CheckInDetail({ checkInId, onBack, onMessageBiki }) {
         style={{ maxWidth: 430, background: 'linear-gradient(to top, #000 60%, transparent)' }}
       >
         <motion.button
-          whileTap={{ scale: 0.97 }}
+          whileTap={T.tap}
           onClick={onMessageBiki}
-          className="w-full py-3.5 rounded-2xl font-display text-[14px] uppercase tracking-wider text-black flex items-center justify-center gap-2"
-          style={{ background: `linear-gradient(135deg, ${GOLD_START}, ${GOLD_END})` }}
+          className="btn-primary"
         >
           <MessageCircle size={16} strokeWidth={2} />
           Message Biki

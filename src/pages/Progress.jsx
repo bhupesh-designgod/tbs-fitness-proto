@@ -9,15 +9,16 @@ import {
   CalendarDays, Quote, ChevronDown, User as UserIcon,
 } from 'lucide-react';
 import { CHECK_IN_HISTORY, NEXT_CHECKIN, PHOTOS } from '../data/mockData';
+import { T } from '../tokens';
 
-// ── Tokens ──
-const CARD_BG = '#131318';
-const CARD_BORDER = 'rgba(255,255,255,0.07)';
-const GOLD = '#D4A74E';
-const GOLD_START = '#B8893C';
-const GOLD_END = '#E0C074';
-const ON_TRACK = '#4ADE80';
-const RED = '#F87171';
+// ── Aliases from the token sheet — no local values ──
+const CARD_BG = T.surface;
+const CARD_BORDER = T.hairline;
+const GOLD = T.gold;
+const GOLD_START = T.goldStart;
+const GOLD_END = T.goldEnd;
+const ON_TRACK = T.success;
+const RED = T.danger;
 
 const DAY = 86_400_000;
 const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -41,11 +42,11 @@ function ReviewsHeader() {
       animate={{ opacity: 1, y: 0 }}
     >
       <div>
-        <h1 className="font-display text-[32px] text-white leading-none tracking-wider">
+        <h1 className="display-md text-white">
           REVIEWS
         </h1>
         <p className="font-body text-[12px] text-white/40 mt-2">
-          Your weekly check-ins reviewed by Biki.
+          Every week, reviewed by Biki.
         </p>
       </div>
       <button
@@ -53,7 +54,7 @@ function ReviewsHeader() {
         className="w-10 h-10 rounded-full flex items-center justify-center"
         style={{ background: 'rgba(255,255,255,0.04)' }}
       >
-        <Bell size={18} strokeWidth={1.5} className="text-white/55" />
+        <Bell size={18} strokeWidth={T.stroke} className="text-white/55" />
       </button>
     </motion.div>
   );
@@ -92,12 +93,10 @@ function LatestReviewCard({ checkIn, onView }) {
       </div>
 
       <div className="relative">
-        <p className="font-display text-[10px] uppercase tracking-[0.2em]" style={{ color: GOLD }}>
-          Latest Review
-        </p>
+        <p className="kicker kicker-gold">Latest review</p>
 
         <div className="flex items-center gap-2.5 mt-1.5">
-          <h2 className="font-display text-[26px] text-white uppercase tracking-wider leading-none">
+          <h2 className="display-lg text-white uppercase">
             {checkIn.label.toUpperCase()}
           </h2>
           <span
@@ -112,7 +111,7 @@ function LatestReviewCard({ checkIn, onView }) {
                 <path d="M1 3.5L2.5 5L6 1.5" stroke="#000" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </span>
-            <span className="font-display text-[10px]" style={{ color: ON_TRACK }}>
+            <span className="font-body text-[10px] font-extrabold uppercase tracking-wider" style={{ color: ON_TRACK }}>
               Reviewed
             </span>
           </span>
@@ -145,7 +144,7 @@ function LatestReviewCard({ checkIn, onView }) {
             className="mt-4 rounded-xl p-3.5 flex gap-2.5 max-w-[60%]"
             style={{ background: 'rgba(0,0,0,0.45)', border: `1px solid ${CARD_BORDER}` }}
           >
-            <Quote size={14} strokeWidth={1.5} style={{ color: GOLD }} className="shrink-0 mt-0.5" />
+            <Quote size={14} strokeWidth={T.stroke} style={{ color: GOLD }} className="shrink-0 mt-0.5" />
             <p className="font-body text-[12px] text-white/75 leading-snug">
               {checkIn.summary}
             </p>
@@ -153,13 +152,12 @@ function LatestReviewCard({ checkIn, onView }) {
         )}
 
         <motion.button
-          whileTap={{ scale: 0.97 }}
+          whileTap={T.tap}
           onClick={onView}
-          className="mt-5 w-full py-3 rounded-xl font-display text-[13px] uppercase tracking-wider text-black flex items-center justify-center gap-2"
-          style={{ background: `linear-gradient(135deg, ${GOLD_START}, ${GOLD_END})` }}
+          className="btn-primary mt-5"
         >
-          View Full Review
-          <ArrowRight size={14} strokeWidth={2} />
+          View full review
+          <ArrowRight size={16} strokeWidth={2} />
         </motion.button>
       </div>
     </motion.div>
@@ -200,13 +198,11 @@ function NextCheckInCard({ next, onStart }) {
           className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0"
           style={{ background: 'rgba(212,167,78,0.1)', border: '1px solid rgba(212,167,78,0.25)' }}
         >
-          <CalendarDays size={20} strokeWidth={1.5} style={{ color: GOLD }} />
+          <CalendarDays size={20} strokeWidth={T.stroke} style={{ color: GOLD }} />
         </div>
         <div className="flex-1 min-w-0">
-          <p className="font-display text-[10px] uppercase tracking-[0.2em]" style={{ color: GOLD }}>
-            Next Check-in
-          </p>
-          <p className="font-display text-[14px] text-white uppercase tracking-wider mt-1 leading-tight truncate">
+          <p className="kicker kicker-gold">Next check-in</p>
+          <p className="display-xs text-white uppercase mt-1 leading-tight truncate">
             {headline}
           </p>
           <p className="font-body text-[11px] text-white/40 mt-1">{sub}</p>
@@ -221,10 +217,10 @@ function NextCheckInCard({ next, onStart }) {
             />
           </svg>
           <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <span className="font-display text-[14px] text-white tabular-nums leading-none">
+            <span className="font-display text-[20px] text-white tabular-nums leading-none">
               {days}
             </span>
-            <span className="font-display text-[8px] text-white/45 uppercase tracking-wider">
+            <span className="font-body text-[8px] font-extrabold text-white/45 uppercase tracking-wider">
               days
             </span>
           </div>
@@ -232,13 +228,12 @@ function NextCheckInCard({ next, onStart }) {
       </div>
 
       <motion.button
-        whileTap={{ scale: 0.97 }}
+        whileTap={T.tap}
         onClick={onStart}
-        className="mt-4 w-full py-3 rounded-xl font-display text-[13px] uppercase tracking-wider text-black flex items-center justify-center gap-2"
-        style={{ background: `linear-gradient(135deg, ${GOLD_START}, ${GOLD_END})` }}
+        className="btn-primary mt-4"
       >
-        Start Check-In
-        <ArrowRight size={14} strokeWidth={2} />
+        Start check-in
+        <ArrowRight size={16} strokeWidth={2} />
       </motion.button>
     </motion.div>
   );
@@ -269,7 +264,7 @@ function WeekPicker({ value, options, onChange }) {
         className="w-full flex items-center justify-between gap-2 px-3.5 py-2.5 rounded-xl"
         style={{ background: CARD_BG, border: `1px solid ${CARD_BORDER}` }}
       >
-        <span className="font-display text-[13px] text-white truncate">
+        <span className="font-body text-[13px] font-bold text-white truncate">
           {current?.label || '—'}
         </span>
         <motion.span
@@ -277,7 +272,7 @@ function WeekPicker({ value, options, onChange }) {
           transition={{ duration: 0.2 }}
           className="shrink-0"
         >
-          <ChevronDown size={14} strokeWidth={1.5} className="text-white/45" />
+          <ChevronDown size={14} strokeWidth={T.stroke} className="text-white/45" />
         </motion.span>
       </motion.button>
 
@@ -307,7 +302,7 @@ function WeekPicker({ value, options, onChange }) {
                   style={{ background: isActive ? 'rgba(212,167,78,0.1)' : 'transparent' }}
                 >
                   <span
-                    className="font-display text-[12px] uppercase tracking-wider"
+                    className="font-body text-[12px] font-bold"
                     style={{ color: isActive ? GOLD : 'rgba(255,255,255,0.75)' }}
                   >
                     {opt.label}
@@ -342,7 +337,7 @@ function CompareAngleToggle({ active, onChange }) {
             }}
           >
             <span
-              className="font-display text-[12px] uppercase tracking-wider"
+              className="font-body text-[12px] font-extrabold uppercase tracking-wider"
               style={{ color: isActive ? GOLD : 'rgba(255,255,255,0.4)' }}
             >
               {a.charAt(0).toUpperCase() + a.slice(1)}
@@ -382,7 +377,7 @@ function PhotoCard({ entry, angle, accent }) {
       />
       {typeof weight === 'number' && (
         <span
-          className="absolute bottom-2 left-2 font-display text-[14px] tabular-nums"
+          className="absolute bottom-2 left-2 font-body text-[13px] font-extrabold tabular-nums"
           style={{ color: accent || '#fff' }}
         >
           {weight.toFixed(1)} kg
@@ -404,7 +399,7 @@ function DeltaPill({ delta }) {
         className="rounded-full px-2.5 py-1.5 whitespace-nowrap flex items-center justify-center"
         style={{ background: 'rgba(255,255,255,0.06)', border: `1px solid ${CARD_BORDER}` }}
       >
-        <span className="font-display text-[11px] text-white/60 tabular-nums">0.0 kg</span>
+        <span className="font-body text-[11px] font-extrabold text-white/60 tabular-nums">0.0 kg</span>
       </div>
     );
   }
@@ -420,7 +415,7 @@ function DeltaPill({ delta }) {
       {isDown
         ? <ArrowDown size={11} strokeWidth={2.5} style={{ color: ON_TRACK }} />
         : <ArrowUp   size={11} strokeWidth={2.5} style={{ color: ON_TRACK }} />}
-      <span className="font-display text-[11px] tabular-nums" style={{ color: ON_TRACK }}>
+      <span className="font-body text-[11px] font-extrabold tabular-nums" style={{ color: ON_TRACK }}>
         {abs} kg
       </span>
     </div>
@@ -436,9 +431,7 @@ function CompareProgress({ entries, leftId, rightId, onLeftChange, onRightChange
 
   return (
     <div className="mx-5 mb-5">
-      <p className="font-display text-[13px] text-white/55 uppercase tracking-[0.2em] mb-3">
-        Compare Progress
-      </p>
+      <p className="kicker mb-3">Compare progress</p>
 
       <div
         className="rounded-2xl p-4"
@@ -496,7 +489,7 @@ function HistoryRow({ item, delay, onOpen }) {
       </div>
 
       <div className="flex-1 min-w-0">
-        <p className="font-display text-[14px] text-white uppercase tracking-wider leading-tight">
+        <p className="display-xs text-white uppercase leading-tight">
           {item.label}
           <span className="text-white/35 mx-1.5">·</span>
           {item.dateLabel}
@@ -512,7 +505,7 @@ function HistoryRow({ item, delay, onOpen }) {
                 <path d="M1 3.5L2.5 5L6 1.5" stroke="#000" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </span>
-            <span className="font-body text-[10px]" style={{ color: ON_TRACK }}>
+            <span className="font-body text-[10px] font-bold" style={{ color: ON_TRACK }}>
               Reviewed
             </span>
           </div>
@@ -528,7 +521,7 @@ function HistoryRow({ item, delay, onOpen }) {
                 ? <ArrowUp size={10} strokeWidth={2.5} style={{ color: p.deltaTone === 'good' ? ON_TRACK : RED }} />
                 : <ArrowDown size={10} strokeWidth={2.5} style={{ color: p.deltaTone === 'good' ? ON_TRACK : RED }} />}
               <span
-                className="font-display text-[11px] tabular-nums"
+                className="font-body text-[11px] font-extrabold tabular-nums"
                 style={{ color: p.deltaTone === 'good' ? ON_TRACK : RED }}
               >
                 {p.delta}
@@ -542,11 +535,11 @@ function HistoryRow({ item, delay, onOpen }) {
         className="shrink-0 px-3 py-1.5 rounded-lg"
         style={{ border: '1px solid rgba(212,167,78,0.3)' }}
       >
-        <span className="font-display text-[11px] uppercase tracking-wider" style={{ color: GOLD }}>
+        <span className="font-body text-[11px] font-extrabold uppercase tracking-wider" style={{ color: GOLD }}>
           View
         </span>
       </div>
-      <ChevronRight size={14} strokeWidth={1.5} className="text-white/25 shrink-0 -ml-1" />
+      <ChevronRight size={14} strokeWidth={T.stroke} className="text-white/25 shrink-0 -ml-1" />
     </motion.button>
   );
 }
@@ -594,12 +587,8 @@ export default function Progress({ onOpenCheckIn, onStartCheckIn }) {
       )}
 
       <div className="px-5 mb-3 flex items-center justify-between">
-        <p className="font-display text-[13px] text-white/55 uppercase tracking-[0.2em]">
-          Review History
-        </p>
-        <button className="font-display text-[11px] uppercase tracking-wider" style={{ color: GOLD }}>
-          View All
-        </button>
+        <p className="kicker">Review history</p>
+        <button className="btn-ghost !py-0 text-[12px]">View all</button>
       </div>
 
       <div className="px-5 flex flex-col gap-2.5">

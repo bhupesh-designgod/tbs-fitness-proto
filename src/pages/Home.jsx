@@ -1,29 +1,20 @@
-// ── Home Screen — "Deep & Energized" ──
-// Dashboard: greeting, week strip (dates + rings), coach quote,
-// score card (points), nutrition/hydration ring cards,
-// workout card, sleep recommendation.
+// ── Home — "Scoreboard" ──
+// Open-air score hero with oversized number, week strip,
+// task queue, plan rings, workout card, coach quote, sleep note.
 
 import { useMemo } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 import {
   Utensils, Droplets, Dumbbell, Clock, ChevronRight,
-  Bell, Moon, Sparkles, Check,
+  Bell, Moon, Check,
 } from 'lucide-react';
 import { NumericCounter } from '../components/ui/Components';
 import { useApp } from '../context/AppContext';
+import { T, enter, stagger } from '../tokens';
 import {
   USER_PROFILE, PHOTOS, DAILY_TARGETS,
-  BIKI_MESSAGES, CHECKIN_DUE,
+  BIKI_MESSAGES, PLAN_PROGRESS,
 } from '../data/mockData';
-
-// ── Color constants ──
-const CARD_BG = '#131318';
-const CARD_BORDER = 'rgba(255,255,255,0.07)';
-const EMERALD = '#34D399';
-const STEEL = '#5B7C99';
-const GOLD = '#D4A74E';
-const GOLD_START = '#B8893C';
-const GOLD_END = '#E0C074';
 
 // ── Greeting by time of day ──
 function getGreeting() {
@@ -35,12 +26,12 @@ function getGreeting() {
 
 // ── Coach daily quotes ──
 const COACH_QUOTES = [
-  "Champions aren't made in the gym — they're made from the decisions they make every single day. Let's own this one.",
-  "You showed up. That already puts you ahead of 90% of people. Now let's make it count.",
-  "Consistency beats intensity. You don't need to be perfect today — just present.",
-  "The body you want is built one meal, one rep, one glass of water at a time. Stay locked in.",
-  "Rest when you need to. Push when you can. But never quit on yourself.",
-  "Every rep you do today is a vote for the person you're becoming. Make it count.",
+  "Champions are built on ordinary days. This is one of them. Own it.",
+  "You showed up. That's the hard part. Now make it count.",
+  "Consistency beats intensity. Don't be perfect today — be present.",
+  "One meal, one rep, one glass of water at a time. Stay locked in.",
+  "Rest when you need to. Push when you can. Never quit on yourself.",
+  "Every rep today is a vote for who you're becoming.",
 ];
 
 // ── Points system ──
@@ -65,18 +56,14 @@ function MiniRing({ percentage, size = 42, strokeWidth = 3, isToday = false }) {
   const circumference = 2 * Math.PI * radius;
   const offset = circumference - (Math.min(percentage, 100) / 100) * circumference;
 
-  const ringColor = isToday
-    ? '#000000'
-    : percentage >= 80 ? GOLD
-    : percentage >= 40 ? GOLD_START
-    : 'rgba(255,255,255,0.12)';
+  const ringColor = isToday ? 'rgba(0,0,0,0.55)' : 'rgba(255,255,255,0.30)';
 
   return (
     <svg width={size} height={size} className="absolute inset-0 -rotate-90">
       <circle
         cx={size / 2} cy={size / 2} r={radius}
         fill="none"
-        stroke={isToday ? 'rgba(0,0,0,0.15)' : 'rgba(255,255,255,0.05)'}
+        stroke={isToday ? 'rgba(0,0,0,0.15)' : 'rgba(255,255,255,0.06)'}
         strokeWidth={strokeWidth}
       />
       {percentage > 0 && (
@@ -94,7 +81,7 @@ function MiniRing({ percentage, size = 42, strokeWidth = 3, isToday = false }) {
   );
 }
 
-// ── Status ring for nutrition/hydration cards ──
+// ── Status ring for plan cards ──
 function StatusRing({ percentage, size = 60, strokeWidth = 4, color, children }) {
   const shouldReduce = useReducedMotion();
   const radius = (size - strokeWidth) / 2;
@@ -104,29 +91,18 @@ function StatusRing({ percentage, size = 60, strokeWidth = 4, color, children })
   return (
     <div className="relative" style={{ width: size, height: size }}>
       <svg width={size} height={size} className="absolute inset-0 -rotate-90">
-        {/* Background track */}
         <circle
           cx={size / 2} cy={size / 2} r={radius}
-          fill="none"
-          stroke="rgba(255,255,255,0.05)"
-          strokeWidth={strokeWidth}
+          fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth={strokeWidth}
         />
-        {/* Progress arc */}
         {percentage > 0 && (
           <motion.circle
             cx={size / 2} cy={size / 2} r={radius}
-            fill="none"
-            stroke={color}
-            strokeWidth={strokeWidth}
-            strokeLinecap="round"
+            fill="none" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round"
             strokeDasharray={circumference}
             initial={shouldReduce ? { strokeDashoffset: offset } : { strokeDashoffset: circumference }}
             animate={{ strokeDashoffset: offset }}
-            transition={{
-              duration: 1,
-              ease: [0.16, 1, 0.3, 1],
-              delay: 0.35,
-            }}
+            transition={{ duration: 0.6, ease: T.easeOut, delay: 0.3 }}
           />
         )}
       </svg>
@@ -138,15 +114,11 @@ function StatusRing({ percentage, size = 60, strokeWidth = 4, color, children })
 }
 
 export default function Home({ onProfileClick, onNavigate }) {
-  const {
-    behaviorState, training, meals,
-    hydration, isRestDay, history,
-  } = useApp();
+  const { training, meals, hydration, isRestDay, history } = useApp();
 
   const shouldReduce = useReducedMotion();
   const today = new Date();
 
-  // Score
   const score = useMemo(
     () => calcDailyScore(meals, hydration, DAILY_TARGETS),
     [meals, hydration],
@@ -178,17 +150,14 @@ export default function Home({ onProfileClick, onNavigate }) {
     return { days, completedDays };
   }, [today, history, score.earned]);
 
-  // Hydration / nutrition completion
   const hydrationPct = Math.min(Math.round((hydration / DAILY_TARGETS.water) * 100), 100);
   const mealsLogged = meals.filter(m => m.logged).length;
   const totalMeals = meals.length;
   const nutritionPct = Math.round((mealsLogged / totalMeals) * 100);
 
-  // ── Up-next task queue (up to 2 cards, tap to navigate) ──
+  // Up-next task queue
   const tasks = useMemo(() => {
     const queue = [];
-
-    // 1. Next unlogged meal (priority: earliest in plan)
     const nextMealIdx = meals.findIndex(m => !m.logged);
     if (nextMealIdx !== -1) {
       const meal = meals[nextMealIdx];
@@ -197,38 +166,29 @@ export default function Home({ onProfileClick, onNavigate }) {
       queue.push({
         key: `meal-${nextMealIdx}`,
         icon: Utensils,
-        accent: EMERALD,
         title: `Log ${meal.label}`,
         subtitle: `${Math.round(totalCal)} cal · ${Math.round(totalProtein)}g protein`,
         points: 5,
         target: 'nutrition',
       });
     }
-
-    // 2. Hydration: nudge until target is hit (worth up to 10 pts: 5 at 50%, 5 at 100%)
     if (hydration < DAILY_TARGETS.water) {
       const pct = Math.round((hydration / DAILY_TARGETS.water) * 100);
-      // Next milestone: 50% (5pts) if not yet hit, else 100% (last 5pts)
-      const nextPts = hydration < DAILY_TARGETS.water * 0.5 ? 5 : 5;
       queue.push({
         key: 'hydration',
         icon: Droplets,
-        accent: STEEL,
-        title: 'Drink Water',
-        subtitle: `${pct}% of daily goal`,
-        points: nextPts,
+        title: 'Drink water',
+        subtitle: `${pct}% of today's goal`,
+        points: 5,
         target: 'nutrition',
       });
     }
-
     return queue.slice(0, 2);
   }, [meals, hydration]);
 
-  // Training info
   const exerciseCount = training.exercises?.length || 0;
   const muscleList = training.muscles?.join(' · ') || '';
 
-  // Coach quote (deterministic per day)
   const coachQuote = useMemo(() => {
     const dayOfYear = Math.floor(
       (today - new Date(today.getFullYear(), 0, 0)) / (1000 * 60 * 60 * 24),
@@ -236,304 +196,151 @@ export default function Home({ onProfileClick, onNavigate }) {
     return COACH_QUOTES[dayOfYear % COACH_QUOTES.length];
   }, []);
 
-  // Biki behavioural line
-  const bikiLine = BIKI_MESSAGES[behaviorState]?.[0] || '';
-
-  // Progress dots
   const totalDots = 6;
   const filledDots = Math.floor(score.earned / 5);
-
   const greeting = getGreeting();
+  const ptsToGo = score.total - score.earned;
 
   return (
     <div className="min-h-screen bg-black pb-24">
 
-      {/* ═══════════════════════════════════════════
-          1. GREETING HEADER  (single identity anchor)
-          ═══════════════════════════════════════════ */}
+      {/* ═══ 1. GREETING ═══ */}
       <motion.div
-        className="flex items-center justify-between px-5 pt-5 pb-4"
-        initial={shouldReduce ? {} : { opacity: 0, y: -8 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.35 }}
+        className="flex items-center justify-between px-5 pt-5 pb-2"
+        {...enter(0)}
       >
         <div className="flex items-center gap-3">
           <motion.button
-            whileTap={{ scale: 0.92 }}
+            whileTap={T.tapSmall}
             onClick={onProfileClick}
             className="w-11 h-11 rounded-full flex items-center justify-center font-display text-[18px]"
             style={{
-              background: `linear-gradient(135deg, rgba(184,137,60,0.15), rgba(224,192,116,0.08))`,
-              border: `2px solid rgba(212,167,78,0.3)`,
-              color: GOLD,
+              background: T.goldTint,
+              border: `2px solid ${T.goldBorder}`,
+              color: T.gold,
             }}
           >
             {USER_PROFILE.name.charAt(0)}
           </motion.button>
           <div>
-            <p className="font-body text-[13px] text-white/40 font-medium">{greeting},</p>
-            <p
-              className="font-display text-[28px] text-white leading-none tracking-wider"
-              style={{ marginTop: '-2px' }}
-            >
+            <p className="font-body text-[13px] font-medium" style={{ color: T.textLow }}>
+              {greeting},
+            </p>
+            <p className="display-md text-white" style={{ marginTop: '-1px' }}>
               {USER_PROFILE.name.toUpperCase()}.
             </p>
           </div>
         </div>
 
-        {/* Notification bell */}
         <div
           className="relative w-11 h-11 rounded-full flex items-center justify-center"
-          style={{ background: 'rgba(255,255,255,0.04)', border: `1px solid ${CARD_BORDER}` }}
+          style={{ background: T.surface, border: `1px solid ${T.hairline}` }}
         >
-          <Bell size={18} strokeWidth={1.5} className="text-white/40" />
+          <Bell size={18} strokeWidth={T.stroke} style={{ color: T.textLow }} />
           <div
             className="absolute top-2 right-2.5 w-2 h-2 rounded-full"
-            style={{ background: GOLD }}
+            style={{ background: T.gold }}
           />
         </div>
       </motion.div>
 
-      {/* ═══════════════════════════════════════════
-          2. THIS WEEK STRIP  (dates + completion rings)
-          ═══════════════════════════════════════════ */}
-      <motion.div
-        className="px-5 mb-4"
-        initial={shouldReduce ? {} : { opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.06 }}
-      >
-        <p className="font-display text-[13px] text-white/25 uppercase tracking-[0.2em] mb-3">
-          This Week
-        </p>
-        <div className="grid grid-cols-7 gap-1.5">
-          {weekStrip.days.map((day, i) => (
-            <motion.div
-              key={i}
-              className="weekly-ring-cell"
-              initial={shouldReduce ? {} : { opacity: 0, y: 6 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.04 + 0.12, duration: 0.25 }}
-            >
-              <span className="font-body text-[9px] text-white/30 uppercase font-semibold tracking-wider">
-                {day.label}
-              </span>
-
-              <div
-                className="w-[42px] h-[42px] rounded-full flex items-center justify-center relative"
-                style={{
-                  background: day.isToday
-                    ? `linear-gradient(135deg, ${GOLD_START}, ${GOLD_END})`
-                    : CARD_BG,
-                }}
-              >
-                <MiniRing percentage={day.pct} isToday={day.isToday} />
-                <span
-                  className="font-display text-[18px] leading-none relative z-10"
-                  style={{
-                    color: day.isToday ? '#000'
-                      : day.pts !== null ? 'rgba(255,255,255,0.8)'
-                      : 'rgba(255,255,255,0.2)',
-                  }}
-                >
-                  {day.date}
-                </span>
-              </div>
-
-              <span
-                className="font-body text-[9px] font-semibold tabular-nums"
-                style={{
-                  color: day.isToday ? GOLD
-                    : day.pts !== null && day.isPast ? 'rgba(212,167,78,0.7)'
-                    : 'rgba(255,255,255,0.12)',
-                }}
-              >
-                {day.pts !== null ? `${day.pts}pts` : '\u2014'}
-              </span>
-            </motion.div>
-          ))}
+      {/* ═══ 2. SCORE HERO — open air, number bleeds right ═══ */}
+      <motion.div className="pl-5 pt-6 pb-2 relative overflow-hidden" {...enter(0.05)}>
+        <div className="flex items-center gap-2">
+          <span className="kicker">Today's score</span>
+          {/* Tilted plan-day badge */}
+          <motion.span
+            className="font-body text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-md inline-block"
+            style={{
+              color: T.textLow,
+              border: `1px solid ${T.hairlineStrong}`,
+              rotate: '-2.5deg',
+            }}
+            {...enter(0.15)}
+          >
+            Day {PLAN_PROGRESS.currentDay} of {PLAN_PROGRESS.totalDays}
+          </motion.span>
         </div>
 
-        <div className="flex items-center gap-2 mt-3">
-          <span className="font-display text-[14px] tracking-wider" style={{ color: GOLD }}>
-            {weekStrip.completedDays}
-          </span>
-          <span className="font-body text-[11px] text-white/30 font-medium uppercase tracking-wider">
-            of 7 days completed
-          </span>
-        </div>
-      </motion.div>
-
-      {/* ═══════════════════════════════════════════
-          3. COACH BIKI QUOTE  (reacting to your week)
-          ═══════════════════════════════════════════ */}
-      <motion.div
-        className="mx-5 mb-4"
-        initial={shouldReduce ? {} : { opacity: 0, y: 8 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 0.18 }}
-      >
-        <div className="coach-quote-card p-4 pl-5">
-          <div className="flex items-start gap-3">
-            {/* Coach avatar */}
-            <div className="shrink-0 relative">
-              <div
-                className="w-10 h-10 rounded-full overflow-hidden"
-                style={{ border: '2px solid rgba(212,167,78,0.35)' }}
-              >
-                <img
-                  src={PHOTOS.bikiPortrait}
-                  alt="Coach Biki"
-                  className="w-full h-full object-cover"
-                  style={{ filter: 'grayscale(40%) contrast(1.1)' }}
-                />
-              </div>
-              <div
-                className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full"
-                style={{ background: '#4ADE80', border: '2px solid #131318' }}
-              />
-            </div>
-
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-1.5">
-                <Sparkles size={12} strokeWidth={1.5} style={{ color: GOLD }} />
-                <span
-                  className="font-display text-[12px] uppercase tracking-widest"
-                  style={{ color: GOLD }}
-                >
-                  Coach Biki
-                </span>
-              </div>
-              <p className="font-body text-[14px] text-white/70 leading-relaxed">
-                "{coachQuote}"
-              </p>
-            </div>
-          </div>
-        </div>
-      </motion.div>
-
-      {/* ── Divider ── */}
-      <div className="mx-5 mb-4" style={{ height: 1, background: 'rgba(255,255,255,0.05)' }} />
-
-      {/* ═══════════════════════════════════════════
-          4. TODAY'S SCORE CARD  (points-based)
-          ═══════════════════════════════════════════ */}
-      <motion.div
-        className="mx-5 mb-3 rounded-2xl p-5 relative overflow-hidden"
-        style={{ background: CARD_BG, border: `1px solid ${CARD_BORDER}` }}
-        initial={shouldReduce ? {} : { opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.24, duration: 0.35 }}
-      >
-        <p className="font-display text-[13px] text-white/25 uppercase tracking-[0.2em] mb-2">
-          Today
-        </p>
-
-        {/* Big score */}
-        <div className="flex items-end gap-2 mb-1">
+        <div className="flex items-end gap-3 mt-1 -mb-2">
           <NumericCounter
             value={score.earned}
-            className="text-[72px] leading-none text-white"
-            duration={0.8}
+            className="display-2xl"
+            duration={0.6}
           />
-          <div className="flex items-baseline gap-1 pb-2.5">
-            <span className="font-display text-[24px] text-white/20">/{score.total}</span>
-            <span className="font-display text-[16px] text-white/20 uppercase">pts</span>
+          <div className="flex items-baseline gap-1 pb-4">
+            <span className="display-md" style={{ color: T.textFaint }}>/{score.total}</span>
+            <span className="display-xs" style={{ color: T.textFaint }}>PTS</span>
           </div>
         </div>
 
-        {/* Subtitle */}
-        <p className="font-body text-[12px] text-white/30 font-medium mb-4">
+        <p className="font-body text-[13px] font-medium mt-2 mb-4" style={{ color: T.textLow }}>
           {score.earned >= score.total
-            ? 'You hit your daily goal'
-            : `${score.total - score.earned} pts away from your goal`}
+            ? 'Goal hit. Take a bow.'
+            : `${ptsToGo} pts to go. Keep moving.`}
         </p>
 
         {/* Progress dots */}
-        <div className="flex gap-1.5">
+        <div className="flex gap-1.5 pr-5">
           {Array.from({ length: totalDots }).map((_, i) => (
             <motion.div
               key={i}
               className="flex-1 h-[5px] rounded-full"
               initial={shouldReduce ? {} : { scaleX: 0 }}
               animate={{ scaleX: 1 }}
-              transition={{ delay: 0.35 + i * 0.04 }}
+              transition={{ delay: 0.25 + i * 0.04, duration: 0.2, ease: T.easeOut }}
               style={{
                 transformOrigin: 'left',
-                background: i < filledDots
-                  ? `linear-gradient(135deg, ${GOLD_START}, ${GOLD_END})`
-                  : 'rgba(255,255,255,0.05)',
+                background: i < filledDots ? T.goldGrad : 'rgba(255,255,255,0.07)',
               }}
             />
           ))}
         </div>
       </motion.div>
 
-      {/* ═══════════════════════════════════════════
-          4.5  UP NEXT — actionable task queue (max 2)
-          ═══════════════════════════════════════════ */}
+      {/* ═══ 3. UP NEXT ═══ */}
       {tasks.length > 0 && (
-        <motion.div
-          className="mx-5 mb-3"
-          initial={shouldReduce ? {} : { opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.28 }}
-        >
-          <p className="font-display text-[13px] text-white/25 uppercase tracking-[0.2em] mb-3">
-            Up Next
-          </p>
+        <motion.div className="mx-5 mt-6 mb-3" {...enter(0.1)}>
+          <p className="kicker mb-3">Up next</p>
           <div className="flex flex-col gap-2">
             {tasks.map((t, i) => {
               const Icon = t.icon;
               return (
                 <motion.button
                   key={t.key}
-                  initial={shouldReduce ? {} : { opacity: 0, x: -8 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.32 + i * 0.05, duration: 0.3 }}
-                  whileTap={{ scale: 0.985 }}
+                  {...stagger(i, 0.14)}
+                  whileTap={T.tap}
                   onClick={() => onNavigate && onNavigate(t.target)}
-                  className="w-full flex items-center gap-3 rounded-2xl p-3 text-left"
-                  style={{
-                    background: CARD_BG,
-                    border: `1px solid ${CARD_BORDER}`,
-                  }}
+                  className="card w-full flex items-center gap-3 p-3 text-left"
                 >
-                  {/* Icon badge */}
                   <div
                     className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0"
-                    style={{
-                      background: `${t.accent}1A`,
-                      border: `1px solid ${t.accent}33`,
-                    }}
+                    style={{ background: T.surface2, border: `1px solid ${T.hairline}` }}
                   >
-                    <Icon size={20} strokeWidth={1.75} style={{ color: t.accent }} />
+                    <Icon size={20} strokeWidth={T.stroke} style={{ color: T.textMid }} />
                   </div>
 
-                  {/* Title + subtitle */}
                   <div className="flex-1 min-w-0">
-                    <p className="font-display text-[14px] text-white uppercase tracking-wider leading-tight">
+                    <p className="display-xs text-white leading-tight">
                       {t.title}
                     </p>
-                    <p className="font-body text-[11px] text-white/40 mt-0.5 truncate">
+                    <p className="font-body text-[12px] font-medium mt-0.5 truncate" style={{ color: T.textLow }}>
                       {t.subtitle}
                     </p>
                   </div>
 
-                  {/* Points chip + chevron */}
                   <div className="flex items-center gap-2 flex-shrink-0">
                     <span
-                      className="font-display text-[11px] uppercase tracking-wider px-2 py-1 rounded-md"
+                      className="font-body text-[11px] font-extrabold uppercase tracking-wider px-2 py-1 rounded-md inline-block"
                       style={{
-                        background: `${t.accent}14`,
-                        color: t.accent,
-                        border: `1px solid ${t.accent}2E`,
-                        fontWeight: 700,
+                        color: T.gold,
+                        border: `1px solid ${T.goldBorder}`,
+                        rotate: '-2deg',
                       }}
                     >
                       +{t.points} pts
                     </span>
-                    <ChevronRight size={16} strokeWidth={1.5} className="text-white/25" />
+                    <ChevronRight size={16} strokeWidth={T.stroke} style={{ color: T.textFaint }} />
                   </div>
                 </motion.button>
               );
@@ -542,114 +349,81 @@ export default function Home({ onProfileClick, onNavigate }) {
         </motion.div>
       )}
 
-      {/* ═══════════════════════════════════════════
-          5. TODAY'S PLAN — Nutrition & Hydration rings
-          ═══════════════════════════════════════════ */}
-      <motion.div
-        className="mx-5 mb-3"
-        initial={shouldReduce ? {} : { opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3 }}
-      >
-        <p className="font-display text-[13px] text-white/25 uppercase tracking-[0.2em] mb-3">
-          Today's Plan
-        </p>
+      {/* ═══ 4. TODAY'S PLAN — 2-col rings ═══ */}
+      <motion.div className="mx-5 mb-3" {...enter(0.16)}>
+        <p className="kicker mb-3">Today's plan</p>
         <div className="grid grid-cols-2 gap-3">
-
-          {/* ── Nutrition ring card ── */}
-          <div className="status-card">
-            <StatusRing percentage={nutritionPct} color={EMERALD} size={60} strokeWidth={4}>
+          <div className="card flex flex-col items-center gap-2.5 py-5 px-4">
+            <StatusRing percentage={nutritionPct} color={T.gold} size={60} strokeWidth={4}>
               {nutritionPct >= 100 ? (
-                <Check size={22} strokeWidth={2.5} style={{ color: EMERALD }} />
+                <Check size={22} strokeWidth={2.5} style={{ color: T.gold }} />
               ) : (
-                <Utensils size={20} strokeWidth={1.5} style={{ color: EMERALD }} />
+                <Utensils size={20} strokeWidth={T.stroke} style={{ color: T.textMid }} />
               )}
             </StatusRing>
-
-            <span className="font-display text-[14px] text-white/60 uppercase tracking-wider">
+            <span className="font-body text-[12px] font-bold uppercase tracking-wider" style={{ color: T.textMid }}>
               Nutrition
             </span>
-
-            <span
-              className="font-body text-[12px] font-bold uppercase tracking-wider"
-              style={{ color: EMERALD }}
-            >
+            <span className="display-xs" style={{ color: nutritionPct >= 100 ? T.gold : '#fff' }}>
               {nutritionPct >= 100 ? 'Done' : `${mealsLogged} of ${totalMeals}`}
             </span>
           </div>
 
-          {/* ── Hydration ring card ── */}
-          <div className="status-card">
-            <StatusRing percentage={hydrationPct} color={STEEL} size={60} strokeWidth={4}>
+          <div className="card flex flex-col items-center gap-2.5 py-5 px-4">
+            <StatusRing percentage={hydrationPct} color={T.water} size={60} strokeWidth={4}>
               {hydrationPct >= 100 ? (
-                <Check size={22} strokeWidth={2.5} style={{ color: STEEL }} />
+                <Check size={22} strokeWidth={2.5} style={{ color: T.water }} />
               ) : (
-                <Droplets size={20} strokeWidth={1.5} style={{ color: STEEL }} />
+                <Droplets size={20} strokeWidth={T.stroke} style={{ color: T.textMid }} />
               )}
             </StatusRing>
-
-            <span className="font-display text-[14px] text-white/60 uppercase tracking-wider">
+            <span className="font-body text-[12px] font-bold uppercase tracking-wider" style={{ color: T.textMid }}>
               Hydration
             </span>
-
-            <span
-              className="font-body text-[12px] font-bold uppercase tracking-wider"
-              style={{ color: STEEL }}
-            >
+            <span className="display-xs" style={{ color: hydrationPct >= 100 ? T.water : '#fff' }}>
               {hydrationPct >= 100 ? 'Done' : `${hydrationPct}%`}
             </span>
           </div>
         </div>
       </motion.div>
 
-      {/* ═══════════════════════════════════════════
-          6. WORKOUT CARD  (standalone)
-          ═══════════════════════════════════════════ */}
-      <motion.div
-        className="mx-5 mb-3 rounded-2xl overflow-hidden relative"
-        style={{ background: CARD_BG, border: `1px solid ${CARD_BORDER}` }}
-        initial={shouldReduce ? {} : { opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.36 }}
-      >
+      {/* ═══ 5. WORKOUT CARD ═══ */}
+      <motion.div className="card mx-5 mb-3 overflow-hidden relative" {...enter(0.2)}>
         <div className="flex">
           <div className="flex-1 p-5">
-            <p className="font-display text-[12px] text-white/25 uppercase tracking-[0.2em] mb-2">
-              {isRestDay ? 'Recovery' : "Today's Workout"}
+            <p className="kicker mb-2">
+              {isRestDay ? 'Recovery' : "Today's workout"}
             </p>
-            <h2 className="font-display text-[32px] text-white leading-none tracking-wider uppercase">
+            <h2 className="display-lg text-white uppercase">
               {training.name}
             </h2>
             {!isRestDay && (
               <>
                 <div className="flex items-center gap-3 mt-2.5 mb-2">
-                  <span className="flex items-center gap-1.5 font-body text-[11px] text-white/40 font-medium">
-                    <Dumbbell size={12} strokeWidth={1.5} /> {exerciseCount} exercises
+                  <span className="flex items-center gap-1.5 font-body text-[12px] font-medium" style={{ color: T.textLow }}>
+                    <Dumbbell size={12} strokeWidth={T.stroke} /> {exerciseCount} exercises
                   </span>
-                  <span className="font-body text-[11px] text-white/15">|</span>
-                  <span className="flex items-center gap-1.5 font-body text-[11px] text-white/40 font-medium">
-                    <Clock size={12} strokeWidth={1.5} /> 60 min
+                  <span style={{ color: T.textFaint }}>|</span>
+                  <span className="flex items-center gap-1.5 font-body text-[12px] font-medium" style={{ color: T.textLow }}>
+                    <Clock size={12} strokeWidth={T.stroke} /> 60 min
                   </span>
                 </div>
-                <p className="font-body text-[11px] text-white/25 font-medium">{muscleList}</p>
+                <p className="font-body text-[12px] font-medium" style={{ color: T.textFaint }}>{muscleList}</p>
               </>
             )}
             {isRestDay && (
-              <p className="font-body text-[12px] text-white/30 mt-2 font-medium">
-                Recovery + mobility work
+              <p className="font-body text-[13px] font-medium mt-2" style={{ color: T.textLow }}>
+                Recovery and mobility. Earn the next one.
               </p>
             )}
 
-            <motion.div
-              whileTap={{ scale: 0.95 }}
-              className="inline-flex items-center gap-1.5 mt-4 px-4 py-2.5 rounded-lg"
-              style={{ border: `1px solid rgba(212,167,78,0.25)` }}
+            <motion.button
+              whileTap={T.tap}
+              onClick={() => onNavigate && onNavigate('train')}
+              className="btn-ghost mt-4"
             >
-              <span className="font-body text-[12px] font-semibold" style={{ color: GOLD }}>
-                View Workout
-              </span>
-              <ChevronRight size={12} strokeWidth={1.5} style={{ color: GOLD }} />
-            </motion.div>
+              View workout <ChevronRight size={13} strokeWidth={T.stroke} />
+            </motion.button>
           </div>
 
           {!isRestDay && (
@@ -662,56 +436,118 @@ export default function Home({ onProfileClick, onNavigate }) {
               />
               <div
                 className="absolute inset-0"
-                style={{ background: `linear-gradient(to right, ${CARD_BG} 0%, transparent 60%)` }}
+                style={{ background: `linear-gradient(to right, ${T.surface} 0%, transparent 60%)` }}
               />
             </div>
           )}
         </div>
       </motion.div>
 
-      {/* ═══════════════════════════════════════════
-          7. SLEEP RECOMMENDATION BANNER
-          ═══════════════════════════════════════════ */}
-      <motion.div
-        className="mx-5 mb-4"
-        initial={shouldReduce ? {} : { opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.4 }}
-      >
-        <div className="sleep-banner p-4 pl-5">
-          <div className="flex items-start gap-3">
-            <div className="shrink-0">
+      {/* ═══ 6. THIS WEEK STRIP ═══ */}
+      <motion.div className="px-5 pt-3 mb-4" {...enter(0.24)}>
+        <p className="kicker mb-3">This week</p>
+        <div className="grid grid-cols-7 gap-1.5">
+          {weekStrip.days.map((day, i) => (
+            <motion.div
+              key={i}
+              className="flex flex-col items-center gap-1"
+              {...stagger(i, 0.26)}
+            >
+              <span className="font-body text-[9px] font-bold uppercase tracking-wider" style={{ color: T.textFaint }}>
+                {day.label}
+              </span>
+
               <div
-                className="w-9 h-9 rounded-full overflow-hidden"
-                style={{ border: `1.5px solid rgba(91,124,153,0.25)` }}
+                className="w-[42px] h-[42px] rounded-full flex items-center justify-center relative"
+                style={{
+                  background: day.isToday ? T.goldGrad : T.surface,
+                  border: day.isToday ? 'none' : `1px solid ${T.hairline}`,
+                }}
+              >
+                <MiniRing percentage={day.pct} isToday={day.isToday} />
+                <span
+                  className="font-display text-[18px] leading-none relative z-10"
+                  style={{
+                    color: day.isToday ? '#000'
+                      : day.pts !== null ? 'rgba(255,255,255,0.8)'
+                      : 'rgba(255,255,255,0.22)',
+                  }}
+                >
+                  {day.date}
+                </span>
+              </div>
+
+              <span
+                className="font-body text-[9px] font-bold tabular-nums"
+                style={{
+                  color: day.isToday ? T.gold
+                    : day.pts !== null && day.isPast ? T.textLow
+                    : 'rgba(255,255,255,0.14)',
+                }}
+              >
+                {day.pts !== null ? `${day.pts}` : '—'}
+              </span>
+            </motion.div>
+          ))}
+        </div>
+
+        <p className="font-body text-[12px] font-medium mt-3" style={{ color: T.textLow }}>
+          <span className="font-display text-[16px] mr-1" style={{ color: T.gold }}>
+            {weekStrip.completedDays}
+          </span>
+          of 7 days on the board
+        </p>
+      </motion.div>
+
+      {/* ═══ 7. COACH QUOTE ═══ */}
+      <motion.div className="mx-5 mb-3" {...enter(0.28)}>
+        <div className="coach-quote-card p-4 pl-5">
+          <div className="flex items-start gap-3">
+            <div className="shrink-0 relative">
+              <div
+                className="w-10 h-10 rounded-full overflow-hidden"
+                style={{ border: `2px solid ${T.goldBorder}` }}
               >
                 <img
                   src={PHOTOS.bikiPortrait}
                   alt="Coach Biki"
                   className="w-full h-full object-cover"
-                  style={{ filter: 'grayscale(60%) brightness(0.8)' }}
+                  style={{ filter: 'grayscale(40%) contrast(1.1)' }}
                 />
               </div>
+              <div
+                className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full"
+                style={{ background: T.success, border: `2px solid ${T.surface}` }}
+              />
             </div>
 
             <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-1.5">
-                <Moon size={12} strokeWidth={1.5} style={{ color: STEEL }} />
-                <span
-                  className="font-display text-[12px] uppercase tracking-[0.15em]"
-                  style={{ color: STEEL }}
-                >
-                  Sleep Recommendation
-                </span>
-              </div>
-              <p className="font-display text-[22px] text-white leading-none tracking-wider mb-1.5">
-                GET 7–8 HOURS TONIGHT
-              </p>
-              <p className="font-body text-[12px] text-white/30 leading-relaxed font-medium">
-                "Your body recovers and builds muscle while you sleep. This is non-negotiable.
-                Lights off early tonight."
+              <p className="kicker kicker-gold mb-1.5">Coach Biki</p>
+              <p className="font-body text-[14px] font-medium leading-relaxed" style={{ color: T.textMid }}>
+                "{coachQuote}"
               </p>
             </div>
+          </div>
+        </div>
+      </motion.div>
+
+      {/* ═══ 8. SLEEP NOTE ═══ */}
+      <motion.div className="card mx-5 mb-4 p-4 pl-5" {...enter(0.32)}>
+        <div className="flex items-start gap-3">
+          <div
+            className="w-9 h-9 rounded-full flex items-center justify-center shrink-0"
+            style={{ background: T.surface2 }}
+          >
+            <Moon size={16} strokeWidth={T.stroke} style={{ color: T.textMid }} />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="kicker mb-1.5">Sleep</p>
+            <p className="display-sm text-white mb-1.5">
+              7–8 HOURS TONIGHT
+            </p>
+            <p className="font-body text-[13px] font-medium leading-relaxed" style={{ color: T.textLow }}>
+              Muscle is built while you sleep. Lights off early.
+            </p>
           </div>
         </div>
       </motion.div>

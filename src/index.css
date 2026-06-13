@@ -2,27 +2,26 @@
 
 @theme {
   --color-black: #000000;
-  --color-surface: #0A0A0A;
-  --color-surface-raised: #121212;
-  --color-surface-bright: #1A1A1A;
-  --color-hairline: rgba(255, 255, 255, 0.12);
-  --color-hairline-strong: rgba(255, 255, 255, 0.2);
+  --color-surface: #101014;
+  --color-surface-raised: #17171C;
+  --color-hairline: rgba(255, 255, 255, 0.08);
+  --color-hairline-strong: rgba(255, 255, 255, 0.16);
 
   --color-gold-start: #B8893C;
   --color-gold-end: #E0C074;
   --color-gold: #D4A74E;
 
-  --color-platinum: #C8C8C6;
-  --color-bronze: #9A7B4F;
-  --color-steel-blue: #5B7C99;
+  --color-success: #4ADE80;
+  --color-danger: #F87171;
+  --color-water: #7BA7C9;
 
   --color-text-primary: #FFFFFF;
-  --color-text-secondary: rgba(255, 255, 255, 0.6);
-  --color-text-tertiary: rgba(255, 255, 255, 0.4);
-  --color-text-muted: rgba(255, 255, 255, 0.25);
+  --color-text-secondary: rgba(255, 255, 255, 0.66);
+  --color-text-tertiary: rgba(255, 255, 255, 0.45);
+  --color-text-muted: rgba(255, 255, 255, 0.28);
 
-  --font-family-display: 'Bebas Neue', sans-serif;
-  --font-family-body: 'Manrope', sans-serif;
+  --font-display: 'Bebas Neue', sans-serif;
+  --font-body: 'Manrope', sans-serif;
 }
 
 /* ── Base ── */
@@ -43,15 +42,91 @@ html, body, #root {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* ── Display type (Bebas Neue) ── */
+/* ── Display type (Bebas Neue) — never below 20px ── */
 .font-display {
-  font-family: 'Bebas Neue', sans-serif;
-  letter-spacing: 0.04em;
+  font-family: var(--font-display);
+  letter-spacing: 0.03em;
+  line-height: 0.95;
+  font-weight: 400; /* Bebas has one weight; faux bolds are banned */
 }
+
+/* Fixed display scale */
+.display-2xl { font-family: var(--font-display); font-size: 96px; line-height: 0.85; letter-spacing: 0.01em; }
+.display-xl  { font-family: var(--font-display); font-size: 64px; line-height: 0.9;  letter-spacing: 0.01em; }
+.display-lg  { font-family: var(--font-display); font-size: 48px; line-height: 0.9;  letter-spacing: 0.02em; }
+.display-md  { font-family: var(--font-display); font-size: 32px; line-height: 0.95; letter-spacing: 0.03em; }
+.display-sm  { font-family: var(--font-display); font-size: 24px; line-height: 0.95; letter-spacing: 0.04em; }
+.display-xs  { font-family: var(--font-display); font-size: 20px; line-height: 1;    letter-spacing: 0.05em; }
 
 /* ── Body type (Manrope) ── */
 .font-body {
-  font-family: 'Manrope', sans-serif;
+  font-family: var(--font-body);
+}
+
+/* ── Kicker — small bold label. Replaces every tiny Bebas label. ── */
+.kicker {
+  font-family: var(--font-body);
+  font-weight: 800;
+  font-size: 11px;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.45);
+}
+.kicker-gold { color: #D4A74E; }
+
+/* ── Card family — one card style ── */
+.card {
+  background: #101014;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+}
+
+/* ── Button system ── */
+.btn-primary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 14px 20px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #B8893C, #E0C074);
+  color: #000;
+  font-family: var(--font-display);
+  font-size: 20px;
+  line-height: 1;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.btn-primary:disabled { opacity: 0.3; }
+
+.btn-secondary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 12px 16px;
+  border-radius: 14px;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  color: rgba(255, 255, 255, 0.7);
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 13px;
+}
+.btn-secondary:disabled { opacity: 0.3; }
+
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: transparent;
+  border: none;
+  padding: 6px 0;
+  color: #D4A74E;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 13px;
 }
 
 /* ── Numeral treatment ── */

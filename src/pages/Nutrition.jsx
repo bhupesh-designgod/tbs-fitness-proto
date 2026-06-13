@@ -17,7 +17,7 @@ import { DAILY_TARGETS, MEAL_PLAN, USER_PROFILE } from '../data/mockData';
 // ── Aliases from the token sheet — no local values ──
 const CARD_BG = T.surface;
 const CARD_BORDER = T.hairline;
-const GOLD = T.volt;
+const GOLD = T.gold;
 const GOLD_START = T.goldStart;
 const GOLD_END = T.goldEnd;
 const STEEL = T.water;
@@ -418,7 +418,7 @@ function MealSheet({ meal, mealIndex, isOpen, onClose, logged, logMeal, adjustMe
         {meal.logged && (
           <span
             className="font-body text-[10px] font-extrabold uppercase tracking-wider px-2 py-1 rounded-md"
-            style={{ background: 'rgba(215,255,62,0.1)', color: GOLD, border: '1px solid rgba(215,255,62,0.25)' }}
+            style={{ background: 'rgba(212,168,72,0.12)', color: GOLD, border: '1px solid rgba(212,168,72,0.40)' }}
           >
             Logged
           </span>
@@ -1436,7 +1436,7 @@ export default function Nutrition({ onMacroDetail }) {
       </motion.div>
 
       <div className="mb-4">
-        <WeekStrip mode="score" showPoints={false} />
+        <WeekStrip mode="nutrition" />
       </div>
 
       <TabToggle active={activeTab} onChange={setActiveTab} />
@@ -1519,7 +1519,7 @@ export default function Nutrition({ onMacroDetail }) {
         addMeal={addMeal}
       />
 
-      <MonthSheet isOpen={monthOpen} onClose={() => setMonthOpen(false)} mode="score" />
+      <MonthSheet isOpen={monthOpen} onClose={() => setMonthOpen(false)} mode="nutrition" />
     </div>
   );
 }

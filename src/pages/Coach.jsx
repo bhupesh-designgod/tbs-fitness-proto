@@ -18,7 +18,7 @@ import { T } from '../tokens';
 // ── Aliases from the token sheet — no local values ──
 const CARD_BG = T.surface;
 const CARD_BORDER = T.hairline;
-const GOLD = T.volt;
+const GOLD = T.gold;
 const GOLD_START = T.goldStart;
 const GOLD_END = T.goldEnd;
 const ONLINE_GREEN = T.success;
@@ -117,7 +117,7 @@ function NextCallCard() {
     >
       <div
         className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0"
-        style={{ background: 'rgba(215,255,62,0.1)', border: `1px solid rgba(215,255,62,0.25)` }}
+        style={{ background: 'rgba(212,168,72,0.12)', border: `1px solid rgba(212,168,72,0.40)` }}
       >
         <CalendarDays size={20} strokeWidth={T.stroke} style={{ color: GOLD }} />
       </div>
@@ -131,7 +131,7 @@ function NextCallCard() {
       <motion.button
         whileTap={{ scale: 0.95 }}
         className="shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-lg"
-        style={{ border: `1px solid rgba(215,255,62,0.35)` }}
+        style={{ border: `1px solid rgba(212,168,72,0.40)` }}
       >
         <Video size={14} strokeWidth={T.stroke} style={{ color: GOLD }} />
         <span className="font-body text-[11px] font-extrabold uppercase tracking-wider" style={{ color: GOLD }}>
@@ -165,7 +165,7 @@ function CoachAvatar() {
     <div className="relative shrink-0">
       <div
         className="w-9 h-9 rounded-full overflow-hidden"
-        style={{ border: '1.5px solid rgba(215,255,62,0.3)' }}
+        style={{ border: '1.5px solid rgba(212,168,72,0.40)' }}
       >
         <img
           src={PHOTOS.bikiPortrait}
@@ -520,7 +520,7 @@ export default function Coach({ onCheckIn, onBack }) {
           onClick={onCheckIn}
           whileTap={{ scale: 0.98 }}
           className="mx-5 mb-5 w-[calc(100%-2.5rem)] flex items-center justify-between px-4 py-2.5 rounded-xl"
-          style={{ background: 'rgba(215,255,62,0.08)', border: '1px solid rgba(215,255,62,0.25)' }}
+          style={{ background: 'rgba(215,255,62,0.08)', border: '1px solid rgba(212,168,72,0.40)' }}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
         >

@@ -26,16 +26,17 @@ export const T = {
   cobaltTint: 'rgba(43,75,255,0.14)',
   cobaltBorder: 'rgba(43,75,255,0.40)',
 
-  // GOLD — trophies only. Milestones, brand. Max 1–2 per screen.
+  // GOLD — the action color. Primary CTAs, brand moments, achievements.
   gold: '#D4A848',
-  goldTintTrophy: 'rgba(212,168,72,0.12)',
+  goldTint: 'rgba(212,168,72,0.12)',
+  goldBorder: 'rgba(212,168,72,0.40)',
+  goldStart: '#D4A848',
+  goldEnd: '#D4A848',
+  goldGrad: '#D4A848',
 
-  // Legacy accent aliases — all resolve to volt so old call sites stay flat volt
-  goldStart: '#D7FF3E',
-  goldEnd: '#D7FF3E',
-  goldGrad: '#D7FF3E',
-  goldTint: 'rgba(215,255,62,0.10)',
-  goldBorder: 'rgba(215,255,62,0.35)',
+  // ORANGE — meal adherence rings only
+  meal: '#FF7A00',
+  mealTint: 'rgba(255,122,0,0.14)',
 
   // Functional — data only
   success: '#D7FF3E',           // "done" is volt — the app lights up

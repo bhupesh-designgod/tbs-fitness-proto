@@ -318,8 +318,8 @@ export default function Home({ onProfileClick, onNavigate }) {
                     <span
                       className="font-body text-[11px] font-extrabold uppercase tracking-wider px-2 py-1 rounded-md inline-block"
                       style={{
-                        color: T.volt,
-                        border: `1px solid ${T.voltBorder}`,
+                        color: T.gold,
+                        border: `1px solid ${T.goldBorder}`,
                         rotate: '-2deg',
                       }}
                     >

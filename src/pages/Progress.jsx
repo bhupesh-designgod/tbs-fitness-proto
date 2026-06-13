@@ -14,7 +14,7 @@ import { T } from '../tokens';
 // ── Aliases from the token sheet — no local values ──
 const CARD_BG = T.surface;
 const CARD_BORDER = T.hairline;
-const GOLD = T.volt;
+const GOLD = T.gold;
 const GOLD_START = T.goldStart;
 const GOLD_END = T.goldEnd;
 const ON_TRACK = T.success;
@@ -98,7 +98,7 @@ function LatestReviewCard({ checkIn, onView }) {
           </h2>
           <span
             className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md"
-            style={{ background: 'rgba(215,255,62,0.12)', border: '1px solid rgba(215,255,62,0.3)' }}
+            style={{ background: 'rgba(215,255,62,0.12)', border: '1px solid rgba(212,168,72,0.40)' }}
           >
             <span
               className="w-2.5 h-2.5 rounded-full flex items-center justify-center"
@@ -118,7 +118,7 @@ function LatestReviewCard({ checkIn, onView }) {
         <div className="flex items-center gap-2 mt-3">
           <div
             className="w-7 h-7 rounded-full overflow-hidden shrink-0"
-            style={{ border: '1px solid rgba(215,255,62,0.3)' }}
+            style={{ border: '1px solid rgba(212,168,72,0.40)' }}
           >
             <img
               src={PHOTOS.bikiPortrait}
@@ -193,7 +193,7 @@ function NextCheckInCard({ next, onStart }) {
       <div className="flex items-center gap-4">
         <div
           className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0"
-          style={{ background: 'rgba(215,255,62,0.1)', border: '1px solid rgba(215,255,62,0.25)' }}
+          style={{ background: 'rgba(212,168,72,0.12)', border: '1px solid rgba(212,168,72,0.40)' }}
         >
           <CalendarDays size={20} strokeWidth={T.stroke} style={{ color: GOLD }} />
         </div>
@@ -296,7 +296,7 @@ function WeekPicker({ value, options, onChange }) {
                   key={opt.id}
                   onClick={() => { onChange(opt.id); setOpen(false); }}
                   className="w-full text-left px-3.5 py-2.5 flex items-center justify-between"
-                  style={{ background: isActive ? 'rgba(215,255,62,0.1)' : 'transparent' }}
+                  style={{ background: isActive ? 'rgba(212,168,72,0.12)' : 'transparent' }}
                 >
                   <span
                     className="font-body text-[12px] font-bold"
@@ -530,7 +530,7 @@ function HistoryRow({ item, delay, onOpen }) {
 
       <div
         className="shrink-0 px-3 py-1.5 rounded-lg"
-        style={{ border: '1px solid rgba(215,255,62,0.3)' }}
+        style={{ border: '1px solid rgba(212,168,72,0.40)' }}
       >
         <span className="font-body text-[11px] font-extrabold uppercase tracking-wider" style={{ color: GOLD }}>
           View

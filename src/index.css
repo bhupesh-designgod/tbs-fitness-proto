@@ -65,7 +65,7 @@ html, body, #root {
   text-transform: uppercase;
   color: rgba(244, 242, 236, 0.45);
 }
-.kicker-gold { color: #D7FF3E; } /* accent kicker — volt */
+.kicker-gold { color: #D4A848; } /* accent kicker — gold */
 
 /* ── Card family — one card style ── */
 .card {
@@ -83,7 +83,7 @@ html, body, #root {
   width: 100%;
   padding: 14px 20px;
   border-radius: 14px;
-  background: #D7FF3E;
+  background: #D4A848;
   color: #0B0B0C;
   font-family: var(--font-display);
   font-size: 20px;
@@ -116,7 +116,7 @@ html, body, #root {
   background: transparent;
   border: none;
   padding: 6px 0;
-  color: #D7FF3E;
+  color: #D4A848;
   font-family: var(--font-body);
   font-weight: 600;
   font-size: 13px;
@@ -128,14 +128,14 @@ html, body, #root {
   font-variant-numeric: tabular-nums;
 }
 
-/* ── Accent text (flat volt — gradients banned) ── */
+/* ── Accent text (flat gold — gradients banned) ── */
 .text-gold-gradient {
-  color: #D7FF3E;
+  color: #D4A848;
 }
 
-/* ── Accent background (flat volt) ── */
+/* ── Accent background (flat gold) ── */
 .bg-gold-gradient {
-  background: #D7FF3E;
+  background: #D4A848;
 }
 
 /* ── Divider ── */
@@ -238,6 +238,6 @@ html, body, #root {
   top: 0;
   bottom: 0;
   width: 3px;
-  background: #D7FF3E;
+  background: #D4A848;
   border-radius: 3px 0 0 3px;
 }

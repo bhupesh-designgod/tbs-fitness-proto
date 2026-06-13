@@ -14,7 +14,7 @@ import { T } from '../tokens';
 // ── Aliases from the token sheet — no local values ──
 const CARD_BG = T.surface;
 const CARD_BORDER = T.hairline;
-const GOLD = T.volt;
+const GOLD = T.gold;
 const GOLD_START = T.goldStart;
 const GOLD_END = T.goldEnd;
 const ON_TRACK = T.success;
@@ -208,7 +208,7 @@ function PlanChanges({ changes }) {
           >
             <div
               className="w-5 h-5 rounded-full flex items-center justify-center shrink-0 mt-0.5"
-              style={{ background: 'rgba(215,255,62,0.12)', border: '1.5px solid rgba(215,255,62,0.45)' }}
+              style={{ background: 'rgba(215,255,62,0.12)', border: '1.5px solid rgba(212,168,72,0.45)' }}
             >
               <Check size={11} strokeWidth={2.5} style={{ color: GOLD }} />
             </div>

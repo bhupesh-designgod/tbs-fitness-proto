@@ -108,10 +108,10 @@ function WorkoutHero({ training, planPercentage, onCalendar }) {
           whileTap={{ scale: 0.93 }}
           onClick={onCalendar}
           className="flex items-center gap-1.5 px-3 py-2 rounded-lg"
-          style={{ border: `1px solid rgba(215,255,62,0.3)`, background: 'rgba(0,0,0,0.4)' }}
+          style={{ border: `1px solid ${T.goldBorder}`, background: 'rgba(0,0,0,0.4)' }}
         >
-          <CalendarDays size={14} strokeWidth={T.stroke} style={{ color: GOLD }} />
-          <span className="font-body text-[11px] font-extrabold uppercase tracking-wider" style={{ color: GOLD }}>
+          <CalendarDays size={14} strokeWidth={T.stroke} style={{ color: T.gold }} />
+          <span className="font-body text-[11px] font-extrabold uppercase tracking-wider" style={{ color: T.gold }}>
             Calendar
           </span>
         </motion.button>
@@ -123,7 +123,7 @@ function WorkoutHero({ training, planPercentage, onCalendar }) {
           className="font-display leading-[0.85] tracking-tight"
           style={{
             fontSize: 'clamp(56px, 16vw, 78px)',
-            color: T.volt,
+            color: T.gold,
           }}
           initial={shouldReduce ? {} : { opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
@@ -147,7 +147,7 @@ function WorkoutHero({ training, planPercentage, onCalendar }) {
                 {m}
               </span>
               {i < training.muscles.length - 1 && (
-                <span className="w-1 h-1 rounded-full" style={{ background: GOLD }} />
+                <span className="w-1 h-1 rounded-full" style={{ background: T.gold }} />
               )}
             </span>
           ))}
@@ -191,7 +191,7 @@ function StatStrip({ exerciseCount, minutes, level }) {
         return (
           <div
             key={s.label}
-            className="flex-1 flex items-center gap-2.5 px-1"
+            className="flex-1 min-w-0 flex items-center gap-2.5 px-1"
             style={{
               borderLeft: i > 0 ? `1px solid ${CARD_BORDER}` : 'none',
               paddingLeft: i > 0 ? 14 : 4,
@@ -206,8 +206,8 @@ function StatStrip({ exerciseCount, minutes, level }) {
             <div className="min-w-0">
               {isString ? (
                 <p
-                  className="font-body text-[13px] font-extrabold text-[#F4F2EC] uppercase tracking-wider leading-none truncate"
-                  style={{ marginBottom: 4 }}
+                  className="font-body text-[12px] font-extrabold text-[#F4F2EC] uppercase leading-none truncate"
+                  style={{ marginBottom: 4, letterSpacing: '0.02em' }}
                 >
                   {s.value}
                 </p>

@@ -13,14 +13,15 @@ import { useApp } from '../context/AppContext';
 import {
   BIKI, NEXT_CALL, CHECKIN_DUE, PHOTOS, BIKI_MESSAGES,
 } from '../data/mockData';
+import { T } from '../tokens';
 
-// ── Tokens ──
-const CARD_BG = '#131318';
-const CARD_BORDER = 'rgba(255,255,255,0.07)';
-const GOLD = '#D4A74E';
-const GOLD_START = '#B8893C';
-const GOLD_END = '#E0C074';
-const ONLINE_GREEN = '#4ADE80';
+// ── Aliases from the token sheet — no local values ──
+const CARD_BG = T.surface;
+const CARD_BORDER = T.hairline;
+const GOLD = T.gold;
+const GOLD_START = T.goldStart;
+const GOLD_END = T.goldEnd;
+const ONLINE_GREEN = T.success;
 
 // ── Topic palette ──
 const TOPICS = {
@@ -75,7 +76,7 @@ function CoachHeader({ onBack }) {
       {/* Name + meta */}
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-1.5">
-          <h1 className="font-display text-[18px] text-white uppercase tracking-wider leading-tight truncate">
+          <h1 className="display-sm text-white uppercase leading-tight truncate">
             {BIKI.name}
           </h1>
           <BadgeCheck size={15} strokeWidth={2} style={{ color: GOLD }} className="shrink-0" />
@@ -93,10 +94,10 @@ function CoachHeader({ onBack }) {
 
       {/* Actions */}
       <button aria-label="Call" className="w-9 h-9 rounded-full flex items-center justify-center shrink-0">
-        <Phone size={18} strokeWidth={1.5} className="text-white/70" />
+        <Phone size={18} strokeWidth={T.stroke} className="text-white/70" />
       </button>
       <button aria-label="More" className="w-9 h-9 rounded-full flex items-center justify-center shrink-0">
-        <MoreHorizontal size={18} strokeWidth={1.5} className="text-white/70" />
+        <MoreHorizontal size={18} strokeWidth={T.stroke} className="text-white/70" />
       </button>
     </div>
   );
@@ -118,13 +119,11 @@ function NextCallCard() {
         className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0"
         style={{ background: 'rgba(212,167,78,0.1)', border: `1px solid rgba(212,167,78,0.25)` }}
       >
-        <CalendarDays size={20} strokeWidth={1.5} style={{ color: GOLD }} />
+        <CalendarDays size={20} strokeWidth={T.stroke} style={{ color: GOLD }} />
       </div>
       <div className="flex-1 min-w-0">
-        <p className="font-display text-[10px] uppercase tracking-[0.2em] mb-0.5" style={{ color: GOLD }}>
-          Next Call
-        </p>
-        <p className="font-display text-[15px] text-white uppercase tracking-wider leading-tight truncate">
+        <p className="kicker kicker-gold mb-0.5">Next call</p>
+        <p className="display-xs text-white uppercase leading-tight truncate">
           {NEXT_CALL.date}
         </p>
         <p className="font-body text-[11px] text-white/40 mt-0.5">{NEXT_CALL.time}</p>
@@ -134,9 +133,9 @@ function NextCallCard() {
         className="shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-lg"
         style={{ border: `1px solid rgba(212,167,78,0.35)` }}
       >
-        <Video size={14} strokeWidth={1.5} style={{ color: GOLD }} />
-        <span className="font-display text-[11px] uppercase tracking-wider" style={{ color: GOLD }}>
-          Join Call
+        <Video size={14} strokeWidth={T.stroke} style={{ color: GOLD }} />
+        <span className="font-body text-[11px] font-extrabold uppercase tracking-wider" style={{ color: GOLD }}>
+          Join call
         </span>
       </motion.button>
     </motion.div>
@@ -150,7 +149,7 @@ function DaySeparator({ label }) {
   return (
     <div className="flex items-center gap-3 px-5 mb-5">
       <div className="flex-1 h-px" style={{ background: CARD_BORDER }} />
-      <span className="font-display text-[10px] text-white/35 uppercase tracking-[0.25em]">
+      <span className="font-body text-[10px] font-extrabold text-white/35 uppercase tracking-[0.25em]">
         {label}
       </span>
       <div className="flex-1 h-px" style={{ background: CARD_BORDER }} />
@@ -263,7 +262,7 @@ function VoiceBubble({ duration }) {
         })}
       </div>
 
-      <span className="font-display text-[11px] tabular-nums text-white/60 shrink-0">
+      <span className="font-body text-[11px] font-bold tabular-nums text-white/60 shrink-0">
         {mm}:{ss}
       </span>
     </div>
@@ -296,11 +295,11 @@ function MessageRow({ msg, delay }) {
               style={{ background: CARD_BG, border: `1px solid ${CARD_BORDER}` }}
             >
               <p className="flex items-center gap-1.5 mb-1.5">
-                <span className="font-display text-[10px] uppercase tracking-wider" style={{ color: GOLD }}>
+                <span className="font-body text-[10px] font-extrabold uppercase tracking-wider" style={{ color: GOLD }}>
                   Coach
                 </span>
                 <span className="w-1 h-1 rounded-full" style={{ background: topic.color }} />
-                <span className="font-display text-[10px] uppercase tracking-wider" style={{ color: topic.color }}>
+                <span className="font-body text-[10px] font-extrabold uppercase tracking-wider" style={{ color: topic.color }}>
                   {topic.label}
                 </span>
               </p>
@@ -314,7 +313,7 @@ function MessageRow({ msg, delay }) {
             {msg.type === 'voice' && (
               <>
                 <span className="w-1 h-1 rounded-full" style={{ background: topic.color }} />
-                <span className="font-display text-[10px] uppercase tracking-wider" style={{ color: topic.color }}>
+                <span className="font-body text-[10px] font-extrabold uppercase tracking-wider" style={{ color: topic.color }}>
                   {topic.label}
                 </span>
               </>
@@ -344,7 +343,7 @@ function MessageRow({ msg, delay }) {
       <div className="flex items-center gap-2 mt-1.5 pr-1">
         <span className="font-body text-[10px] text-white/35 tabular-nums">{msg.time}</span>
         <span className="w-1 h-1 rounded-full" style={{ background: topic.color }} />
-        <span className="font-display text-[10px] uppercase tracking-wider" style={{ color: topic.color }}>
+        <span className="font-body text-[10px] font-extrabold uppercase tracking-wider" style={{ color: topic.color }}>
           {topic.label}
         </span>
         {/* Read double-check */}
@@ -388,7 +387,7 @@ function InputBar({ value, onChange, onSend, topic, onTopicChange }) {
                 >
                   <span className="w-2 h-2 rounded-full" style={{ background: t.color }} />
                   <span
-                    className="font-display text-[13px] uppercase tracking-wider flex-1"
+                    className="font-body text-[13px] font-bold flex-1"
                     style={{ color: active ? t.color : 'rgba(255,255,255,0.7)' }}
                   >
                     {t.label}
@@ -406,7 +405,7 @@ function InputBar({ value, onChange, onSend, topic, onTopicChange }) {
           className="shrink-0 w-11 h-11 rounded-full flex items-center justify-center"
           style={{ background: CARD_BG, border: `1px solid ${CARD_BORDER}` }}
         >
-          <Plus size={18} strokeWidth={1.5} className="text-white/70" />
+          <Plus size={18} strokeWidth={T.stroke} className="text-white/70" />
         </button>
 
         <div
@@ -422,14 +421,14 @@ function InputBar({ value, onChange, onSend, topic, onTopicChange }) {
             <div className="flex flex-col items-start leading-none">
               <span className="font-body text-[8px] text-white/35 uppercase tracking-wider">Topic</span>
               <span
-                className="font-display text-[11px] uppercase tracking-wider"
+                className="font-body text-[11px] font-extrabold uppercase tracking-wider"
                 style={{ color: topicMeta.color }}
               >
                 {topicMeta.label}
               </span>
             </div>
             <motion.span animate={{ rotate: topicOpen ? 180 : 0 }} transition={{ duration: 0.2 }}>
-              <ChevronDown size={12} strokeWidth={1.5} className="text-white/40" />
+              <ChevronDown size={12} strokeWidth={T.stroke} className="text-white/40" />
             </motion.span>
           </button>
 
@@ -458,7 +457,7 @@ function InputBar({ value, onChange, onSend, topic, onTopicChange }) {
             className="shrink-0 w-11 h-11 rounded-full flex items-center justify-center"
             style={{ background: CARD_BG, border: `1px solid ${CARD_BORDER}` }}
           >
-            <Mic size={18} strokeWidth={1.5} className="text-white/70" />
+            <Mic size={18} strokeWidth={T.stroke} className="text-white/70" />
           </button>
         )}
       </div>
@@ -527,8 +526,8 @@ export default function Coach({ onCheckIn, onBack }) {
         >
           <div className="flex items-center gap-2">
             <span className="w-1.5 h-1.5 rounded-full" style={{ background: GOLD }} />
-            <span className="font-display text-[11px] uppercase tracking-wider" style={{ color: GOLD }}>
-              Weekly Check-in Due
+            <span className="font-body text-[11px] font-extrabold uppercase tracking-wider" style={{ color: GOLD }}>
+              Weekly check-in due
             </span>
           </div>
           <span className="font-body text-[11px]" style={{ color: GOLD }}>

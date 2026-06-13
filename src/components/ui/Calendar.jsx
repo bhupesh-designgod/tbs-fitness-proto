@@ -135,24 +135,28 @@ function SplitIcon({ split, isToday, isPast, trained, size = 15 }) {
 
 const SPLIT_SHORT = { push: 'PUSH', pull: 'PULL', legs: 'LEGS', rest: 'REST' };
 
-// ── Shared cell circle — same structure for every day, today gets gold outline ──
+// ── Shared cell circle — identical structure for every day.
+// Today reads as a softly "lit" panel: faint fill + brighter hairline + bright
+// bold text. The progress ring stays the same diameter as every other day, so
+// the row keeps its rhythm and the ring remains the hero. ──
 function DayCircle({ day, mode, size = 42 }) {
+  const ringSize = size - 2;
   return (
     <div
       className="rounded-full flex items-center justify-center relative"
       style={{
         width: size,
         height: size,
-        background: T.surface,
+        background: day.isToday ? 'rgba(244,242,236,0.06)' : T.surface,
         border: day.isToday
-          ? `2px solid ${T.text}`
+          ? `1px solid ${T.hairlineStrong}`
           : mode === 'training' && day.split === 'rest'
             ? `1px dashed ${T.hairlineStrong}`
             : `1px solid ${T.hairline}`,
       }}
     >
-      {mode === 'score' && <MiniRing percentage={day.pct} size={size - (day.isToday ? 4 : 2)} strokeWidth={3} color={T.gold} />}
-      {mode === 'nutrition' && <DualRing mealPct={day.mealPct} hydPct={day.hydPct} size={size - (day.isToday ? 4 : 2)} />}
+      {mode === 'score' && <MiniRing percentage={day.pct} size={ringSize} strokeWidth={3} color={T.gold} />}
+      {mode === 'nutrition' && <DualRing mealPct={day.mealPct} hydPct={day.hydPct} size={ringSize} />}
 
       {mode === 'training' ? (
         <SplitIcon split={day.split} isToday={day.isToday} isPast={day.isPast} trained={day.trained} />
@@ -218,11 +222,6 @@ export function WeekStrip({ mode = 'score', showPoints = true, className = '' })
                 {SPLIT_SHORT[day.split] || '—'}
               </span>
             ) : null}
-
-            {/* Today marker dot */}
-            {day.isToday && (
-              <span className="w-1 h-1 rounded-full" style={{ background: T.gold }} />
-            )}
           </motion.div>
         ))}
       </div>
@@ -325,9 +324,6 @@ export function MonthSheet({ isOpen, onClose, mode = 'score' }) {
                   {c.date}
                 </span>
               )}
-              {c.isToday && (
-                <span className="w-1 h-1 rounded-full" style={{ background: T.gold }} />
-              )}
             </motion.div>
           );
         })}
@@ -368,7 +364,7 @@ export function MonthSheet({ isOpen, onClose, mode = 'score' }) {
           </>
         )}
         <span className="flex items-center gap-1.5 font-body text-[11px] font-medium" style={{ color: T.textLow }}>
-          <span className="inline-block w-4 h-4 rounded-full" style={{ border: `2px solid ${T.text}`, background: T.surface }} />
+          <span className="inline-block w-4 h-4 rounded-full" style={{ border: `1px solid ${T.hairlineStrong}`, background: 'rgba(244,242,236,0.06)' }} />
           Today
         </span>
       </div>

@@ -1,6 +1,6 @@
 // ── Train Screen ──
-// Editorial hero, stat strip, expandable exercise list with set tracking,
-// session-complete takeover, and rest-day variant.
+// Editorial hero, stat strip, expandable exercise list (prescribed plan,
+// read-only), and rest-day variant. Workout logging is out of scope.
 
 import { useState, useMemo } from 'react';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
@@ -8,9 +8,7 @@ import {
   Check, Clock, Dumbbell, Moon, CalendarDays, ChevronDown, BarChart3,
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
-import {
-  HeroPhoto, RingCounter, GoldMarquee, SplitCTA, NumericCounter,
-} from '../components/ui/Components';
+import { HeroPhoto, RingCounter } from '../components/ui/Components';
 import { WeekStrip, MonthSheet } from '../components/ui/Calendar';
 import { PLAN_PROGRESS, BIKI_MESSAGES, PHOTOS } from '../data/mockData';
 import { T } from '../tokens';
@@ -18,9 +16,7 @@ import { T } from '../tokens';
 // ── Aliases from the token sheet — no local values ──
 const CARD_BG = T.surface;
 const CARD_BORDER = T.hairline;
-const GOLD = T.volt;
-const GOLD_START = T.goldStart;
-const GOLD_END = T.goldEnd;
+const GOLD = T.gold;
 
 // ─────────────────────────────────────────────
 // Helpers
@@ -228,62 +224,37 @@ function StatStrip({ exerciseCount, minutes, level }) {
 }
 
 // ─────────────────────────────────────────────
-// Set Pill (inside expanded card)
+// Set Chip (read-only — prescribed set)
 // ─────────────────────────────────────────────
-function SetPill({ set, setIndex, exerciseIndex, toggleSet, shouldReduce }) {
-  const isDone = set.done;
+function SetChip({ set, setIndex }) {
   return (
-    <motion.button
-      onClick={() => toggleSet(exerciseIndex, setIndex)}
-      whileTap={{ scale: 0.95 }}
+    <div
       className="flex items-center gap-1.5 rounded-lg px-3 py-1.5"
-      style={{
-        background: isDone ? 'rgba(215,255,62,0.12)' : 'rgba(255,255,255,0.04)',
-        border: `1px solid ${isDone ? 'rgba(215,255,62,0.35)' : CARD_BORDER}`,
-      }}
+      style={{ background: 'rgba(255,255,255,0.04)', border: `1px solid ${CARD_BORDER}` }}
     >
-      <AnimatePresence mode="wait">
-        {isDone && (
-          <motion.div
-            key="check"
-            initial={shouldReduce ? {} : { scale: 0, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0, opacity: 0 }}
-            transition={{ type: 'spring', stiffness: 500, damping: 15, mass: 0.5 }}
-          >
-            <Check size={13} strokeWidth={2.5} color={GOLD} />
-          </motion.div>
-        )}
-      </AnimatePresence>
-      <span
-        className="font-body text-[12px] tabular-nums whitespace-nowrap"
-        style={{ color: isDone ? GOLD : 'rgba(255,255,255,0.5)' }}
-      >
-        {setIndex + 1} × {set.reps} × {set.load}kg
+      <span className="font-body text-[10px] font-extrabold tabular-nums" style={{ color: T.textFaint }}>
+        {setIndex + 1}
       </span>
-    </motion.button>
+      <span className="font-body text-[12px] font-semibold tabular-nums whitespace-nowrap" style={{ color: 'rgba(244,242,236,0.6)' }}>
+        {set.reps} reps · {set.load}kg
+      </span>
+    </div>
   );
 }
 
 // ─────────────────────────────────────────────
 // Exercise Row Card (collapsible)
 // ─────────────────────────────────────────────
-function ExerciseRow({ exercise, exerciseIndex, toggleSet, shouldReduce, expanded, onToggle, delay }) {
+function ExerciseRow({ exercise, exerciseIndex, shouldReduce, expanded, onToggle, delay }) {
   const muscle = primaryMuscleFor(exercise.name);
   const totalSets = exercise.sets?.length || 0;
-  const doneSets = exercise.sets?.filter(s => s.done).length || 0;
-  // Most common rep count across sets
   const reps = exercise.sets?.[0]?.reps || 0;
-  const allComplete = totalSets > 0 && doneSets === totalSets;
   const indexLabel = String(exerciseIndex + 1).padStart(2, '0');
 
   return (
     <motion.div
       className="rounded-2xl overflow-hidden"
-      style={{
-        background: CARD_BG,
-        border: `1px solid ${allComplete ? 'rgba(215,255,62,0.25)' : CARD_BORDER}`,
-      }}
+      style={{ background: CARD_BG, border: `1px solid ${CARD_BORDER}` }}
       initial={shouldReduce ? {} : { opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: delay * 0.05 + 0.3, duration: 0.3 }}
@@ -296,40 +267,22 @@ function ExerciseRow({ exercise, exerciseIndex, toggleSet, shouldReduce, expande
         {/* Index */}
         <span
           className="font-display text-[22px] tabular-nums tracking-tight shrink-0 w-9 text-center"
-          style={{ color: allComplete ? GOLD : 'rgba(255,255,255,0.35)' }}
+          style={{ color: 'rgba(244,242,236,0.35)' }}
         >
           {indexLabel}
         </span>
 
         {/* Muscle badge */}
         <div
-          className="w-12 h-12 rounded-full flex items-center justify-center shrink-0 relative"
-          style={{
-            background: 'rgba(0,0,0,0.35)',
-            border: `1px solid ${allComplete ? 'rgba(215,255,62,0.35)' : CARD_BORDER}`,
-          }}
+          className="w-12 h-12 rounded-full flex items-center justify-center shrink-0"
+          style={{ background: 'rgba(0,0,0,0.35)', border: `1px solid ${CARD_BORDER}` }}
         >
-          <Dumbbell
-            size={18}
-            strokeWidth={T.stroke}
-            style={{ color: allComplete ? GOLD : 'rgba(255,255,255,0.55)' }}
-          />
-          {allComplete && (
-            <div
-              className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full flex items-center justify-center"
-              style={{ background: GOLD, border: `2px solid ${CARD_BG}` }}
-            >
-              <Check size={9} strokeWidth={3} color="#000" />
-            </div>
-          )}
+          <Dumbbell size={18} strokeWidth={T.stroke} style={{ color: 'rgba(244,242,236,0.55)' }} />
         </div>
 
         {/* Name + meta */}
         <div className="flex-1 min-w-0">
-          <p
-            className="display-xs uppercase leading-tight truncate"
-            style={{ color: allComplete ? 'rgba(255,255,255,0.65)' : '#F4F2EC' }}
-          >
+          <p className="display-xs uppercase leading-tight truncate text-[#F4F2EC]">
             {exercise.name}
           </p>
           <p className="font-body text-[11px] text-white/35 mt-1 uppercase tracking-wider">
@@ -349,11 +302,6 @@ function ExerciseRow({ exercise, exerciseIndex, toggleSet, shouldReduce, expande
             <span className="font-body text-[9px] font-bold text-white/45 uppercase tracking-wider">
               Reps
             </span>
-            {doneSets > 0 && doneSets < totalSets && (
-              <span className="font-body text-[10px] font-semibold text-white/35 tabular-nums ml-1">
-                · {doneSets}/{totalSets} done
-              </span>
-            )}
           </div>
         </div>
 
@@ -367,7 +315,7 @@ function ExerciseRow({ exercise, exerciseIndex, toggleSet, shouldReduce, expande
         </motion.div>
       </button>
 
-      {/* Set pills (expanded) */}
+      {/* Set chips (expanded) — prescribed plan, read-only */}
       <AnimatePresence initial={false}>
         {expanded && (
           <motion.div
@@ -384,14 +332,7 @@ function ExerciseRow({ exercise, exerciseIndex, toggleSet, shouldReduce, expande
             >
               <div className="pt-3 flex flex-wrap gap-2">
                 {exercise.sets.map((set, si) => (
-                  <SetPill
-                    key={si}
-                    set={set}
-                    setIndex={si}
-                    exerciseIndex={exerciseIndex}
-                    toggleSet={toggleSet}
-                    shouldReduce={shouldReduce}
-                  />
+                  <SetChip key={si} set={set} setIndex={si} />
                 ))}
               </div>
             </div>
@@ -421,7 +362,7 @@ function MobilityRow({ item, index, shouldReduce }) {
       <div
         className="w-5 h-5 rounded-md flex items-center justify-center shrink-0"
         style={{
-          background: checked ? T.volt : 'transparent',
+          background: checked ? T.gold : 'transparent',
           border: `1.5px solid ${checked ? 'transparent' : 'rgba(255,255,255,0.2)'}`,
         }}
       >
@@ -452,88 +393,12 @@ function MobilityRow({ item, index, shouldReduce }) {
 }
 
 // ─────────────────────────────────────────────
-// Session Complete Takeover
-// ─────────────────────────────────────────────
-function SessionCompleteTakeover({ training, doneSets, behaviorState, onDismiss, shouldReduce }) {
-  const totalVolume = useMemo(() => {
-    if (!training.exercises) return 0;
-    return training.exercises.reduce((sum, ex) =>
-      sum + ex.sets.filter(s => s.done).reduce((acc, s) => acc + s.load * s.reps, 0)
-    , 0);
-  }, [training]);
-
-  const marqueeText = `SESSION COMPLETE — ${training.name?.toUpperCase() || 'TRAINING'} —`;
-  const bikiMessage = BIKI_MESSAGES[behaviorState]?.[0] || BIKI_MESSAGES.ON_TRACK[0];
-  const minutes = estimateMinutes(training.exercises);
-
-  return (
-    <motion.div
-      className="fixed inset-0 z-50 flex flex-col"
-      initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-      transition={{ duration: 0.4 }}
-    >
-      <div className="absolute inset-0">
-        <img
-          src={PHOTOS.sessionComplete}
-          alt=""
-          className="w-full h-full object-cover"
-          style={{ filter: 'grayscale(100%) contrast(1.1) brightness(0.5)' }}
-        />
-        <div className="absolute inset-0 scrim-heavy" />
-      </div>
-      <div className="relative z-10 flex flex-col flex-1 justify-center items-center px-5">
-        <GoldMarquee text={marqueeText} />
-        <motion.div
-          className="grid grid-cols-3 gap-6 mt-8 mb-8 w-full max-w-xs"
-          initial={shouldReduce ? {} : { opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3, duration: 0.4 }}
-        >
-          <div className="flex flex-col items-center gap-1">
-            <Clock size={18} strokeWidth={T.stroke} className="text-white/40 mb-1" />
-            <NumericCounter value={minutes} className="text-[28px] font-bold text-[#F4F2EC]" />
-            <span className="font-body text-[11px] text-white/40 uppercase tracking-wider">min</span>
-          </div>
-          <div className="flex flex-col items-center gap-1">
-            <Dumbbell size={18} strokeWidth={T.stroke} className="text-white/40 mb-1" />
-            <NumericCounter value={doneSets} className="text-[28px] font-bold text-[#F4F2EC]" />
-            <span className="font-body text-[11px] text-white/40 uppercase tracking-wider">sets</span>
-          </div>
-          <div className="flex flex-col items-center gap-1">
-            <div className="font-body text-[11px] font-extrabold text-white/40 uppercase mb-1 tracking-wider">vol</div>
-            <NumericCounter value={totalVolume} className="text-[28px] font-bold text-[#F4F2EC]" duration={1.2} />
-            <span className="font-body text-[11px] text-white/40 uppercase tracking-wider">kg</span>
-          </div>
-        </motion.div>
-        <motion.p
-          className="font-body text-[14px] text-white/60 text-center max-w-[280px] leading-relaxed mb-10"
-          initial={shouldReduce ? {} : { opacity: 0 }} animate={{ opacity: 1 }}
-          transition={{ delay: 0.5, duration: 0.5 }}
-        >
-          {bikiMessage}
-        </motion.p>
-        <motion.div
-          className="w-full max-w-xs"
-          initial={shouldReduce ? {} : { opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6, duration: 0.4 }}
-        >
-          <SplitCTA leftLabel="Done" rightLabel="Share" onLeft={onDismiss} onRight={() => {}} />
-        </motion.div>
-      </div>
-    </motion.div>
-  );
-}
-
-// ─────────────────────────────────────────────
 // Main Train Screen
 // ─────────────────────────────────────────────
 export default function Train() {
-  const {
-    training, toggleSet, sessionComplete, behaviorState, doneSets, totalSets,
-  } = useApp();
+  const { training } = useApp();
 
   const shouldReduce = useReducedMotion();
-  const [showTakeover, setShowTakeover] = useState(true);
   const [expandedSet, setExpandedSet] = useState(() => new Set());
   const [monthOpen, setMonthOpen] = useState(false);
 
@@ -645,18 +510,6 @@ export default function Train() {
   // ── TRAINING DAY ──
   return (
     <div className="min-h-screen bg-[#0B0B0C] pb-24">
-      <AnimatePresence>
-        {sessionComplete && showTakeover && (
-          <SessionCompleteTakeover
-            training={training}
-            doneSets={doneSets}
-            behaviorState={behaviorState}
-            onDismiss={() => setShowTakeover(false)}
-            shouldReduce={shouldReduce}
-          />
-        )}
-      </AnimatePresence>
-
       {/* Week at a glance — top of tab */}
       <div className="pt-4 pb-4">
         <WeekStrip mode="training" />
@@ -666,28 +519,8 @@ export default function Train() {
 
       <StatStrip exerciseCount={exerciseCount} minutes={minutes} level={level} />
 
-      {/* Session progress (slim) */}
-      <div className="px-5 mt-5 mb-1">
-        <div className="flex items-center justify-between mb-2">
-          <span className="kicker">Session progress</span>
-          <span className="font-body text-[12px] font-bold tabular-nums text-white/70">
-            {doneSets}
-            <span className="text-white/30"> / {totalSets}</span>
-          </span>
-        </div>
-        <div className="w-full h-[3px] rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.06)' }}>
-          <motion.div
-            className="h-full rounded-full"
-            style={{ background: T.volt }}
-            initial={shouldReduce ? { width: `${(doneSets / totalSets) * 100}%` } : { width: '0%' }}
-            animate={{ width: totalSets > 0 ? `${(doneSets / totalSets) * 100}%` : '0%' }}
-            transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-          />
-        </div>
-      </div>
-
       {/* Today's Workout header */}
-      <div className="px-5 mt-5 mb-3 flex items-center justify-between">
+      <div className="px-5 mt-6 mb-3 flex items-center justify-between">
         <p className="kicker">Today's workout</p>
         <button
           onClick={expandAll}
@@ -711,7 +544,6 @@ export default function Train() {
             key={ei}
             exercise={exercise}
             exerciseIndex={ei}
-            toggleSet={toggleSet}
             shouldReduce={shouldReduce}
             expanded={expandedSet.has(ei)}
             onToggle={() => toggleExpanded(ei)}

@@ -8,6 +8,7 @@ import { TabBar } from './components/ui/Components';
 import { AppProvider } from './context/AppContext';
 import { useLocalStorage } from './hooks/useLocalStorage';
 import Onboarding from './onboarding/Onboarding';
+import Auth from './auth/Auth';
 
 // Pages
 import Home from './pages/Home';
@@ -122,12 +123,29 @@ function AppContent() {
 }
 
 export default function App() {
-  // Persisted onboarding gate — users never see the flow twice.
+  // Persisted gates. Auth first, then onboarding (new sign-ups only), then app.
+  const [auth, setAuth] = useLocalStorage('tbs-auth', { loggedIn: false, user: null });
   const [onboarding, setOnboarding] = useLocalStorage('tbs-onboarding', { done: false, answers: null });
+
+  // New account → run onboarding.
+  const handleSignup = (user) => {
+    setOnboarding({ done: false, answers: null });
+    setAuth({ loggedIn: true, user });
+  };
+
+  // Returning user → assume already onboarded, straight to home.
+  const handleLogin = (user) => {
+    setOnboarding(prev => (prev.done ? prev : { done: true, answers: prev.answers }));
+    setAuth({ loggedIn: true, user });
+  };
 
   const finishOnboarding = (answers) => {
     setOnboarding({ done: true, answers });
   };
+
+  if (!auth.loggedIn) {
+    return <Auth onLogin={handleLogin} onSignup={handleSignup} />;
+  }
 
   if (!onboarding.done) {
     return <Onboarding onComplete={finishOnboarding} />;

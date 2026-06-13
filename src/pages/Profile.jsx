@@ -1,7 +1,7 @@
 // ── Profile Screen ──
 import { useState } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
-import { User, Target, Ruler, Bell, RotateCcw, Eye, ChevronRight } from 'lucide-react';
+import { User, Target, Ruler, Bell, RotateCcw, Eye, ChevronRight, LogOut } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { USER_PROFILE } from '../data/mockData';
 import { T } from '../tokens';
@@ -120,6 +120,23 @@ export default function Profile() {
       >
         <RotateCcw size={14} strokeWidth={T.stroke} />
         Reset demo data
+      </motion.button>
+
+      {/* Log out — clears auth + onboarding so the full flow can be re-walked */}
+      <motion.button
+        whileTap={{ scale: 0.97 }}
+        onClick={() => {
+          try {
+            localStorage.removeItem('tbs-auth');
+            localStorage.removeItem('tbs-onboarding');
+          } catch { /* ignore */ }
+          window.location.reload();
+        }}
+        className="w-full mt-3 flex items-center justify-center gap-2 py-3 rounded-xl font-body text-[13px] font-semibold"
+        style={{ color: T.danger, border: `1px solid ${T.hairline}` }}
+      >
+        <LogOut size={14} strokeWidth={T.stroke} />
+        Log out
       </motion.button>
 
       {/* Version */}

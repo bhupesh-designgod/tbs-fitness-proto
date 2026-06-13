@@ -76,7 +76,7 @@ function StatusRing({ percentage, size = 60, strokeWidth = 4, color, children })
   );
 }
 
-export default function Home({ onProfileClick, onNavigate }) {
+export default function Home({ onProfileClick, onNavigate, onNotifications }) {
   const { training, meals, hydration, isRestDay } = useApp();
 
   const shouldReduce = useReducedMotion();
@@ -171,7 +171,10 @@ export default function Home({ onProfileClick, onNavigate }) {
         </div>
 
         <div className="flex items-center gap-2">
-          <div
+          <motion.button
+            whileTap={T.tapSmall}
+            onClick={onNotifications}
+            aria-label="Notifications"
             className="relative w-11 h-11 rounded-full flex items-center justify-center"
             style={{ background: T.surface, border: `1px solid ${T.hairline}` }}
           >
@@ -180,7 +183,7 @@ export default function Home({ onProfileClick, onNavigate }) {
               className="absolute top-2 right-2.5 w-2 h-2 rounded-full"
               style={{ background: T.red }}
             />
-          </div>
+          </motion.button>
           <motion.button
             whileTap={T.tapSmall}
             onClick={() => setMonthOpen(true)}

@@ -20,6 +20,7 @@ import Profile from './pages/Profile';
 import CheckIn from './pages/CheckIn';
 import CheckInDetail from './pages/CheckInDetail';
 import MacroDetail from './pages/MacroDetail';
+import Notifications from './pages/Notifications';
 
 const TABS = [
   { id: 'home', label: 'Home', icon: <HomeIcon size={20} strokeWidth={1.75} /> },
@@ -53,6 +54,12 @@ function AppContent() {
     if (overlay === 'profile') return <Profile />;
     if (overlay === 'checkin') return <CheckIn onDone={() => setOverlay(null)} />;
     if (overlay === 'macroDetail') return <MacroDetail onBack={() => setOverlay(null)} />;
+    if (overlay === 'notifications') return (
+      <Notifications
+        onBack={() => setOverlay(null)}
+        onNavigate={handleTabChange}
+      />
+    );
     if (overlay === 'checkinDetail') return (
       <CheckInDetail
         checkInId={checkInId}
@@ -62,7 +69,7 @@ function AppContent() {
     );
 
     switch (activeTab) {
-      case 'home': return <Home onProfileClick={() => setOverlay('profile')} onNavigate={handleTabChange} />;
+      case 'home': return <Home onProfileClick={() => setOverlay('profile')} onNavigate={handleTabChange} onNotifications={() => setOverlay('notifications')} />;
       case 'nutrition': return <Nutrition onMacroDetail={() => setOverlay('macroDetail')} />;
       case 'train': return <Train />;
       case 'coach': return <Coach onCheckIn={() => setOverlay('checkin')} />;
@@ -84,7 +91,7 @@ function AppContent() {
   return (
     <div className="app-shell">
       {/* Overlay back button — pages with their own header don't need this */}
-      {overlay && overlay !== 'checkinDetail' && (
+      {overlay && overlay !== 'checkinDetail' && overlay !== 'notifications' && (
         <div className="px-5 pt-3">
           <motion.button
             whileTap={{ scale: 0.95 }}

@@ -487,3 +487,69 @@ export const NEXT_CHECKIN = {
   date: '2026-06-15',
   dateLabel: 'Jun 15',
 };
+
+// ── Notifications ──
+// type drives the icon + accent in the Notifications screen.
+// target (optional) is a tab id the row deep-links to.
+export const NOTIFICATIONS = [
+  {
+    id: 'n1', type: 'coach', group: 'today', read: false, time: '12m',
+    title: 'Biki sent you a voice note',
+    body: "Saw your check-in — solid week. Let's bump protein to 180g and talk Sunday.",
+    target: 'coach',
+  },
+  {
+    id: 'n2', type: 'meal', group: 'today', read: false, time: '1h',
+    title: 'Lunch isn’t logged yet',
+    body: 'Chicken Breast & Basmati Rice — 700 cal, 65g protein waiting on you.',
+    target: 'nutrition',
+  },
+  {
+    id: 'n3', type: 'review', group: 'today', read: false, time: '3h',
+    title: 'Your Week 12 review is in',
+    body: 'Weight’s dropping at the right pace. Biki left notes — tap to read.',
+    target: 'progress',
+  },
+  {
+    id: 'n4', type: 'hydration', group: 'today', read: true, time: '5h',
+    title: 'You’re behind on water',
+    body: '1.2L to go before tonight. Knock out a couple of glasses.',
+    target: 'nutrition',
+  },
+  {
+    id: 'n5', type: 'training', group: 'today', read: true, time: '7h',
+    title: 'Legs Day is loaded',
+    body: '5 exercises, ~40 min. Quads, hamstrings, glutes. Go earn it.',
+    target: 'train',
+  },
+  {
+    id: 'n6', type: 'streak', group: 'earlier', read: true, time: 'Yesterday',
+    title: '5 days on the board',
+    body: 'Best streak this block. Don’t break the chain today.',
+    target: 'home',
+  },
+  {
+    id: 'n7', type: 'call', group: 'earlier', read: true, time: 'Yesterday',
+    title: 'Call with Biki — Sunday',
+    body: '7:00 PM IST. Come with questions; we’ll reassess the plan.',
+    target: 'coach',
+  },
+  {
+    id: 'n8', type: 'plan', group: 'earlier', read: true, time: '2d',
+    title: 'Biki updated your plan',
+    body: 'Added a refeed meal on Saturday and +25g carbs on training days.',
+    target: 'nutrition',
+  },
+  {
+    id: 'n9', type: 'checkin', group: 'earlier', read: true, time: '3d',
+    title: 'Weekly check-in opens Monday',
+    body: 'Front/side/back photos, weight, and how you’re feeling. Two minutes.',
+    target: 'progress',
+  },
+  {
+    id: 'n10', type: 'supplement', group: 'earlier', read: true, time: '3d',
+    title: 'Creatine — morning dose',
+    body: '5g on an empty stomach. Consistency is the whole point with this one.',
+    target: 'nutrition',
+  },
+];

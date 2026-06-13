@@ -12,13 +12,14 @@ import {
   HeroPhoto, RingCounter, GoldMarquee, SplitCTA, NumericCounter,
 } from '../components/ui/Components';
 import { PLAN_PROGRESS, BIKI_MESSAGES, PHOTOS } from '../data/mockData';
+import { T } from '../tokens';
 
-// ── Tokens (matches Home / Nutrition) ──
-const CARD_BG = '#131318';
-const CARD_BORDER = 'rgba(255,255,255,0.07)';
-const GOLD = '#D4A74E';
-const GOLD_START = '#B8893C';
-const GOLD_END = '#E0C074';
+// ── Aliases from the token sheet — no local values ──
+const CARD_BG = T.surface;
+const CARD_BORDER = T.hairline;
+const GOLD = T.gold;
+const GOLD_START = T.goldStart;
+const GOLD_END = T.goldEnd;
 
 // ─────────────────────────────────────────────
 // Helpers
@@ -95,7 +96,7 @@ function WorkoutHero({ training, planPercentage }) {
         <div className="flex items-center gap-2">
           {/* Plan progress */}
           <RingCounter percentage={planPercentage} size={42} strokeWidth={2} delay={0.2}>
-            <span className="font-display text-[9px] text-white/80 tabular-nums leading-none text-center">
+            <span className="font-body text-[9px] font-extrabold text-white/80 tabular-nums leading-none text-center">
               {PLAN_PROGRESS.currentDay}
               <span className="text-white/30">/{PLAN_PROGRESS.totalDays}</span>
             </span>
@@ -107,8 +108,8 @@ function WorkoutHero({ training, planPercentage }) {
           className="flex items-center gap-1.5 px-3 py-2 rounded-lg"
           style={{ border: `1px solid rgba(212,167,78,0.3)`, background: 'rgba(0,0,0,0.4)' }}
         >
-          <CalendarDays size={14} strokeWidth={1.5} style={{ color: GOLD }} />
-          <span className="font-display text-[11px] uppercase tracking-wider" style={{ color: GOLD }}>
+          <CalendarDays size={14} strokeWidth={T.stroke} style={{ color: GOLD }} />
+          <span className="font-body text-[11px] font-extrabold uppercase tracking-wider" style={{ color: GOLD }}>
             Calendar
           </span>
         </motion.button>
@@ -144,7 +145,7 @@ function WorkoutHero({ training, planPercentage }) {
         >
           {training.muscles?.map((m, i) => (
             <span key={m} className="flex items-center gap-2">
-              <span className="font-display text-[12px] text-white uppercase tracking-[0.18em]">
+              <span className="font-body text-[12px] font-extrabold text-white uppercase tracking-[0.18em]">
                 {m}
               </span>
               {i < training.muscles.length - 1 && (
@@ -202,12 +203,12 @@ function StatStrip({ exerciseCount, minutes, level }) {
               className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0"
               style={{ background: 'rgba(212,167,78,0.12)', border: `1px solid rgba(212,167,78,0.22)` }}
             >
-              <Icon size={16} strokeWidth={1.5} style={{ color: GOLD }} />
+              <Icon size={16} strokeWidth={T.stroke} style={{ color: GOLD }} />
             </div>
             <div className="min-w-0">
               {isString ? (
                 <p
-                  className="font-display text-[14px] text-white uppercase tracking-wider leading-none truncate"
+                  className="font-body text-[13px] font-extrabold text-white uppercase tracking-wider leading-none truncate"
                   style={{ marginBottom: 4 }}
                 >
                   {s.value}
@@ -217,7 +218,7 @@ function StatStrip({ exerciseCount, minutes, level }) {
                   {s.value}
                 </p>
               )}
-              <p className="font-display text-[9px] text-white/40 uppercase tracking-wider mt-1">
+              <p className="font-body text-[9px] font-extrabold text-white/40 uppercase tracking-wider mt-1">
                 {s.label}
               </p>
             </div>
@@ -312,7 +313,7 @@ function ExerciseRow({ exercise, exerciseIndex, toggleSet, shouldReduce, expande
         >
           <Dumbbell
             size={18}
-            strokeWidth={1.6}
+            strokeWidth={T.stroke}
             style={{ color: allComplete ? GOLD : 'rgba(255,255,255,0.55)' }}
           />
           {allComplete && (
@@ -328,7 +329,7 @@ function ExerciseRow({ exercise, exerciseIndex, toggleSet, shouldReduce, expande
         {/* Name + meta */}
         <div className="flex-1 min-w-0">
           <p
-            className="font-display text-[15px] uppercase tracking-wider leading-tight truncate"
+            className="display-xs uppercase leading-tight truncate"
             style={{ color: allComplete ? 'rgba(255,255,255,0.65)' : '#fff' }}
           >
             {exercise.name}
@@ -337,21 +338,21 @@ function ExerciseRow({ exercise, exerciseIndex, toggleSet, shouldReduce, expande
             {muscle}
           </p>
           <div className="flex items-center gap-2 mt-1.5">
-            <span className="font-display text-[11px] tabular-nums" style={{ color: GOLD }}>
+            <span className="font-body text-[12px] font-extrabold tabular-nums" style={{ color: GOLD }}>
               {totalSets}
             </span>
-            <span className="font-display text-[9px] text-white/45 uppercase tracking-wider">
+            <span className="font-body text-[9px] font-bold text-white/45 uppercase tracking-wider">
               Sets
             </span>
             <span className="text-white/15">×</span>
-            <span className="font-display text-[11px] tabular-nums" style={{ color: GOLD }}>
+            <span className="font-body text-[12px] font-extrabold tabular-nums" style={{ color: GOLD }}>
               {reps}
             </span>
-            <span className="font-display text-[9px] text-white/45 uppercase tracking-wider">
+            <span className="font-body text-[9px] font-bold text-white/45 uppercase tracking-wider">
               Reps
             </span>
             {doneSets > 0 && doneSets < totalSets && (
-              <span className="font-display text-[10px] text-white/35 tabular-nums ml-1">
+              <span className="font-body text-[10px] font-semibold text-white/35 tabular-nums ml-1">
                 · {doneSets}/{totalSets} done
               </span>
             )}
@@ -364,7 +365,7 @@ function ExerciseRow({ exercise, exerciseIndex, toggleSet, shouldReduce, expande
           transition={{ duration: 0.25 }}
           className="shrink-0"
         >
-          <ChevronDown size={18} strokeWidth={1.5} className="text-white/35" />
+          <ChevronDown size={18} strokeWidth={T.stroke} className="text-white/35" />
         </motion.div>
       </button>
 
@@ -491,17 +492,17 @@ function SessionCompleteTakeover({ training, doneSets, behaviorState, onDismiss,
           transition={{ delay: 0.3, duration: 0.4 }}
         >
           <div className="flex flex-col items-center gap-1">
-            <Clock size={18} strokeWidth={1.5} className="text-white/40 mb-1" />
+            <Clock size={18} strokeWidth={T.stroke} className="text-white/40 mb-1" />
             <NumericCounter value={minutes} className="text-[28px] font-bold text-white" />
             <span className="font-body text-[11px] text-white/40 uppercase tracking-wider">min</span>
           </div>
           <div className="flex flex-col items-center gap-1">
-            <Dumbbell size={18} strokeWidth={1.5} className="text-white/40 mb-1" />
+            <Dumbbell size={18} strokeWidth={T.stroke} className="text-white/40 mb-1" />
             <NumericCounter value={doneSets} className="text-[28px] font-bold text-white" />
             <span className="font-body text-[11px] text-white/40 uppercase tracking-wider">sets</span>
           </div>
           <div className="flex flex-col items-center gap-1">
-            <div className="font-display text-[11px] font-bold text-white/40 uppercase mb-1 tracking-wider">vol</div>
+            <div className="font-body text-[11px] font-extrabold text-white/40 uppercase mb-1 tracking-wider">vol</div>
             <NumericCounter value={totalVolume} className="text-[28px] font-bold text-white" duration={1.2} />
             <span className="font-body text-[11px] text-white/40 uppercase tracking-wider">kg</span>
           </div>
@@ -596,12 +597,10 @@ export default function Train() {
               className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0"
               style={{ background: 'rgba(212,167,78,0.1)' }}
             >
-              <Moon size={22} strokeWidth={1.5} color={GOLD} />
+              <Moon size={22} strokeWidth={T.stroke} color={GOLD} />
             </div>
             <div>
-              <span className="font-display text-[10px] text-white/40 uppercase tracking-[0.2em]">
-                Sleep Target
-              </span>
+              <span className="kicker">Sleep target</span>
               <div className="font-display text-[22px] text-white mt-0.5 tracking-wider">
                 {training.recovery?.sleepTarget || '8+ HOURS'}
               </div>
@@ -611,7 +610,7 @@ export default function Train() {
 
         <div className="px-5 mt-6">
           <motion.h2
-            className="font-display text-[13px] text-white/50 uppercase tracking-[0.2em] mb-3"
+            className="kicker mb-3"
             initial={shouldReduce ? {} : { opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.15, duration: 0.3 }}
@@ -661,10 +660,8 @@ export default function Train() {
       {/* Session progress (slim) */}
       <div className="px-5 mt-5 mb-1">
         <div className="flex items-center justify-between mb-2">
-          <span className="font-display text-[10px] text-white/40 uppercase tracking-[0.2em]">
-            Session Progress
-          </span>
-          <span className="font-display text-[12px] tabular-nums text-white/70">
+          <span className="kicker">Session progress</span>
+          <span className="font-body text-[12px] font-bold tabular-nums text-white/70">
             {doneSets}
             <span className="text-white/30"> / {totalSets}</span>
           </span>
@@ -682,13 +679,10 @@ export default function Train() {
 
       {/* Today's Workout header */}
       <div className="px-5 mt-5 mb-3 flex items-center justify-between">
-        <p className="font-display text-[13px] text-white/25 uppercase tracking-[0.2em]">
-          Today's Workout
-        </p>
+        <p className="kicker">Today's workout</p>
         <button
           onClick={expandAll}
-          className="flex items-center gap-1 font-display text-[11px] uppercase tracking-wider"
-          style={{ color: GOLD }}
+          className="btn-ghost !py-0 text-[12px]"
         >
           {allExpanded ? 'Collapse All' : 'Expand All'}
           <motion.span
@@ -696,7 +690,7 @@ export default function Train() {
             transition={{ duration: 0.25 }}
             className="inline-flex"
           >
-            <ChevronDown size={13} strokeWidth={1.5} />
+            <ChevronDown size={13} strokeWidth={T.stroke} />
           </motion.span>
         </button>
       </div>

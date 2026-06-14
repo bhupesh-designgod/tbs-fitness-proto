@@ -423,7 +423,7 @@ function MotivationScreen({ answers, next }) {
             transform: 'scale(1.6)',
             animation: 'pulse-glow 2.5s ease-in-out infinite',
           }} />
-          <img src="/medal.png" alt="Gold medal" className="relative w-36 h-36 object-contain drop-shadow-2xl" />
+          <img src="/medal.png" alt="Gold medal" className="relative w-36 h-36 object-contain" style={{ mixBlendMode: 'screen' }} />
         </motion.div>
 
         {/* Headline */}
@@ -444,8 +444,8 @@ function MotivationScreen({ answers, next }) {
           className="font-body text-[15px] leading-relaxed max-w-[300px]"
           style={{ color: T.textMid }}
         >
-          Structured training. Personalised nutrition. Real accountability.
-          A few more answers and Biki starts building the plan that gets you there.
+          Picture yourself 12 weeks from now — stronger, leaner, in full control of your nutrition.
+          That's exactly where this plan takes you.
         </motion.p>
       </div>
 
@@ -457,7 +457,7 @@ function MotivationScreen({ answers, next }) {
         className="relative z-10 px-5 pt-3 pb-6"
       >
         <motion.button whileTap={T.tap} onClick={next} className="btn-primary">
-          Let's finish this<ArrowRight size={18} strokeWidth={2.5} />
+          Continue<ArrowRight size={18} strokeWidth={2.5} />
         </motion.button>
       </motion.div>
     </div>

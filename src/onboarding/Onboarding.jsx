@@ -4,13 +4,13 @@
 // tap CTA on the Door ("Let's Do This"), press-and-hold on the Pledge.
 // Ambient synth music with mute toggle.
 
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Volume2, VolumeX } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { T } from '../tokens';
 import { track } from '../lib/analytics';
 import { STEPS } from './steps';
-import useOnboardingMusic from './useOnboardingMusic';
+// import useOnboardingMusic from './useOnboardingMusic'; // shelved
 
 const LAST = STEPS.length - 1;
 
@@ -39,9 +39,9 @@ export default function Onboarding({ onComplete }) {
   const [dir, setDir] = useState(1);
   const [answers, setAnswers] = useState(DEFAULT_ANSWERS);
 
-  // Music
-  const { muted, toggleMute, setProgress } = useOnboardingMusic();
-  useEffect(() => { setProgress(i / LAST); }, [i, setProgress]);
+  // Music (shelved)
+  // const { muted, toggleMute, setProgress } = useOnboardingMusic();
+  // useEffect(() => { setProgress(i / LAST); }, [i, setProgress]);
 
   const step = STEPS[i];
   const { Comp } = step;
@@ -138,29 +138,7 @@ export default function Onboarding({ onComplete }) {
         </div>
       )}
 
-      {/* 🔊 Persistent mute toggle — always visible */}
-      <motion.button
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1 }}
-        whileTap={T.tapSmall}
-        onClick={toggleMute}
-        aria-label={muted ? 'Unmute music' : 'Mute music'}
-        className="absolute z-30 w-9 h-9 rounded-full flex items-center justify-center"
-        style={{
-          bottom: 16,
-          right: 16,
-          background: 'rgba(11,11,12,0.55)',
-          backdropFilter: 'blur(8px)',
-          WebkitBackdropFilter: 'blur(8px)',
-          border: '1px solid rgba(244,242,236,0.08)',
-        }}
-      >
-        {muted
-          ? <VolumeX size={16} strokeWidth={2} style={{ color: T.textLow }} />
-          : <Volume2 size={16} strokeWidth={2} style={{ color: T.gold }} />
-        }
-      </motion.button>
+      {/* 🔊 Music mute toggle — shelved for now */}
     </div>
   );
 }

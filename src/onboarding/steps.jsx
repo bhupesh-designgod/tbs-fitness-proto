@@ -431,20 +431,20 @@ function ExperienceScreen({ answers, update, next }) {
 }
 
 // ═════════════════════════════════════════════
-// 9 · Routine (auto)
+// 9 · Daily activity (auto)
 // ═════════════════════════════════════════════
 const ROUTINES = [
-  { v: 'none', title: 'No set routine', sub: 'Training is inconsistent right now.' },
-  { v: 'full_body', title: 'Full body', sub: 'Whole body each session.' },
-  { v: 'ppl', title: 'Push / Pull / Legs', sub: 'Split across movement patterns.' },
-  { v: 'upper_lower', title: 'Upper / Lower', sub: 'Alternating upper and lower days.' },
-  { v: 'bro_split', title: 'Body-part split', sub: 'One muscle group per day.' },
+  { v: 'sedentary', title: 'Sedentary', sub: 'Desk job, barely move outside of workouts.' },
+  { v: 'lightly_active', title: 'Lightly active', sub: 'On your feet a bit — light walking, errands, casual movement.' },
+  { v: 'moderately_active', title: 'Moderately active', sub: 'Moving through the day — retail, teaching, regular walks.' },
+  { v: 'very_active', title: 'Very active', sub: 'Always on the go — active job, sports, or outdoor lifestyle.' },
+  { v: 'physically_demanding', title: 'Physically demanding', sub: 'Construction, warehouse, farming — your body works all day.' },
 ];
 function RoutineScreen({ answers, selectNext }) {
   return (
     <div className="px-5 pt-2 h-full overflow-y-auto">
-      <Question>YOUR ROUTINE</Question>
-      <p className="font-body text-[14px] mb-5" style={{ color: T.textLow }}>How do you train right now?</p>
+      <Question>YOUR DAY</Question>
+      <p className="font-body text-[14px] mb-5" style={{ color: T.textLow }}>Outside of training, what does a typical day look like?</p>
       <div className="flex flex-col gap-2.5 pb-4">
         {ROUTINES.map(r => (
           <SelectCard key={r.v} title={r.title} sub={r.sub} selected={answers.routine === r.v} onSelect={() => selectNext({ routine: r.v })} />
@@ -682,7 +682,7 @@ function BloodworkScreen({ answers, update, next, skipField }) {
 const GOAL_LABEL = { weight_loss: 'Weight loss', weight_gain: 'Weight gain', build: 'Build muscle', recomp: 'Body recomp', maintain: 'Maintain', competition: 'Competition prep' };
 const DIET_LABEL = { vegetarian: 'Vegetarian', 'non-vegetarian': 'Non-vegetarian', eggetarian: 'Eggetarian', vegan: 'Vegan' };
 const EXP_LABEL = { beginner: 'Beginner', intermediate: 'Intermediate', advanced: 'Advanced' };
-const ROUTINE_LABEL = { none: 'No set routine', full_body: 'Full body', ppl: 'PPL', upper_lower: 'Upper / Lower', bro_split: 'Body-part split' };
+const ROUTINE_LABEL = { sedentary: 'Sedentary', lightly_active: 'Lightly active', moderately_active: 'Moderately active', very_active: 'Very active', physically_demanding: 'Physically demanding' };
 const TIME_LABEL = { morning: 'Morning', midday: 'Midday', evening: 'Evening', night: 'Night' };
 
 function RevealScreen({ answers, next }) {
@@ -693,7 +693,7 @@ function RevealScreen({ answers, next }) {
     ['Stats', `${answers.height} cm · ${answers.weight} kg`],
     ['Goal', GOAL_LABEL[answers.goal] || '—'],
     ['Level', EXP_LABEL[answers.experience] || '—'],
-    ['Routine', ROUTINE_LABEL[answers.routine] || '—'],
+    ['Activity', ROUTINE_LABEL[answers.routine] || '—'],
     ['Training', TIME_LABEL[answers.trainingTime] || '—'],
     ['Diet', DIET_LABEL[answers.diet] || '—'],
     ['Day plan', `${answers.meals_per_day} meals · ${answers.shakes_per_day} shakes · ${answers.snacks_per_day} snacks`],

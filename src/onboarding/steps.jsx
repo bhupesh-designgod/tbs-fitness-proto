@@ -8,6 +8,7 @@ import {
   ArrowRight, Check, Minus, Plus, Utensils, GlassWater, Nut,
   TrendingDown, TrendingUp, Dumbbell, Repeat, Trophy, Equal,
   Sunrise, Sun, Sunset, Moon, Camera, X, Upload, FileText,
+  Fingerprint,
 } from 'lucide-react';
 import { T } from '../tokens';
 import { PHOTOS } from '../data/mockData';
@@ -389,7 +390,82 @@ function GoalScreen({ answers, selectNext }) {
 }
 
 // ═════════════════════════════════════════════
-// 8 · Experience + preferred training time (Next)
+// 8 · Motivation — halfway checkpoint
+// ═════════════════════════════════════════════
+function MotivationScreen({ answers, next }) {
+  const shouldReduce = useReducedMotion();
+  const firstName = (answers.name || '').split(' ')[0] || 'champ';
+  return (
+    <div className="relative h-full overflow-hidden flex flex-col" style={{ background: T.bg }}>
+      {/* Subtle gradient bg */}
+      <div className="absolute inset-0" style={{
+        background: 'radial-gradient(ellipse 70% 50% at 50% 35%, rgba(212,168,72,0.08) 0%, transparent 70%)',
+      }} />
+
+      <div className="relative flex-1 flex flex-col items-center justify-center px-6 text-center">
+        {/* Gold kicker */}
+        <motion.p
+          initial={shouldReduce ? {} : { opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1, duration: 0.4, ease: T.easeOut }}
+          className="kicker kicker-gold mb-6"
+        >Keep going!</motion.p>
+
+        {/* Medal with glow pulse */}
+        <motion.div
+          initial={shouldReduce ? {} : { opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.2, duration: 0.5, ease: T.easeOut }}
+          className="relative mb-8"
+        >
+          <div className="absolute inset-0 rounded-full" style={{
+            background: 'radial-gradient(circle, rgba(212,168,72,0.3) 0%, transparent 65%)',
+            transform: 'scale(1.6)',
+            animation: 'pulse-glow 2.5s ease-in-out infinite',
+          }} />
+          <img src="/medal.png" alt="Gold medal" className="relative w-36 h-36 object-contain drop-shadow-2xl" />
+        </motion.div>
+
+        {/* Headline */}
+        <motion.h1
+          initial={shouldReduce ? {} : { opacity: 0, y: 14 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.35, duration: 0.4, ease: T.easeOut }}
+          className="display-lg text-[#F4F2EC] mb-4"
+        >
+          YOU'RE HALFWAY<br />THERE, {firstName.toUpperCase()}.
+        </motion.h1>
+
+        {/* Body */}
+        <motion.p
+          initial={shouldReduce ? {} : { opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5, duration: 0.4, ease: T.easeOut }}
+          className="font-body text-[15px] leading-relaxed max-w-[300px]"
+          style={{ color: T.textMid }}
+        >
+          Most people quit the form. You're still here.
+          A few more questions and Biki starts building your plan.
+        </motion.p>
+      </div>
+
+      {/* CTA */}
+      <motion.div
+        initial={shouldReduce ? {} : { opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.7 }}
+        className="px-5 pt-3 pb-6"
+      >
+        <motion.button whileTap={T.tap} onClick={next} className="btn-primary">
+          Let's finish this<ArrowRight size={18} strokeWidth={2.5} />
+        </motion.button>
+      </motion.div>
+    </div>
+  );
+}
+
+// ═════════════════════════════════════════════
+// 9 · Experience + preferred training time (Next)
 // ═════════════════════════════════════════════
 const EXP = [
   { v: 'beginner', title: 'Beginner', sub: 'Less than 6 months of consistent training, or returning after a long break.' },
@@ -724,6 +800,183 @@ function RevealScreen({ answers, next }) {
   );
 }
 
+// ═════════════════════════════════════════════
+// 18 · The Pledge — press-and-hold to commit
+// ═════════════════════════════════════════════
+const HOLD_MS = 1500;
+
+function PledgeScreen({ next }) {
+  const shouldReduce = useReducedMotion();
+  const [progress, setProgress] = useState(0);
+  const [committed, setCommitted] = useState(false);
+  const [flash, setFlash] = useState(false);
+  const holding = useRef(false);
+  const rafRef = useRef(0);
+  const startRef = useRef(0);
+  const ticks = useRef({ a: false, b: false });
+
+  useEffect(() => () => cancelAnimationFrame(rafRef.current), []);
+
+  const buzz = (p) => { try { navigator.vibrate?.(p); } catch { /* unsupported */ } };
+
+  const complete = useCallback(() => {
+    holding.current = false;
+    cancelAnimationFrame(rafRef.current);
+    setProgress(1);
+    setCommitted(true);
+    buzz([30, 45, 90]);
+    setFlash(true);
+    setTimeout(() => { setFlash(false); next(); }, 600);
+  }, [next]);
+
+  const holdFrame = useCallback((now) => {
+    if (!holding.current) return;
+    const p = Math.min((now - startRef.current) / HOLD_MS, 1);
+    setProgress(p);
+    if (!ticks.current.a && p >= 0.33) { ticks.current.a = true; buzz(8); }
+    if (!ticks.current.b && p >= 0.66) { ticks.current.b = true; buzz(8); }
+    if (p >= 1) { complete(); return; }
+    rafRef.current = requestAnimationFrame(holdFrame);
+  }, [complete]);
+
+  const start = useCallback(() => {
+    if (committed) return;
+    holding.current = true;
+    ticks.current = { a: false, b: false };
+    startRef.current = performance.now();
+    cancelAnimationFrame(rafRef.current);
+    rafRef.current = requestAnimationFrame(holdFrame);
+  }, [committed, holdFrame]);
+
+  const release = useCallback(() => {
+    if (!holding.current || committed) return;
+    holding.current = false;
+    cancelAnimationFrame(rafRef.current);
+    buzz(5);
+    // Retract
+    const from = progress;
+    const retractStart = performance.now();
+    const retract = (now) => {
+      const t = Math.min((now - retractStart) / 200, 1);
+      setProgress(from * (1 - t));
+      if (t < 1) rafRef.current = requestAnimationFrame(retract);
+    };
+    rafRef.current = requestAnimationFrame(retract);
+  }, [committed, progress]);
+
+  // SVG ring math
+  const RING_R = 52;
+  const CIRC = 2 * Math.PI * RING_R;
+
+  return (
+    <div className="relative h-full overflow-hidden flex flex-col" style={{
+      background: 'linear-gradient(180deg, rgba(30,28,24,1) 0%, #0B0B0C 50%)',
+    }}>
+      {/* Flash overlay */}
+      {flash && (
+        <motion.div
+          className="absolute inset-0 z-30"
+          initial={{ opacity: 0.6 }}
+          animate={{ opacity: 0 }}
+          transition={{ duration: 0.5 }}
+          style={{ background: T.gold }}
+        />
+      )}
+
+      <div className="relative flex-1 flex flex-col items-center justify-center px-8 text-center">
+        {/* Headline */}
+        <motion.h1
+          initial={shouldReduce ? {} : { opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.15, duration: 0.5, ease: T.easeOut }}
+          className="font-display text-[44px] leading-[0.92] mb-6"
+          style={{ color: '#F4F2EC' }}
+        >
+          I HEREBY<br />PLEDGE
+        </motion.h1>
+
+        {/* Pledge body */}
+        <motion.p
+          initial={shouldReduce ? {} : { opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.35, duration: 0.5, ease: T.easeOut }}
+          className="font-body text-[16px] leading-[1.65] max-w-[320px]"
+          style={{ color: 'rgba(244,242,236,0.72)' }}
+        >
+          I'm starting this journey for myself.
+          I know results take time, consistency, and honesty.
+          I commit to logging my meals, sharing my progress,
+          and trusting Biki's guidance — even on the hard days.
+        </motion.p>
+      </div>
+
+      {/* Fingerprint hold area */}
+      <motion.div
+        initial={shouldReduce ? {} : { opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.65 }}
+        className="flex flex-col items-center pb-12"
+      >
+        <button
+          onPointerDown={start}
+          onPointerUp={release}
+          onPointerLeave={release}
+          onPointerCancel={release}
+          className="relative flex items-center justify-center select-none"
+          style={{ width: 120, height: 120, touchAction: 'none', WebkitTapHighlightColor: 'transparent' }}
+          aria-label="Press and hold to commit"
+        >
+          {/* Background glow */}
+          <div className="absolute inset-0 rounded-full" style={{
+            background: `radial-gradient(circle, rgba(212,168,72,${0.15 * progress}) 0%, transparent 70%)`,
+            transform: `scale(${1.4 + progress * 0.4})`,
+            transition: holding.current ? 'none' : 'all 200ms ease-out',
+          }} />
+
+          {/* Progress ring */}
+          <svg className="absolute inset-0" width="120" height="120">
+            {/* Track ring */}
+            <circle cx="60" cy="60" r={RING_R}
+              fill="none" stroke="rgba(244,242,236,0.08)" strokeWidth="3" />
+            {/* Progress ring */}
+            <circle cx="60" cy="60" r={RING_R}
+              fill="none" stroke={T.gold} strokeWidth="3"
+              strokeLinecap="round"
+              strokeDasharray={CIRC}
+              strokeDashoffset={CIRC * (1 - progress)}
+              transform="rotate(-90 60 60)"
+              style={{
+                opacity: progress > 0.001 ? 1 : 0,
+                transition: holding.current ? 'none' : 'stroke-dashoffset 200ms ease-out',
+              }}
+            />
+          </svg>
+
+          {/* Fingerprint icon */}
+          <Fingerprint
+            size={38} strokeWidth={1.5}
+            style={{
+              color: committed ? T.gold : `rgba(244,242,236,${0.35 + progress * 0.65})`,
+              transform: `scale(${1 + progress * 0.08})`,
+              transition: holding.current ? 'none' : 'all 200ms ease-out',
+            }}
+          />
+        </button>
+
+        <motion.p
+          initial={shouldReduce ? {} : { opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.8 }}
+          className="font-body text-[13px] mt-3"
+          style={{ color: T.textLow }}
+        >
+          {committed ? 'Committed.' : 'Press and hold to commit'}
+        </motion.p>
+      </motion.div>
+    </div>
+  );
+}
+
 // ─────────────────────────────────────────────
 // Registry + flow metadata
 // ─────────────────────────────────────────────
@@ -735,6 +988,7 @@ export const STEPS = [
   { id: 'height', Comp: HeightScreen, kind: 'input' },
   { id: 'weight', Comp: WeightScreen, kind: 'input' },
   { id: 'goal', Comp: GoalScreen, kind: 'auto' },
+  { id: 'motivation', Comp: MotivationScreen, kind: 'input' },
   { id: 'experience', Comp: ExperienceScreen, kind: 'input' },
   { id: 'routine', Comp: RoutineScreen, kind: 'auto' },
   { id: 'diet', Comp: DietScreen, kind: 'auto' },
@@ -743,5 +997,6 @@ export const STEPS = [
   { id: 'allergies', Comp: AllergiesScreen, kind: 'input' },
   { id: 'photos', Comp: PhotosScreen, kind: 'input' },
   { id: 'bloodwork', Comp: BloodworkScreen, kind: 'input' },
-  { id: 'reveal', Comp: RevealScreen, kind: 'reveal' },
+  { id: 'reveal', Comp: RevealScreen, kind: 'input' },
+  { id: 'pledge', Comp: PledgeScreen, kind: 'pledge' },
 ];

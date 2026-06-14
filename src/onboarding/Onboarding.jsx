@@ -64,11 +64,14 @@ export default function Onboarding({ onComplete }) {
   }, [i, step.id, answers, onComplete]);
 
   // Chrome rules
-  const showChrome = i >= 1;                   // door has none
-  const showProgress = i >= 1 && i < LAST;     // all screens except door & reveal
-  const showSkip = i >= 1 && i < LAST;          // not door, not reveal
-  const padTop = i === 0 ? 0 : 52;
-  const progress = (i / (LAST)) * 100;
+  const isPledge = step.kind === 'pledge';
+  const isDoor = step.kind === 'door';
+  const isMotivation = step.id === 'motivation';
+  const showChrome = !isDoor && !isPledge;             // door & pledge have none
+  const showProgress = showChrome && i < LAST - 1;    // hide on reveal + pledge
+  const showSkip = showChrome && !isMotivation && i < LAST - 1; // hide on motivation, reveal, pledge
+  const padTop = (isDoor || isPledge) ? 0 : 52;
+  const progress = (i / (LAST - 1)) * 100;            // cap at reveal (100%)
 
   return (
     <div className="relative mx-auto overflow-hidden" style={{ maxWidth: 430, height: '100dvh', background: T.bg }}>

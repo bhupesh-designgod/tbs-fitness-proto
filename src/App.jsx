@@ -8,7 +8,6 @@ import { TabBar } from './components/ui/Components';
 import { AppProvider } from './context/AppContext';
 import { useLocalStorage } from './hooks/useLocalStorage';
 import Onboarding from './onboarding/Onboarding';
-import Walkthrough from './onboarding/Walkthrough';
 import Splash from './onboarding/Splash';
 import Auth from './auth/Auth';
 
@@ -37,8 +36,6 @@ function AppContent() {
   const [activeTab, setActiveTab] = useState('home');
   const [overlay, setOverlay] = useState(null); // 'profile' | 'checkin' | 'macroDetail' | 'checkinDetail'
   const [checkInId, setCheckInId] = useState(null);
-  // First-run product tour (set by signup; cleared once seen).
-  const [walkthrough, setWalkthrough] = useLocalStorage('tbs-walkthrough', { done: false });
 
   const pageVariants = shouldReduce
     ? { initial: { opacity: 0 }, animate: { opacity: 1 }, exit: { opacity: 0 } }
@@ -129,14 +126,7 @@ function AppContent() {
           tabs={TABS}
         />
       )}
-
-      {/* First-run walkthrough — coachmarks over the live app */}
-      {!walkthrough.done && !overlay && (
-        <Walkthrough
-          onNavigate={handleTabChange}
-          onDone={() => { setWalkthrough({ done: true }); handleTabChange('home'); }}
-        />
-      )}
+      {/* The first-run product tour now lives contextually inside Nutrition (Coach Biki). */}
     </div>
   );
 }

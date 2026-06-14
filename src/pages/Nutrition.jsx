@@ -12,6 +12,9 @@ import {
 import { BottomSheet, NumericCounter, RingCounter } from '../components/ui/Components';
 import { WeekStrip, MonthSheet } from '../components/ui/Calendar';
 import { useApp } from '../context/AppContext';
+import { useLocalStorage } from '../hooks/useLocalStorage';
+import CoachTip from '../onboarding/CoachTip';
+import { track } from '../lib/analytics';
 import { T } from '../tokens';
 import { DAILY_TARGETS, MEAL_PLAN, USER_PROFILE, SUPPLEMENTS } from '../data/mockData';
 
@@ -478,6 +481,7 @@ function MealSheet({ meal, mealIndex, isOpen, onClose, logged, logMeal, adjustMe
             {/* Primary action */}
             {!meal.logged && (
               <motion.button
+                data-tour="sheet-log"
                 whileTap={T.tap}
                 onClick={handleLogAsIs}
                 className="btn-primary mb-2.5"
@@ -488,10 +492,10 @@ function MealSheet({ meal, mealIndex, isOpen, onClose, logged, logMeal, adjustMe
 
             {/* Secondary actions */}
             <div className="flex gap-2">
-              <motion.button whileTap={T.tap} onClick={() => setView('adjust')} className="btn-secondary flex-1">
+              <motion.button data-tour="sheet-adjust" whileTap={T.tap} onClick={() => setView('adjust')} className="btn-secondary flex-1">
                 Adjust
               </motion.button>
-              <motion.button whileTap={T.tap} onClick={() => setView('replace')} className="btn-secondary flex-1">
+              <motion.button data-tour="sheet-replace" whileTap={T.tap} onClick={() => setView('replace')} className="btn-secondary flex-1">
                 <RefreshCw size={13} strokeWidth={T.stroke} /> Replace
               </motion.button>
             </div>
@@ -1445,6 +1449,34 @@ export default function Nutrition({ onMacroDetail }) {
     setTimeout(() => setSelectedMeal(null), 300);
   }, []);
 
+  // ── First-visit contextual coach tour (Coach Biki) ──
+  const [tour, setTour] = useLocalStorage('tbs-walkthrough', { done: false });
+  const [tourStep, setTourStep] = useState(0); // 0 = inactive, 1–6 = active
+
+  useEffect(() => {
+    if (tour.done || activeTab !== 'meals' || !meals.length) return undefined;
+    const t = setTimeout(() => setTourStep(s => (s === 0 ? 1 : s)), 650);
+    return () => clearTimeout(t);
+  }, [tour.done, activeTab, meals.length]);
+
+  const endTour = useCallback((skipped) => {
+    track(skipped ? 'coach_tour_skipped' : 'coach_tour_completed', { step: tourStep });
+    setTour({ done: true });
+    setTourStep(0);
+    setSheetOpen(false);
+    setTimeout(() => setSelectedMeal(null), 300);
+  }, [tourStep, setTour]);
+
+  const TOUR = {
+    1: { target: '[data-tour="meal-plan"]', msg: 'Your meal plan lives here. Every meal is tailored to your goal.', cta: 'Next', go: () => setTourStep(2) },
+    2: { target: '[data-tour="meal-card"]', msg: "When you've eaten a meal, tap it to log it.", cta: 'Try It', go: () => { setSelectedMeal(0); setSheetOpen(true); setTourStep(3); } },
+    3: { target: '[data-tour="sheet-log"]', msg: 'Had it as planned? Just tap Log Meal.', cta: 'Next', go: () => setTourStep(4) },
+    4: { target: '[data-tour="sheet-adjust"]', msg: 'Portion was different? Adjust the quantity before logging.', cta: 'Next', go: () => setTourStep(5) },
+    5: { target: '[data-tour="sheet-replace"]', msg: "Ate something else? Replace the meal and we'll recalculate the nutrition.", cta: 'Next', go: () => setTourStep(6) },
+    6: { target: null, msg: 'Log what you actually ate. Accuracy beats perfection.', cta: 'Got It', go: () => endTour(false) },
+  };
+  const activeTip = tourStep > 0 ? TOUR[tourStep] : null;
+
   return (
     <div className="min-h-screen pb-28" style={{ background: T.bg }}>
       {/* ═══════════════════════════════════════════
@@ -1505,7 +1537,7 @@ export default function Nutrition({ onMacroDetail }) {
           </div>
 
           {/* Meal Timeline */}
-          <div className="relative px-5 mt-2">
+          <div data-tour="meal-plan" className="relative px-5 mt-2">
             <div
               className="absolute left-[37px] top-3 bottom-3 w-px"
               style={{
@@ -1575,6 +1607,18 @@ export default function Nutrition({ onMacroDetail }) {
       />
 
       <MonthSheet isOpen={monthOpen} onClose={() => setMonthOpen(false)} mode="nutrition" />
+
+      {/* Contextual coach tour */}
+      {activeTip && (
+        <CoachTip
+          stepKey={tourStep}
+          targetSelector={activeTip.target}
+          message={activeTip.msg}
+          cta={activeTip.cta}
+          onCta={activeTip.go}
+          onSkip={() => endTour(true)}
+        />
+      )}
     </div>
   );
 }

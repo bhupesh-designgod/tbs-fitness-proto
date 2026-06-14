@@ -139,8 +139,10 @@ export default function App() {
   // Splash plays once per app load, after auth — before routing on.
   const [splashDone, setSplashDone] = useState(false);
 
-  // New account → run onboarding, then the contextual coach tours.
+  // New account → start with a clean slate (drop any stale app data left on
+  // this device), run onboarding, then the contextual coach tours.
   const handleSignup = (user) => {
+    try { localStorage.removeItem('tbs-state'); } catch { /* ignore */ }
     setOnboarding({ done: false, answers: null });
     setTour({ home: false, nutrition: false });
     setAuth({ loggedIn: true, user });

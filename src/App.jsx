@@ -9,6 +9,7 @@ import { AppProvider } from './context/AppContext';
 import { useLocalStorage } from './hooks/useLocalStorage';
 import Onboarding from './onboarding/Onboarding';
 import Walkthrough from './onboarding/Walkthrough';
+import Splash from './onboarding/Splash';
 import Auth from './auth/Auth';
 
 // Pages
@@ -145,6 +146,8 @@ export default function App() {
   const [auth, setAuth] = useLocalStorage('tbs-auth', { loggedIn: false, user: null });
   const [onboarding, setOnboarding] = useLocalStorage('tbs-onboarding', { done: false, answers: null });
   const [, setWalkthrough] = useLocalStorage('tbs-walkthrough', { done: false });
+  // Splash plays once per app load, after auth — before routing on.
+  const [splashDone, setSplashDone] = useState(false);
 
   // New account → run onboarding, then the first-run tour.
   const handleSignup = (user) => {
@@ -166,6 +169,11 @@ export default function App() {
 
   if (!auth.loggedIn) {
     return <Auth onLogin={handleLogin} onSignup={handleSignup} />;
+  }
+
+  // Always show splash first after auth (auth resolves during it).
+  if (!splashDone) {
+    return <Splash onDone={() => setSplashDone(true)} />;
   }
 
   if (!onboarding.done) {

@@ -1,173 +1,123 @@
-// ── Onboarding flow controller ──
-// Holds step index + collected answers, drives springy horizontal slides,
-// and renders persistent chrome (progress bar, back, skip) over the steps.
-// Splash → Welcome → Goal → About → Keep Moving → Diet → Supplements →
-// Routine → Health → Photos → That's all → Pledge.
+// ── Onboarding controller (v2) ──
+// Drives the 12-screen flow: horizontal slides, persistent chrome
+// (progress bar + back + skip on screens 2–11), auto-advance for
+// single-select cards, press-and-hold commit on the Door and the Reveal.
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft } from 'lucide-react';
 import { T } from '../tokens';
 import { track } from '../lib/analytics';
-import { STEP_COMPONENTS } from './steps';
+import { STEPS } from './steps';
 
-// kind: 'hero' (full-bleed moment) | 'form' (questionnaire with progress bar)
-const STEPS = [
-  { id: 'splash', kind: 'hero' },
-  { id: 'welcome', kind: 'hero' },
-  { id: 'goal', kind: 'form' },
-  { id: 'about', kind: 'form' },
-  { id: 'keepMoving', kind: 'hero' },
-  { id: 'diet', kind: 'form' },
-  { id: 'supplements', kind: 'form' },
-  { id: 'routine', kind: 'form' },
-  { id: 'health', kind: 'form' },
-  { id: 'photos', kind: 'form' },
-  { id: 'allDone', kind: 'hero' },
-  { id: 'pledge', kind: 'hero' },
-];
-
-const FORM_IDS = STEPS.filter(s => s.kind === 'form').map(s => s.id);
-const LAST_INDEX = STEPS.length - 1;
+const LAST = STEPS.length - 1;
 
 const DEFAULT_ANSWERS = {
-  goal: null,
-  age: '', weight: '', weightUnit: 'kg', gender: 'male', height: '', heightUnit: 'cm', targetWeight: '', note: '',
-  dietType: 'veg', mealsPerDay: 4, foodsEnjoy: [], allergies: [],
-  supplements: [], steroidsNote: '',
-  workType: 'desk', wakeTime: '07:00', trainTime: '18:30',
-  conditions: [], bloodTest: 'no',
-  photos: { front: false, side: false, back: false },
+  name: '', age: 25, sex: null,
+  height: 170, heightUnit: 'cm',
+  weight: 70, weightUnit: 'kg',
+  goal: null, experience: null, diet: null,
+  meals_per_day: 3, shakes_per_day: 1, snacks_per_day: 1,
+  allergies: [], avoidsText: '',
 };
 
-const slideVariants = {
-  enter: (dir) => ({ x: dir >= 0 ? '100%' : '-100%' }),
+const slide = {
+  enter: (d) => ({ x: d >= 0 ? '100%' : '-100%' }),
   center: { x: 0 },
-  exit: (dir) => ({ x: dir >= 0 ? '-100%' : '100%' }),
+  exit: (d) => ({ x: d >= 0 ? '-100%' : '100%' }),
 };
-
-// Snappy spring ~200ms feel
-const slideTransition = { type: 'spring', stiffness: 520, damping: 42, mass: 0.7 };
+const slideT = { duration: 0.25, ease: [0.16, 1, 0.3, 1] };
 
 export default function Onboarding({ onComplete }) {
-  const [index, setIndex] = useState(0);
+  const [i, setI] = useState(0);
   const [dir, setDir] = useState(1);
   const [answers, setAnswers] = useState(DEFAULT_ANSWERS);
 
-  const step = STEPS[index];
-  const Screen = STEP_COMPONENTS[step.id];
-
-  useEffect(() => { track('onboarding_started'); }, []);
+  const step = STEPS[i];
+  const { Comp } = step;
 
   const update = useCallback((patch) => setAnswers(prev => ({ ...prev, ...patch })), []);
 
-  const goNext = useCallback(() => {
+  const next = useCallback(() => {
     setDir(1);
-    setIndex(i => {
-      if (i >= LAST_INDEX) return i;
-      return i + 1;
+    setI(v => {
+      if (v >= LAST) { track('onboarding_completed', { answers }); onComplete(answers); return v; }
+      return v + 1;
     });
-  }, []);
-
-  const goBack = useCallback(() => {
-    setDir(-1);
-    setIndex(i => Math.max(0, i - 1));
-  }, []);
-
-  const complete = useCallback(() => {
-    track('onboarding_completed', { answers });
-    onComplete(answers);
   }, [answers, onComplete]);
 
+  const back = useCallback(() => { setDir(-1); setI(v => Math.max(0, v - 1)); }, []);
+
+  // Single-select: apply value, let the 200ms selection animation play, then slide.
+  const selectNext = useCallback((patch) => {
+    setAnswers(prev => ({ ...prev, ...patch }));
+    setTimeout(() => { setDir(1); setI(v => Math.min(LAST, v + 1)); }, 220);
+  }, []);
+
   const skip = useCallback(() => {
-    track('onboarding_skipped', { screenIndex: index, screenId: step.id });
+    track('onboarding_skipped', { screen_index: i, screen_name: step.id });
     onComplete(answers);
-  }, [index, step.id, answers, onComplete]);
+  }, [i, step.id, answers, onComplete]);
 
-  // Splash auto-advances
-  useEffect(() => {
-    if (step.id !== 'splash') return undefined;
-    const t = setTimeout(goNext, 1500);
-    return () => clearTimeout(t);
-  }, [step.id, goNext]);
-
-  // Pledge commit finishes the flow
-  const handleNext = step.id === 'pledge' ? complete : goNext;
-
-  // Chrome visibility
-  const showChrome = step.id !== 'splash';
-  const showBack = index >= 2; // from Goal onward (splash + welcome have none)
-  const showSkip = step.id !== 'splash' && step.id !== 'pledge';
-  const isForm = step.kind === 'form';
-  const formPos = FORM_IDS.indexOf(step.id); // 0..6 for forms, -1 otherwise
+  // Chrome rules
+  const showChrome = i >= 1;                 // door has none
+  const showProgress = i >= 1 && i <= 10;    // screens 2–11
+  const showSkip = i >= 1 && i <= 10;        // screens 2–11 (not reveal)
+  const padTop = i === 0 ? 0 : 52;
+  const progress = (i / 11) * 100;
 
   return (
     <div className="relative mx-auto overflow-hidden" style={{ maxWidth: 430, height: '100dvh', background: T.bg }}>
-
-      {/* Sliding step content */}
       <AnimatePresence custom={dir} initial={false}>
         <motion.div
           key={step.id}
           custom={dir}
-          variants={slideVariants}
-          initial="enter"
-          animate="center"
-          exit="exit"
-          transition={slideTransition}
+          variants={slide}
+          initial="enter" animate="center" exit="exit"
+          transition={slideT}
           className="absolute inset-0"
-          style={{ paddingTop: isForm ? 64 : 0 }}
+          style={{ paddingTop: padTop }}
         >
-          <Screen
+          <Comp
             answers={answers}
             update={update}
-            onNext={handleNext}
-            onCommit={complete}
-            onSkipField={goNext}
+            next={next}
+            selectNext={selectNext}
+            skipField={next}
           />
         </motion.div>
       </AnimatePresence>
 
-      {/* Persistent chrome overlay */}
+      {/* Chrome */}
       {showChrome && (
         <div className="absolute top-0 inset-x-0 z-20 px-5 pt-4 pb-2 flex items-center gap-3 pointer-events-none">
-          {/* Back */}
-          <div className="w-9 shrink-0">
-            {showBack && (
-              <motion.button
-                whileTap={T.tapSmall}
-                onClick={goBack}
-                aria-label="Back"
-                className="w-9 h-9 rounded-full flex items-center justify-center pointer-events-auto"
-                style={{ background: 'rgba(11,11,12,0.5)', border: `1px solid ${T.hairline}` }}
-              >
-                <ArrowLeft size={18} strokeWidth={2} style={{ color: T.text }} />
-              </motion.button>
+          <motion.button
+            whileTap={T.tapSmall}
+            onClick={back}
+            aria-label="Back"
+            className="w-9 h-9 rounded-full flex items-center justify-center shrink-0 pointer-events-auto -ml-1"
+            style={{ background: 'rgba(11,11,12,0.45)' }}
+          >
+            <ArrowLeft size={20} strokeWidth={2} style={{ color: T.text }} />
+          </motion.button>
+
+          <div className="flex-1">
+            {showProgress && (
+              <div className="h-[2px] rounded-full overflow-hidden" style={{ background: 'rgba(244,242,236,0.14)' }}>
+                <motion.div
+                  className="h-full rounded-full"
+                  style={{ background: T.gold }}
+                  initial={false}
+                  animate={{ width: `${progress}%` }}
+                  transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+                />
+              </div>
             )}
           </div>
 
-          {/* Progress bar — forms only */}
-          <div className="flex-1 flex items-center gap-1.5">
-            {isForm && FORM_IDS.map((id, i) => (
-              <div key={id} className="flex-1 h-[3px] rounded-full overflow-hidden" style={{ background: T.hairline }}>
-                <motion.div
-                  className="h-full rounded-full"
-                  initial={false}
-                  animate={{ width: i <= formPos ? '100%' : '0%' }}
-                  transition={{ duration: 0.3, ease: T.easeOut }}
-                  style={{ background: T.gold }}
-                />
-              </div>
-            ))}
-          </div>
-
-          {/* Skip */}
-          <div className="shrink-0 flex justify-end" style={{ minWidth: 36 }}>
+          <div className="shrink-0 flex justify-end" style={{ minWidth: 32 }}>
             {showSkip && (
-              <button
-                onClick={skip}
-                className="font-body text-[14px] font-medium pointer-events-auto px-1"
-                style={{ color: T.textMid }}
-              >
+              <button onClick={skip} className="font-body text-[14px] font-medium pointer-events-auto" style={{ color: T.textMid }}>
                 Skip
               </button>
             )}

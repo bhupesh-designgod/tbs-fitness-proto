@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- PLACEHOLDER LOGO — replace with the official TBS asset when available.
+     Gold-gradient TBS lettering with a barbell ligature + "TRAIN BY BIKI SINGH". -->
+<svg width="340" height="180" viewBox="0 0 340 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="tbsGold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#E8C36A"/>
+      <stop offset="48%" stop-color="#D4A848"/>
+      <stop offset="100%" stop-color="#B8923B"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="340" height="180" fill="#0B0B0C"/>
+
+  <!-- Lettering -->
+  <text x="170" y="104" text-anchor="middle"
+        font-family="'Bebas Neue', 'Oswald', 'Anton', Impact, sans-serif"
+        font-size="112" letter-spacing="6" fill="url(#tbsGold)">TBS</text>
+
+  <!-- Barbell ligature through the lettering -->
+  <g stroke="url(#tbsGold)" fill="url(#tbsGold)">
+    <rect x="40" y="72" width="260" height="6" rx="3"/>
+    <!-- left plates -->
+    <rect x="44" y="58" width="9" height="34" rx="2"/>
+    <rect x="56" y="64" width="7" height="22" rx="2"/>
+    <!-- right plates -->
+    <rect x="287" y="58" width="9" height="34" rx="2"/>
+    <rect x="277" y="64" width="7" height="22" rx="2"/>
+  </g>
+
+  <!-- Tagline -->
+  <text x="170" y="150" text-anchor="middle"
+        font-family="'Manrope', 'Helvetica Neue', Arial, sans-serif"
+        font-size="14" font-weight="700" letter-spacing="5" fill="#9D9C96">TRAIN BY BIKI SINGH</text>
+</svg>

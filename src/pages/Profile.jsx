@@ -5,8 +5,8 @@
 import { useState } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 import {
-  Target, User, Utensils, Pill, Clock, HeartPulse, Camera,
-  Ruler, Bell, RotateCcw, Eye, ChevronRight, LogOut, ArrowLeft, Check,
+  Target, User, Utensils, CalendarDays, Dumbbell, Ban,
+  Ruler, Bell, RotateCcw, Eye, ChevronRight, LogOut, ArrowLeft,
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { useLocalStorage } from '../hooks/useLocalStorage';
@@ -16,20 +16,21 @@ import { T } from '../tokens';
 const STATES = [null, 'ON_TRACK', 'LAGGING', 'REST', 'DEPLETED'];
 const STATE_LABELS = ['Auto', 'On Track', 'Lagging', 'Rest', 'Depleted'];
 
-// ── Onboarding value → label maps ──
+// ── Onboarding value → label maps (v2 answer shape) ──
 const GOALS = {
-  fat_loss: { label: 'Fat loss', desc: 'Drop body fat and lean out safely.' },
-  muscle_gain: { label: 'Muscle gain', desc: 'Build size, strength, and raw power.' },
-  recomp: { label: 'Body recomposition', desc: 'Lose fat and build muscle at once.' },
-  health: { label: 'General health', desc: 'Move better, live longer, feel great.' },
-  athletic: { label: 'Athletic performance', desc: 'Train for a specific sport or event.' },
-  mental: { label: 'Mental wellness', desc: 'Build calm, focus, and resilience.' },
-  habits: { label: 'Nutritional habits', desc: 'Fix the basics and stay consistent.' },
+  cut: { label: 'Cut', desc: 'Strip fat while holding onto muscle.' },
+  build: { label: 'Build', desc: 'Add size and raw strength.' },
+  recomp: { label: 'Recomp', desc: 'Lose fat and build muscle at once.' },
+  maintain: { label: 'Maintain', desc: 'Hold your shape and sharpen it.' },
 };
-const DIET = { veg: 'Vegetarian', nonveg: 'Non-Vegetarian' };
-const WORK = { desk: 'Desk job', moderate: 'Moderately active', active: 'Very active' };
-const BLOOD = { yes: 'Done recently', no: 'Not done', soon: 'Will get it done' };
-const GENDER = { male: 'Male', female: 'Female' };
+const DIET = {
+  vegetarian: 'Vegetarian', 'non-vegetarian': 'Non-vegetarian',
+  eggetarian: 'Eggetarian', vegan: 'Vegan',
+};
+const EXP = {
+  new: 'New to this', some: 'Some experience', years: 'Years deep',
+};
+const SEX = { m: 'Male', f: 'Female' };
 
 const dash = (v) => (v === undefined || v === null || v === '' ? '—' : v);
 const wt = (v, u) => (v ? `${v} ${u || 'kg'}` : '—');
@@ -45,27 +46,20 @@ const SECTIONS = [
     summary: a => (a?.age || a?.weight ? `${dash(a.age)} · ${wt(a.weight, a.weightUnit)}` : 'Not set'),
   },
   {
-    id: 'diet', label: 'Diet preferences', icon: Utensils,
-    summary: a => (a?.dietType ? `${DIET[a.dietType]} · ${a.mealsPerDay || '–'} meals` : 'Not set'),
+    id: 'diet', label: 'Diet style', icon: Utensils,
+    summary: a => (a?.diet ? DIET[a.diet] : 'Not set'),
   },
   {
-    id: 'supplements', label: 'Supplements', icon: Pill,
-    summary: a => (a?.supplements?.length ? `${a.supplements.length} tracked` : 'None'),
+    id: 'day', label: 'Day plan', icon: CalendarDays,
+    summary: a => (a?.meals_per_day ? `${a.meals_per_day} meals · ${a.shakes_per_day ?? 0} shakes` : 'Not set'),
   },
   {
-    id: 'routine', label: 'Daily routine', icon: Clock,
-    summary: a => (a?.workType ? WORK[a.workType] : 'Not set'),
+    id: 'experience', label: 'Experience', icon: Dumbbell,
+    summary: a => (a?.experience ? EXP[a.experience] : 'Not set'),
   },
   {
-    id: 'health', label: 'Health info', icon: HeartPulse,
-    summary: a => (a?.conditions?.length ? `${a.conditions.length} noted` : 'None'),
-  },
-  {
-    id: 'photos', label: 'Starting photos', icon: Camera,
-    summary: a => {
-      const n = a?.photos ? Object.values(a.photos).filter(Boolean).length : 0;
-      return `${n}/3 uploaded`;
-    },
+    id: 'allergies', label: 'Allergies / avoids', icon: Ban,
+    summary: a => (a?.allergies?.length ? `${a.allergies.length} listed` : (a?.avoidsText ? '1 listed' : 'None')),
   },
 ];
 
@@ -120,77 +114,52 @@ function SectionDetail({ section, answers, onBack }) {
           <p className="font-body text-[14px] mb-4" style={{ color: T.textFaint }}>No goal set during onboarding.</p>
         )}
         <DetailRow label="Current weight" value={wt(a.weight, a.weightUnit)} />
-        <DetailRow label="Target weight" value={wt(a.targetWeight, a.weightUnit)} />
-        {a.note && <ChipBlock label="Notes for Biki" items={[a.note]} empty="—" />}
+        <DetailRow label="Experience" value={EXP[a.experience] || '—'} />
       </>
     );
   } else if (section === 'about') {
     body = (
       <>
+        <DetailRow label="Name" value={dash(a.name)} />
         <DetailRow label="Age" value={dash(a.age)} />
-        <DetailRow label="Gender" value={GENDER[a.gender] || '—'} />
-        <DetailRow label="Height" value={a.height ? `${a.height} ${a.heightUnit || 'cm'}` : '—'} />
-        <DetailRow label="Current weight" value={wt(a.weight, a.weightUnit)} />
-        <DetailRow label="Target weight" value={wt(a.targetWeight, a.weightUnit)} />
+        <DetailRow label="Sex" value={SEX[a.sex] || '—'} />
+        <DetailRow label="Height" value={a.height ? `${a.height} ${a.heightUnit === 'ft' ? 'cm' : 'cm'}` : '—'} />
+        <DetailRow label="Weight" value={wt(a.weight, a.weightUnit)} />
       </>
     );
   } else if (section === 'diet') {
     body = (
       <>
-        <DetailRow label="Diet type" value={DIET[a.dietType] || '—'} />
-        <DetailRow label="Meals per day" value={dash(a.mealsPerDay)} />
-        <ChipBlock label="Foods you enjoy" items={a.foodsEnjoy} empty="None added." />
-        <ChipBlock label="Foods to avoid / allergies" items={a.allergies} empty="None added." />
+        <DetailRow label="Diet style" value={DIET[a.diet] || '—'} />
+        <DetailRow label="Meals per day" value={dash(a.meals_per_day)} />
       </>
     );
-  } else if (section === 'supplements') {
+  } else if (section === 'day') {
     body = (
       <>
-        <ChipBlock label="Currently taking" items={a.supplements} empty="No supplements tracked." />
+        <DetailRow label="Meals" value={dash(a.meals_per_day)} />
+        <DetailRow label="Shakes" value={a.shakes_per_day ?? '—'} />
+        <DetailRow label="Snacks" value={a.snacks_per_day ?? '—'} />
+      </>
+    );
+  } else if (section === 'experience') {
+    body = (
+      <div className="card p-5">
+        <p className="kicker kicker-gold mb-2">Training experience</p>
+        <h2 className="display-md text-[#F4F2EC]">{(EXP[a.experience] || 'Not set').toUpperCase()}</h2>
+      </div>
+    );
+  } else if (section === 'allergies') {
+    body = (
+      <>
+        <ChipBlock label="Allergies / avoids" items={a.allergies} empty="None listed." />
         <div className="py-3.5">
-          <p className="kicker mb-2">Anabolic use</p>
-          <p className="font-body text-[13px] leading-relaxed" style={{ color: a.steroidsNote ? T.textMid : T.textFaint }}>
-            {a.steroidsNote || 'Nothing disclosed.'}
+          <p className="kicker mb-2">Anything else</p>
+          <p className="font-body text-[13px] leading-relaxed" style={{ color: a.avoidsText ? T.textMid : T.textFaint }}>
+            {a.avoidsText || 'Nothing added.'}
           </p>
         </div>
       </>
-    );
-  } else if (section === 'routine') {
-    body = (
-      <>
-        <DetailRow label="Type of work" value={WORK[a.workType] || '—'} />
-        <DetailRow label="Wake up time" value={dash(a.wakeTime)} />
-        <DetailRow label="Training time" value={dash(a.trainTime)} />
-      </>
-    );
-  } else if (section === 'health') {
-    body = (
-      <>
-        <ChipBlock label="Medical conditions" items={a.conditions} empty="None reported." />
-        <DetailRow label="Recent blood test" value={BLOOD[a.bloodTest] || '—'} />
-      </>
-    );
-  } else if (section === 'photos') {
-    const angles = [['front', 'Front'], ['side', 'Side'], ['back', 'Back']];
-    body = (
-      <div className="flex gap-3">
-        {angles.map(([key, label]) => {
-          const filled = a.photos?.[key];
-          return (
-            <div key={key} className="flex-1 aspect-[3/4] rounded-2xl flex flex-col items-center justify-center gap-2"
-              style={{
-                background: filled ? T.goldTint : T.surface,
-                border: `1px ${filled ? 'solid' : 'dashed'} ${filled ? T.goldBorder : T.hairlineStrong}`,
-              }}>
-              {filled
-                ? <Check size={22} strokeWidth={2.5} style={{ color: T.gold }} />
-                : <Camera size={20} strokeWidth={T.stroke} style={{ color: T.textMid }} />}
-              <span className="font-body text-[11px] font-bold uppercase tracking-wider"
-                style={{ color: filled ? T.gold : T.textLow }}>{label}</span>
-            </div>
-          );
-        })}
-      </div>
     );
   }
 

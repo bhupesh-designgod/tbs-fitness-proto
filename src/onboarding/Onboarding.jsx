@@ -1,14 +1,16 @@
-// ── Onboarding controller (v3) ──
-// Drives the 16-screen flow: horizontal slides, persistent chrome
-// (progress bar + back + skip on screens 2–14), auto-advance for
-// single-select cards, tap CTA on the Door ("Let's Do This") and Reveal.
+// ── Onboarding controller (v4) ──
+// Drives the 18-screen flow: horizontal slides, persistent chrome
+// (progress bar + back + skip), auto-advance for single-select cards,
+// tap CTA on the Door ("Let's Do This"), press-and-hold on the Pledge.
+// Ambient synth music with mute toggle.
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Volume2, VolumeX } from 'lucide-react';
 import { T } from '../tokens';
 import { track } from '../lib/analytics';
 import { STEPS } from './steps';
+import useOnboardingMusic from './useOnboardingMusic';
 
 const LAST = STEPS.length - 1;
 
@@ -36,6 +38,10 @@ export default function Onboarding({ onComplete }) {
   const [i, setI] = useState(0);
   const [dir, setDir] = useState(1);
   const [answers, setAnswers] = useState(DEFAULT_ANSWERS);
+
+  // Music
+  const { muted, toggleMute, setProgress } = useOnboardingMusic();
+  useEffect(() => { setProgress(i / LAST); }, [i, setProgress]);
 
   const step = STEPS[i];
   const { Comp } = step;
@@ -122,15 +128,39 @@ export default function Onboarding({ onComplete }) {
             )}
           </div>
 
-          <div className="shrink-0 flex justify-end" style={{ minWidth: 32 }}>
+          <div className="shrink-0 flex items-center gap-2 pointer-events-auto" style={{ minWidth: 32 }}>
             {showSkip && (
-              <button onClick={skip} className="font-body text-[14px] font-medium pointer-events-auto" style={{ color: T.textMid }}>
+              <button onClick={skip} className="font-body text-[14px] font-medium" style={{ color: T.textMid }}>
                 Skip
               </button>
             )}
           </div>
         </div>
       )}
+
+      {/* 🔊 Persistent mute toggle — always visible */}
+      <motion.button
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 1 }}
+        whileTap={T.tapSmall}
+        onClick={toggleMute}
+        aria-label={muted ? 'Unmute music' : 'Mute music'}
+        className="absolute z-30 w-9 h-9 rounded-full flex items-center justify-center"
+        style={{
+          bottom: 16,
+          right: 16,
+          background: 'rgba(11,11,12,0.55)',
+          backdropFilter: 'blur(8px)',
+          WebkitBackdropFilter: 'blur(8px)',
+          border: '1px solid rgba(244,242,236,0.08)',
+        }}
+      >
+        {muted
+          ? <VolumeX size={16} strokeWidth={2} style={{ color: T.textLow }} />
+          : <Volume2 size={16} strokeWidth={2} style={{ color: T.gold }} />
+        }
+      </motion.button>
     </div>
   );
 }

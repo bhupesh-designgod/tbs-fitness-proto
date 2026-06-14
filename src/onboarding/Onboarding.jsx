@@ -1,7 +1,7 @@
-// ── Onboarding controller (v2) ──
-// Drives the 12-screen flow: horizontal slides, persistent chrome
-// (progress bar + back + skip on screens 2–11), auto-advance for
-// single-select cards, press-and-hold commit on the Door and the Reveal.
+// ── Onboarding controller (v3) ──
+// Drives the 16-screen flow: horizontal slides, persistent chrome
+// (progress bar + back + skip on screens 2–14), auto-advance for
+// single-select cards, tap CTA on the Door ("Let's Do This") and Reveal.
 
 import { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -16,9 +16,13 @@ const DEFAULT_ANSWERS = {
   name: '', age: 25, sex: null,
   height: 170, heightUnit: 'cm',
   weight: 70, weightUnit: 'kg',
-  goal: null, experience: null, diet: null,
+  goal: null, experience: null, trainingTime: null,
+  routine: null, diet: null,
   meals_per_day: 3, shakes_per_day: 1, snacks_per_day: 1,
-  allergies: [], avoidsText: '',
+  supplements: [], anabolics: 'none', anabolicsNote: '',
+  allergies: [],
+  photos: { front: false, back: false, side: false },
+  bloodwork: null, bloodworkSkipped: false,
 };
 
 const slide = {
@@ -60,11 +64,11 @@ export default function Onboarding({ onComplete }) {
   }, [i, step.id, answers, onComplete]);
 
   // Chrome rules
-  const showChrome = i >= 1;                 // door has none
-  const showProgress = i >= 1 && i <= 10;    // screens 2–11
-  const showSkip = i >= 1 && i <= 10;        // screens 2–11 (not reveal)
+  const showChrome = i >= 1;                   // door has none
+  const showProgress = i >= 1 && i < LAST;     // all screens except door & reveal
+  const showSkip = i >= 1 && i < LAST;          // not door, not reveal
   const padTop = i === 0 ? 0 : 52;
-  const progress = (i / 11) * 100;
+  const progress = (i / (LAST)) * 100;
 
   return (
     <div className="relative mx-auto overflow-hidden" style={{ maxWidth: 430, height: '100dvh', background: T.bg }}>

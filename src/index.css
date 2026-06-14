@@ -203,6 +203,43 @@ html, body, #root {
   50% { opacity: 1; }
 }
 
+/* ── Door CTA shine sweep ── */
+@keyframes btn-shine {
+  0%   { transform: translateX(-130%); }
+  40%  { transform: translateX(130%); }
+  100% { transform: translateX(130%); }
+}
+
+.btn-shine-wrap {
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-shine-wrap::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 35%,
+    rgba(255, 248, 220, 0.45) 48%,
+    rgba(255, 255, 255, 0.25) 50%,
+    rgba(255, 248, 220, 0.45) 52%,
+    transparent 65%
+  );
+  animation: btn-shine 2.5s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* ── No-scrollbar (wheel pickers) ── */
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
 /* ── Reduced motion ── */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {

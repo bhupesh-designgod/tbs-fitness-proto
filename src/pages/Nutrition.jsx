@@ -1450,18 +1450,18 @@ export default function Nutrition({ onMacroDetail }) {
   }, []);
 
   // ── First-visit contextual coach tour (Coach Biki) ──
-  const [tour, setTour] = useLocalStorage('tbs-walkthrough', { done: false });
+  const [tour, setTour] = useLocalStorage('tbs-tour', { home: false, nutrition: false });
   const [tourStep, setTourStep] = useState(0); // 0 = inactive, 1–6 = active
 
   useEffect(() => {
-    if (tour.done || activeTab !== 'meals' || !meals.length) return undefined;
+    if (tour.nutrition || activeTab !== 'meals' || !meals.length) return undefined;
     const t = setTimeout(() => setTourStep(s => (s === 0 ? 1 : s)), 650);
     return () => clearTimeout(t);
-  }, [tour.done, activeTab, meals.length]);
+  }, [tour.nutrition, activeTab, meals.length]);
 
   const endTour = useCallback((skipped) => {
-    track(skipped ? 'coach_tour_skipped' : 'coach_tour_completed', { step: tourStep });
-    setTour({ done: true });
+    track(skipped ? 'coach_tour_skipped' : 'coach_tour_completed', { area: 'nutrition', step: tourStep });
+    setTour(prev => ({ ...prev, nutrition: true }));
     setTourStep(0);
     setSheetOpen(false);
     setTimeout(() => setSelectedMeal(null), 300);

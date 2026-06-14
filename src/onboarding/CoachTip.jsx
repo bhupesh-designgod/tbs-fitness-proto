@@ -7,7 +7,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { T } from '../tokens';
 import { PHOTOS } from '../data/mockData';
 
@@ -47,15 +47,17 @@ export default function CoachTip({ stepKey, targetSelector, message, cta, onCta,
     h: rect.height + PAD * 2,
   };
 
-  // Blur+dim backdrop with a rounded-rect cutout over the target (SVG mask).
-  const maskUrl = hole
-    ? `url("data:image/svg+xml,${encodeURIComponent(
-        `<svg xmlns='http://www.w3.org/2000/svg' width='${vp.w}' height='${vp.h}'>` +
-        `<rect width='100%' height='100%' fill='white'/>` +
-        `<rect x='${hole.x}' y='${hole.y}' width='${hole.w}' height='${hole.h}' rx='${RADIUS}' ry='${RADIUS}' fill='black'/>` +
-        `</svg>`,
-      )}")`
-    : 'none';
+  // Four dim+blur panels AROUND the target — leaves the target itself fully
+  // uncovered (crisp). Reliable where backdrop-filter ignores CSS masks.
+  const dim = { background: 'rgba(11,11,12,0.6)', backdropFilter: 'blur(3px)', WebkitBackdropFilter: 'blur(3px)' };
+  const panels = hole
+    ? [
+        { left: 0, top: 0, width: vp.w, height: hole.y },                                   // above
+        { left: 0, top: hole.y + hole.h, width: vp.w, height: Math.max(0, vp.h - hole.y - hole.h) }, // below
+        { left: 0, top: hole.y, width: hole.x, height: hole.h },                            // left
+        { left: hole.x + hole.w, top: hole.y, width: Math.max(0, vp.w - hole.x - hole.w), height: hole.h }, // right
+      ]
+    : [{ left: 0, top: 0, width: vp.w, height: vp.h }];
 
   // Bubble placement: below the target if it sits high, else above. Centered when no target.
   let bubbleStyle;
@@ -70,19 +72,10 @@ export default function CoachTip({ stepKey, targetSelector, message, cta, onCta,
 
   return createPortal((
     <div className="fixed inset-0 z-[70]" style={{ pointerEvents: 'auto' }}>
-      {/* Dim + blur surround (masked) — or full dim when no target */}
-      <div
-        className="absolute inset-0"
-        style={{
-          background: 'rgba(11,11,12,0.55)',
-          backdropFilter: 'blur(3px)',
-          WebkitBackdropFilter: 'blur(3px)',
-          maskImage: maskUrl,
-          WebkitMaskImage: maskUrl,
-          maskSize: '100% 100%',
-          WebkitMaskSize: '100% 100%',
-        }}
-      />
+      {/* Dim + blur panels around the target (target stays crisp) */}
+      {panels.map((p, idx) => (
+        <div key={idx} className="absolute" style={{ ...dim, left: p.left, top: p.top, width: p.width, height: p.height }} />
+      ))}
 
       {/* Gold ring around the spotlight */}
       {hole && (
@@ -96,13 +89,11 @@ export default function CoachTip({ stepKey, targetSelector, message, cta, onCta,
         />
       )}
 
-      {/* Coach bubble */}
-      <AnimatePresence mode="wait">
+      {/* Coach bubble — keyed so each step re-animates in sync with the spotlight */}
         <motion.div
           key={stepKey}
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0 }}
           transition={{ duration: 0.2, ease: T.easeOut }}
           className="absolute left-1/2 -translate-x-1/2"
           style={{ width: '88%', maxWidth: BUBBLE_W, ...bubbleStyle }}
@@ -135,7 +126,6 @@ export default function CoachTip({ stepKey, targetSelector, message, cta, onCta,
             </div>
           </div>
         </motion.div>
-      </AnimatePresence>
     </div>
   ), document.body);
 }

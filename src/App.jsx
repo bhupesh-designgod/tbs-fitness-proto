@@ -135,21 +135,21 @@ export default function App() {
   // Persisted gates. Auth first, then onboarding (new sign-ups only), then app.
   const [auth, setAuth] = useLocalStorage('tbs-auth', { loggedIn: false, user: null });
   const [onboarding, setOnboarding] = useLocalStorage('tbs-onboarding', { done: false, answers: null });
-  const [, setWalkthrough] = useLocalStorage('tbs-walkthrough', { done: false });
+  const [, setTour] = useLocalStorage('tbs-tour', { home: false, nutrition: false });
   // Splash plays once per app load, after auth — before routing on.
   const [splashDone, setSplashDone] = useState(false);
 
-  // New account → run onboarding, then the first-run tour.
+  // New account → run onboarding, then the contextual coach tours.
   const handleSignup = (user) => {
     setOnboarding({ done: false, answers: null });
-    setWalkthrough({ done: false });
+    setTour({ home: false, nutrition: false });
     setAuth({ loggedIn: true, user });
   };
 
   // Returning user → assume already onboarded + toured, straight to home.
   const handleLogin = (user) => {
     setOnboarding(prev => (prev.done ? prev : { done: true, answers: prev.answers }));
-    setWalkthrough({ done: true });
+    setTour({ home: true, nutrition: true });
     setAuth({ loggedIn: true, user });
   };
 

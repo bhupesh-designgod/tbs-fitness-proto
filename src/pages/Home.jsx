@@ -2,7 +2,7 @@
 // Greeting, week strip, coach quote, open-air score hero,
 // task queue, plan rings, workout card, sleep note.
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useCallback, useEffect } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 import {
   Utensils, Droplets, Dumbbell, Clock, ChevronRight,
@@ -11,6 +11,9 @@ import {
 import { NumericCounter } from '../components/ui/Components';
 import { WeekStrip, MonthSheet } from '../components/ui/Calendar';
 import { useApp } from '../context/AppContext';
+import { useLocalStorage } from '../hooks/useLocalStorage';
+import CoachTip from '../onboarding/CoachTip';
+import { track } from '../lib/analytics';
 import { T, enter, stagger } from '../tokens';
 import {
   USER_PROFILE, PHOTOS, DAILY_TARGETS,
@@ -87,6 +90,28 @@ export default function Home({ onProfileClick, onNavigate, onNotifications }) {
     () => calcDailyScore(meals, hydration, DAILY_TARGETS),
     [meals, hydration],
   );
+
+  // ── First-visit contextual coach tour (points + tasks) ──
+  const [tour, setTour] = useLocalStorage('tbs-tour', { home: false, nutrition: false });
+  const [tourStep, setTourStep] = useState(0);
+
+  useEffect(() => {
+    if (tour.home) return undefined;
+    const t = setTimeout(() => setTourStep(s => (s === 0 ? 1 : s)), 700);
+    return () => clearTimeout(t);
+  }, [tour.home]);
+
+  const endHomeTour = useCallback((skipped) => {
+    track(skipped ? 'coach_tour_skipped' : 'coach_tour_completed', { area: 'home', step: tourStep });
+    setTour(prev => ({ ...prev, home: true }));
+    setTourStep(0);
+  }, [tourStep, setTour]);
+
+  const HOME_TOUR = {
+    1: { target: '[data-tour="score"]', msg: 'This is your daily score. Hit your targets and it climbs to 30.', cta: 'Next', go: () => setTourStep(2) },
+    2: { target: '[data-tour="up-next"]', msg: 'Knock these out to stack points — five each, thirty a day.', cta: 'Got It', go: () => endHomeTour(false) },
+  };
+  const activeTip = tourStep > 0 ? HOME_TOUR[tourStep] : null;
 
   const hydrationPct = Math.min(Math.round((hydration / DAILY_TARGETS.water) * 100), 100);
   const mealsLogged = meals.filter(m => m.logged).length;
@@ -288,7 +313,7 @@ export default function Home({ onProfileClick, onNavigate, onNotifications }) {
 
       {/* ═══ 5. UP NEXT ═══ */}
       {tasks.length > 0 && (
-        <motion.div className="mx-5 mt-6 mb-3" {...enter(0.16)}>
+        <motion.div data-tour="up-next" className="mx-5 mt-6 mb-3" {...enter(0.16)}>
           <p className="kicker mb-3">Up next</p>
           <div className="flex flex-col gap-2">
             {tasks.map((t, i) => {
@@ -454,6 +479,18 @@ export default function Home({ onProfileClick, onNavigate, onNotifications }) {
 
       {/* Month overlay */}
       <MonthSheet isOpen={monthOpen} onClose={() => setMonthOpen(false)} mode="score" />
+
+      {/* Contextual coach intro (points + tasks) */}
+      {activeTip && (
+        <CoachTip
+          stepKey={tourStep}
+          targetSelector={activeTip.target}
+          message={activeTip.msg}
+          cta={activeTip.cta}
+          onCta={activeTip.go}
+          onSkip={() => endHomeTour(true)}
+        />
+      )}
     </div>
   );
 }

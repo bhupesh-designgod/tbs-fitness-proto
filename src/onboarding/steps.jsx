@@ -444,8 +444,8 @@ function MotivationScreen({ answers, next }) {
           className="font-body text-[15px] leading-relaxed max-w-[300px]"
           style={{ color: T.textMid }}
         >
-          Most people quit the form. You're still here.
-          A few more questions and Biki starts building your plan.
+          Structured training. Personalised nutrition. Real accountability.
+          A few more answers and Biki starts building the plan that gets you there.
         </motion.p>
       </div>
 
@@ -454,7 +454,7 @@ function MotivationScreen({ answers, next }) {
         initial={shouldReduce ? {} : { opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.7 }}
-        className="px-5 pt-3 pb-6"
+        className="relative z-10 px-5 pt-3 pb-6"
       >
         <motion.button whileTap={T.tap} onClick={next} className="btn-primary">
           Let's finish this<ArrowRight size={18} strokeWidth={2.5} />

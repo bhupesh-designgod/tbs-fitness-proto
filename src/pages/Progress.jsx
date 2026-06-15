@@ -171,7 +171,9 @@ function NextCheckInCard({ next, onStart }) {
   if (days < 0 || days > 3) return null;
 
   const dueDayName = DAY_NAMES[new Date(next.date + 'T00:00:00Z').getUTCDay()];
-  const headline = `Due ${dueDayName}, ${next.dateLabel}`.toUpperCase();
+  const headline = (days === 0
+    ? `Due today, ${next.dateLabel}`
+    : `Due ${dueDayName}, ${next.dateLabel}`).toUpperCase();
   const sub = days === 0
     ? 'Due today'
     : days === 1
@@ -338,7 +340,7 @@ function WeekPicker({ value, options, onChange }) {
 
 function CompareAngleToggle({ active, onChange }) {
   return (
-    <div className="flex items-center gap-1 my-3">
+    <div className="grid grid-cols-4 gap-1.5 my-3">
       {ANGLES.map(a => {
         const isActive = active === a;
         return (
@@ -346,15 +348,15 @@ function CompareAngleToggle({ active, onChange }) {
             key={a}
             onClick={() => onChange(a)}
             whileTap={{ scale: 0.96 }}
-            className="px-4 py-1.5 rounded-full"
+            className="py-2 rounded-lg text-center"
             style={{
-              background: isActive ? 'rgba(246, 180, 28,0.16)' : 'transparent',
-              border: isActive ? '1px solid rgba(246, 180, 28,0.4)' : '1px solid transparent',
+              background: isActive ? GOLD : 'transparent',
+              border: `1px solid ${isActive ? GOLD : CARD_BORDER}`,
             }}
           >
             <span
               className="font-body text-[12px] font-extrabold uppercase tracking-wider"
-              style={{ color: isActive ? GOLD : 'rgba(255,255,255,0.4)' }}
+              style={{ color: isActive ? T.goldInk : 'rgba(255,255,255,0.45)' }}
             >
               {a.charAt(0).toUpperCase() + a.slice(1)}
             </span>
@@ -370,8 +372,8 @@ function PhotoCard({ entry, angle, accent }) {
   const weight = entry?.weight;
   return (
     <div
-      className="relative aspect-square rounded-xl overflow-hidden"
-      style={{ background: T.bg, border: `1px solid ${CARD_BORDER}` }}
+      className="relative aspect-[2/3] overflow-hidden"
+      style={{ background: T.bg }}
     >
       {photo ? (
         <img
@@ -423,16 +425,17 @@ function DeltaPill({ delta }) {
   const tone = isDown ? POSITIVE : RED;
   return (
     <div
-      className="rounded-full px-2.5 py-1.5 whitespace-nowrap flex items-center gap-1"
+      className="rounded-full px-3.5 py-2 whitespace-nowrap flex items-center gap-1.5"
       style={{
-        background: 'rgba(255,255,255,0.06)',
-        border: `1px solid ${CARD_BORDER}`,
+        background: tone,
+        boxShadow: '0 6px 18px rgba(0,0,0,0.55)',
+        border: '2px solid rgba(0,0,0,0.35)',
       }}
     >
       {isDown
-        ? <ArrowDown size={11} strokeWidth={2.5} style={{ color: tone }} />
-        : <ArrowUp   size={11} strokeWidth={2.5} style={{ color: tone }} />}
-      <span className="font-body text-[11px] font-extrabold tabular-nums" style={{ color: tone }}>
+        ? <ArrowDown size={15} strokeWidth={3} color="#0A0A0A" />
+        : <ArrowUp   size={15} strokeWidth={3} color="#0A0A0A" />}
+      <span className="font-body text-[15px] font-extrabold tabular-nums" style={{ color: '#0A0A0A' }}>
         {abs} kg
       </span>
     </div>
@@ -463,10 +466,15 @@ function CompareProgress({ entries, leftId, rightId, onLeftChange, onRightChange
         {/* Angle toggle */}
         <CompareAngleToggle active={angle} onChange={onAngleChange} />
 
-        {/* Photo cards with floating delta pill */}
-        <div className="relative grid grid-cols-2 gap-3">
+        {/* Flush 2:3 before/after pair — single framed unit, no gap */}
+        <div
+          className="relative grid grid-cols-2 rounded-xl overflow-hidden"
+          style={{ border: `1px solid ${CARD_BORDER}` }}
+        >
           <PhotoCard entry={left}  angle={angle} accent="#FFFFFF" />
-          <PhotoCard entry={right} angle={angle} accent={GOLD} />
+          <div style={{ borderLeft: '1px solid rgba(255,255,255,0.14)' }}>
+            <PhotoCard entry={right} angle={angle} accent={GOLD} />
+          </div>
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
             <DeltaPill delta={delta} />
           </div>

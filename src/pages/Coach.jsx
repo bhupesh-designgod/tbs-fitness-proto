@@ -47,9 +47,11 @@ const INITIAL_MESSAGES = [
 // Header
 // ─────────────────────────────────────────────
 function CoachHeader() {
+  const [callOpen, setCallOpen] = useState(false);
   return (
+    <>
     <div
-      className="fixed top-0 left-0 right-0 z-30 mx-auto px-5 pt-4 pb-3 flex items-center gap-3"
+      className="fixed top-0 left-0 right-0 z-40 mx-auto px-5 pt-4 pb-3 flex items-center gap-3"
       style={{
         maxWidth: 430,
         background: 'rgba(20,20,23,0.82)',
@@ -93,48 +95,60 @@ function CoachHeader() {
       </div>
 
       {/* Actions */}
+      <button
+        onClick={() => setCallOpen(o => !o)}
+        aria-label="Scheduled call"
+        className="w-9 h-9 rounded-full flex items-center justify-center shrink-0"
+        style={{ border: `1px solid ${callOpen ? T.goldBorder : T.hairlineStrong}` }}
+      >
+        <CalendarDays size={17} strokeWidth={T.stroke} style={{ color: GOLD }} />
+      </button>
       <button aria-label="More" className="w-9 h-9 rounded-full flex items-center justify-center shrink-0">
         <MoreHorizontal size={18} strokeWidth={T.stroke} className="text-white/70" />
       </button>
     </div>
-  );
-}
 
-// ─────────────────────────────────────────────
-// Next call card
-// ─────────────────────────────────────────────
-function NextCallCard() {
-  return (
-    <motion.div
-      className="mx-5 mb-4 rounded-xl p-4 flex items-center gap-4"
-      style={{ background: CARD_BG, border: `1px solid ${CARD_BORDER}` }}
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.05 }}
-    >
-      <div
-        className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0"
-        style={{ background: 'rgba(246, 180, 28,0.12)', border: `1px solid rgba(246, 180, 28,0.40)` }}
-      >
-        <CalendarDays size={20} strokeWidth={T.stroke} style={{ color: GOLD }} />
-      </div>
-      <div className="flex-1 min-w-0">
-        <p className="kicker kicker-gold mb-0.5">Next call</p>
-        <p className="display-xs text-[#F4F2EC] uppercase leading-tight truncate">
-          {NEXT_CALL.date}
-        </p>
-        <p className="font-body text-[11px] text-white/40 mt-0.5">{NEXT_CALL.time}</p>
-      </div>
-      <motion.button
-        whileTap={{ scale: 0.95 }}
-        className="shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-lg"
-        style={{ border: `1px solid ${T.hairlineStrong}` }}
-      >
-        <span className="font-body text-[11px] font-extrabold uppercase tracking-wider text-white/70">
-          Reschedule
-        </span>
-      </motion.button>
-    </motion.div>
+    {/* Scheduled-call dropdown — fixed under the header, tap-away to dismiss */}
+    <AnimatePresence>
+      {callOpen && (
+        <>
+          <div className="fixed inset-0 z-30" onClick={() => setCallOpen(false)} />
+          <motion.div
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.18 }}
+            className="fixed left-0 right-0 z-40 mx-auto px-4"
+            style={{ maxWidth: 430, top: 84 }}
+          >
+            <div
+              className="rounded-xl p-4 flex items-center gap-3"
+              style={{ background: CARD_BG, border: `1px solid ${CARD_BORDER}`, boxShadow: '0 16px 48px rgba(0,0,0,0.5)' }}
+            >
+              <div
+                className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0"
+                style={{ background: T.goldTint, border: `1px solid ${T.goldBorder}` }}
+              >
+                <CalendarDays size={20} strokeWidth={T.stroke} style={{ color: GOLD }} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="kicker kicker-gold mb-0.5">Next call</p>
+                <p className="display-xs text-[#F4F2EC] uppercase leading-tight truncate">{NEXT_CALL.date}</p>
+                <p className="font-body text-[11px] text-white/40 mt-0.5">{NEXT_CALL.time}</p>
+              </div>
+              <button
+                onClick={() => setCallOpen(false)}
+                className="shrink-0 px-3 py-2 rounded-lg font-body text-[11px] font-extrabold uppercase tracking-wider"
+                style={{ border: `1px solid ${T.gold}`, color: T.gold }}
+              >
+                Reschedule
+              </button>
+            </div>
+          </motion.div>
+        </>
+      )}
+    </AnimatePresence>
+    </>
   );
 }
 
@@ -511,11 +525,7 @@ export default function Coach({ onCheckIn }) {
       <CoachHeader />
 
       {/* Spacer offsets the fixed header so content starts below it */}
-      <div aria-hidden style={{ height: 92 }} />
-
-      <div>
-        <NextCallCard />
-      </div>
+      <div aria-hidden style={{ height: 84 }} />
 
       <DaySeparator label="Today" />
 

@@ -348,14 +348,14 @@ function CompareAngleToggle({ active, onChange }) {
             key={a}
             onClick={() => onChange(a)}
             whileTap={{ scale: 0.96 }}
-            className="py-2 rounded-lg text-center"
+            className="py-1 rounded-md text-center"
             style={{
               background: isActive ? GOLD : 'transparent',
               border: `1px solid ${isActive ? GOLD : CARD_BORDER}`,
             }}
           >
             <span
-              className="font-body text-[12px] font-extrabold uppercase tracking-wider"
+              className="font-body text-[11px] font-bold uppercase tracking-wider"
               style={{ color: isActive ? T.goldInk : 'rgba(255,255,255,0.45)' }}
             >
               {a.charAt(0).toUpperCase() + a.slice(1)}
@@ -410,32 +410,17 @@ function DeltaPill({ delta }) {
   const isDown = delta < 0;
   const isZero = delta === 0;
   const abs = Math.abs(delta).toFixed(1);
+  const tone = isZero ? 'rgba(255,255,255,0.7)' : isDown ? POSITIVE : RED;
 
-  if (isZero) {
-    return (
-      <div
-        className="rounded-full px-2.5 py-1.5 whitespace-nowrap flex items-center justify-center"
-        style={{ background: 'rgba(255,255,255,0.06)', border: `1px solid ${CARD_BORDER}` }}
-      >
-        <span className="font-body text-[11px] font-extrabold text-white/60 tabular-nums">0.0 kg</span>
-      </div>
-    );
-  }
-
-  const tone = isDown ? POSITIVE : RED;
   return (
     <div
-      className="rounded-full px-3.5 py-2 whitespace-nowrap flex items-center gap-1.5"
-      style={{
-        background: tone,
-        boxShadow: '0 6px 18px rgba(0,0,0,0.55)',
-        border: '2px solid rgba(0,0,0,0.35)',
-      }}
+      className="whitespace-nowrap flex items-center gap-1"
+      style={{ textShadow: '0 1px 4px rgba(0,0,0,0.85)' }}
     >
-      {isDown
-        ? <ArrowDown size={15} strokeWidth={3} color="#0A0A0A" />
-        : <ArrowUp   size={15} strokeWidth={3} color="#0A0A0A" />}
-      <span className="font-body text-[15px] font-extrabold tabular-nums" style={{ color: '#0A0A0A' }}>
+      {!isZero && (isDown
+        ? <ArrowDown size={13} strokeWidth={3} style={{ color: tone }} />
+        : <ArrowUp   size={13} strokeWidth={3} style={{ color: tone }} />)}
+      <span className="font-body text-[13px] font-extrabold tabular-nums" style={{ color: tone }}>
         {abs} kg
       </span>
     </div>
@@ -475,7 +460,7 @@ function CompareProgress({ entries, leftId, rightId, onLeftChange, onRightChange
           <div style={{ borderLeft: '1px solid rgba(255,255,255,0.14)' }}>
             <PhotoCard entry={right} angle={angle} accent={GOLD} />
           </div>
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
+          <div className="absolute top-2.5 right-3 z-10">
             <DeltaPill delta={delta} />
           </div>
         </div>
@@ -559,15 +544,10 @@ function HistoryRow({ item, delay, onOpen }) {
         )}
       </div>
 
-      <div
-        className="shrink-0 px-3 py-1.5 rounded-lg"
-        style={{ border: '1px solid rgba(246, 180, 28,0.40)' }}
-      >
-        <span className="font-body text-[11px] font-extrabold uppercase tracking-wider" style={{ color: GOLD }}>
-          View
-        </span>
-      </div>
-      <ChevronRight size={14} strokeWidth={T.stroke} className="text-white/25 shrink-0 -ml-1" />
+      <span className="shrink-0 font-body text-[13px] font-semibold" style={{ color: GOLD }}>
+        View
+      </span>
+      <ChevronRight size={15} strokeWidth={T.stroke} style={{ color: GOLD }} className="shrink-0 -ml-0.5" />
     </motion.button>
   );
 }

@@ -21,7 +21,7 @@ const CARD_BORDER = T.hairline;
 const GOLD = T.gold;
 const GOLD_START = T.goldStart;
 const GOLD_END = T.goldEnd;
-const ONLINE_GREEN = T.success;
+const ONLINE_GREEN = T.green;
 
 // ── Topic palette ──
 const TOPICS = {

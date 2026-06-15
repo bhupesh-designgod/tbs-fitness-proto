@@ -126,7 +126,7 @@ function MacrosOverview({ logged }) {
       <div className="flex items-center gap-5">
         {/* Big calorie ring — the hero number */}
         <div className="shrink-0">
-          <RingCounter percentage={calPct} size={118} strokeWidth={5} color={T.cal} delay={0.1}>
+          <RingCounter percentage={calPct} size={118} strokeWidth={9} color={T.cal} delay={0.1}>
             <div className="flex flex-col items-center">
               <NumericCounter
                 value={logged.calories}
@@ -970,7 +970,7 @@ function HydrationHero({ hydration }) {
 
       <div className="flex items-center gap-5 relative">
         <div className="shrink-0">
-          <RingCounter percentage={pct} size={110} strokeWidth={5} color={STEEL_BRIGHT} delay={0.1}>
+          <RingCounter percentage={pct} size={110} strokeWidth={9} color={STEEL_BRIGHT} delay={0.1}>
             <div className="flex flex-col items-center">
               <span className="font-display text-[26px] text-[#F4F2EC] leading-none tabular-nums">
                 {hydrationL}L

@@ -152,10 +152,11 @@ function LatestReviewCard({ checkIn, onView }) {
         <motion.button
           whileTap={T.tap}
           onClick={onView}
-          className="btn-primary mt-5"
+          className="mt-5 w-full flex items-center justify-center gap-2 py-[13px] rounded-xl font-body font-semibold text-[14px] uppercase"
+          style={{ border: `1.5px solid ${T.gold}`, color: T.gold, letterSpacing: '0.04em', background: 'transparent' }}
         >
           View full review
-          <ArrowRight size={16} strokeWidth={2} />
+          <ArrowRight size={16} strokeWidth={2.25} />
         </motion.button>
       </div>
     </motion.div>
@@ -235,9 +236,20 @@ function NextCheckInCard({ next, onStart }) {
           <ArrowRight size={16} strokeWidth={2} />
         </motion.button>
       ) : (
-        <p className="font-body text-[11px] font-medium mt-4 text-center" style={{ color: T.textFaint }}>
-          Check-in opens on the day. Nothing to do yet.
-        </p>
+        <div className="mt-4 pt-4" style={{ borderTop: `1px solid ${CARD_BORDER}` }}>
+          <p className="kicker mb-2.5">What you'll submit</p>
+          <div className="grid grid-cols-2 gap-x-4 gap-y-2">
+            {['Progress photos', 'Body weight', 'Waist & measures', 'Energy & adherence'].map(item => (
+              <span key={item} className="flex items-center gap-2 font-body text-[12px]" style={{ color: T.textLow }}>
+                <span className="w-1 h-1 rounded-full shrink-0" style={{ background: T.gold }} />
+                {item}
+              </span>
+            ))}
+          </div>
+          <p className="font-body text-[11px] mt-3.5" style={{ color: T.textFaint }}>
+            Opens {dueDayName}. We'll remind you — nothing to do until then.
+          </p>
+        </div>
       )}
     </motion.div>
   );
@@ -518,6 +530,9 @@ function HistoryRow({ item, delay, onOpen }) {
 
         {p && (
           <div className="flex items-center gap-2 mt-2 flex-wrap">
+            <span className="font-body text-[9px] font-extrabold uppercase tracking-[0.12em]" style={{ color: T.textFaint }}>
+              Top result
+            </span>
             <span className="font-body text-[12px] text-white/60">
               {p.label} <span className="text-white/85 tabular-nums">{p.value}</span>
             </span>

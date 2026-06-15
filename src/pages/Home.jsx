@@ -48,7 +48,7 @@ function calcDailyScore(meals, hydration, targets) {
 }
 
 // ── Status ring for plan cards ──
-function StatusRing({ percentage, size = 60, strokeWidth = 4, color, children }) {
+function StatusRing({ percentage, size = 60, strokeWidth = 6, color, children }) {
   const shouldReduce = useReducedMotion();
   const radius = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
@@ -68,7 +68,7 @@ function StatusRing({ percentage, size = 60, strokeWidth = 4, color, children })
             strokeDasharray={circumference}
             initial={shouldReduce ? { strokeDashoffset: offset } : { strokeDashoffset: circumference }}
             animate={{ strokeDashoffset: offset }}
-            transition={{ duration: 0.6, ease: T.easeOut, delay: 0.3 }}
+            transition={{ type: 'spring', stiffness: 70, damping: 14, delay: 0.25 }}
           />
         )}
       </svg>
@@ -244,7 +244,7 @@ export default function Home({ onProfileClick, onNavigate, onNotifications }) {
               </div>
               <div
                 className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full"
-                style={{ background: T.success, border: `2px solid ${T.surface}` }}
+                style={{ background: T.green, border: `2px solid ${T.surface}` }}
               />
             </div>
 
@@ -367,7 +367,7 @@ export default function Home({ onProfileClick, onNavigate, onNotifications }) {
         <p className="kicker mb-3">Today's plan</p>
         <div className="grid grid-cols-2 gap-3">
           <div className="card flex flex-col items-center gap-2.5 py-5 px-4">
-            <StatusRing percentage={nutritionPct} color={T.cal} size={60} strokeWidth={4}>
+            <StatusRing percentage={nutritionPct} color={T.cal} size={60} strokeWidth={6}>
               {nutritionPct >= 100 ? (
                 <Check size={22} strokeWidth={2.5} style={{ color: T.cal }} />
               ) : (
@@ -383,7 +383,7 @@ export default function Home({ onProfileClick, onNavigate, onNotifications }) {
           </div>
 
           <div className="card flex flex-col items-center gap-2.5 py-5 px-4">
-            <StatusRing percentage={hydrationPct} color={T.water} size={60} strokeWidth={4}>
+            <StatusRing percentage={hydrationPct} color={T.water} size={60} strokeWidth={6}>
               {hydrationPct >= 100 ? (
                 <Check size={22} strokeWidth={2.5} style={{ color: T.water }} />
               ) : (

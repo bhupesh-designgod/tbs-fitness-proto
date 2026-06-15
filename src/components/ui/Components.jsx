@@ -36,11 +36,11 @@ export function MacroBar({ label, current, target, color, size = 'normal' }) {
   const over = current > target ? current - target : 0;
 
   const colorMap = {
-    gold: 'linear-gradient(135deg, #B8893C, #E0C074)',
+    gold: T.goldGradCss,
     platinum: '#C8C8C6',
     bronze: '#9A7B4F',
     white: '#F4F2EC',
-    steel: '#5B7C99',
+    steel: T.waterFill,
   };
 
   const isSmall = size === 'small';
@@ -105,7 +105,7 @@ export function NumericCounter({ value, suffix = '', className = '', duration = 
 }
 
 // ── Ring Counter (SVG concentric ring) ──
-export function RingCounter({ percentage, size = 120, strokeWidth = 5, color = '#D7FF3E', delay = 0, children }) {
+export function RingCounter({ percentage, size = 120, strokeWidth = 5, color = T.gold, delay = 0, children }) {
   const shouldReduce = useReducedMotion();
   const radius = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
@@ -283,8 +283,8 @@ export function FivePointSelector({ value, onChange, labels = ['1', '2', '3', '4
           onClick={() => onChange(i + 1)}
           className="flex-1 py-2.5 rounded-xl text-center font-body text-[13px] font-bold transition-all"
           style={{
-            background: value === i + 1 ? T.goldGrad : T.surface,
-            color: value === i + 1 ? '#0B0B0C' : 'rgba(255,255,255,0.5)',
+            background: value === i + 1 ? T.goldGradCss : T.surface,
+            color: value === i + 1 ? T.goldInk : 'rgba(255,255,255,0.5)',
             border: `1px solid ${value === i + 1 ? 'transparent' : 'rgba(255,255,255,0.12)'}`,
           }}
         >

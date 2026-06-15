@@ -45,7 +45,7 @@ function ReviewsHeader() {
         <h1 className="display-md text-[#F4F2EC]">
           REVIEWS
         </h1>
-        <p className="font-body text-[12px] text-white/40 mt-2">
+        <p className="font-body text-[12px] mt-2" style={{ color: T.textSub }}>
           Every week, reviewed by Biki.
         </p>
       </div>
@@ -66,7 +66,7 @@ function ReviewsHeader() {
 function LatestReviewCard({ checkIn, onView }) {
   return (
     <motion.div
-      className="mx-5 mb-4 rounded-2xl p-5 relative overflow-hidden"
+      className="mx-5 mb-4 rounded-xl p-5 relative overflow-hidden"
       style={{ background: CARD_BG, border: `1px solid ${CARD_BORDER}` }}
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
@@ -98,7 +98,7 @@ function LatestReviewCard({ checkIn, onView }) {
           </h2>
           <span
             className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md"
-            style={{ background: 'rgba(215,255,62,0.12)', border: '1px solid rgba(212,168,72,0.40)' }}
+            style={{ background: 'rgba(226, 194, 119,0.12)', border: '1px solid rgba(226, 194, 119,0.40)' }}
           >
             <span
               className="w-2.5 h-2.5 rounded-full flex items-center justify-center"
@@ -118,7 +118,7 @@ function LatestReviewCard({ checkIn, onView }) {
         <div className="flex items-center gap-2 mt-3">
           <div
             className="w-7 h-7 rounded-full overflow-hidden shrink-0"
-            style={{ border: '1px solid rgba(212,168,72,0.40)' }}
+            style={{ border: '1px solid rgba(226, 194, 119,0.40)' }}
           >
             <img
               src={PHOTOS.bikiPortrait}
@@ -184,7 +184,7 @@ function NextCheckInCard({ next, onStart }) {
 
   return (
     <motion.div
-      className="mx-5 mb-5 rounded-2xl p-5"
+      className="mx-5 mb-5 rounded-xl p-5"
       style={{ background: CARD_BG, border: `1px solid ${CARD_BORDER}` }}
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
@@ -193,7 +193,7 @@ function NextCheckInCard({ next, onStart }) {
       <div className="flex items-center gap-4">
         <div
           className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0"
-          style={{ background: 'rgba(212,168,72,0.12)', border: '1px solid rgba(212,168,72,0.40)' }}
+          style={{ background: 'rgba(226, 194, 119,0.12)', border: '1px solid rgba(226, 194, 119,0.40)' }}
         >
           <CalendarDays size={20} strokeWidth={T.stroke} style={{ color: GOLD }} />
         </div>
@@ -302,7 +302,7 @@ function WeekPicker({ value, options, onChange }) {
                   key={opt.id}
                   onClick={() => { onChange(opt.id); setOpen(false); }}
                   className="w-full text-left px-3.5 py-2.5 flex items-center justify-between"
-                  style={{ background: isActive ? 'rgba(212,168,72,0.12)' : 'transparent' }}
+                  style={{ background: isActive ? 'rgba(226, 194, 119,0.12)' : 'transparent' }}
                 >
                   <span
                     className="font-body text-[12px] font-bold"
@@ -335,8 +335,8 @@ function CompareAngleToggle({ active, onChange }) {
             whileTap={{ scale: 0.96 }}
             className="px-4 py-1.5 rounded-full"
             style={{
-              background: isActive ? 'rgba(215,255,62,0.16)' : 'transparent',
-              border: isActive ? '1px solid rgba(215,255,62,0.4)' : '1px solid transparent',
+              background: isActive ? 'rgba(226, 194, 119,0.16)' : 'transparent',
+              border: isActive ? '1px solid rgba(226, 194, 119,0.4)' : '1px solid transparent',
             }}
           >
             <span
@@ -357,7 +357,7 @@ function PhotoCard({ entry, angle, accent }) {
   const weight = entry?.weight;
   return (
     <div
-      className="relative aspect-square rounded-2xl overflow-hidden"
+      className="relative aspect-square rounded-xl overflow-hidden"
       style={{ background: T.bg, border: `1px solid ${CARD_BORDER}` }}
     >
       {photo ? (
@@ -411,8 +411,8 @@ function DeltaPill({ delta }) {
     <div
       className="rounded-full px-2.5 py-1.5 whitespace-nowrap flex items-center gap-1"
       style={{
-        background: 'rgba(215,255,62,0.14)',
-        border: '1px solid rgba(215,255,62,0.4)',
+        background: 'rgba(226, 194, 119,0.14)',
+        border: '1px solid rgba(226, 194, 119,0.4)',
       }}
     >
       {isDown
@@ -437,7 +437,7 @@ function CompareProgress({ entries, leftId, rightId, onLeftChange, onRightChange
       <p className="kicker mb-3">Compare progress</p>
 
       <div
-        className="rounded-2xl p-4"
+        className="rounded-xl p-4"
         style={{ background: CARD_BG, border: `1px solid ${CARD_BORDER}` }}
       >
         {/* Two pickers */}
@@ -472,7 +472,7 @@ function HistoryRow({ item, delay, onOpen }) {
     <motion.button
       onClick={() => onOpen(item.id)}
       whileTap={{ scale: 0.99 }}
-      className="w-full rounded-2xl p-3 flex items-center gap-3 text-left"
+      className="w-full rounded-xl p-3 flex items-center gap-3 text-left"
       style={{ background: CARD_BG, border: `1px solid ${CARD_BORDER}` }}
       initial={{ opacity: 0, y: 6 }}
       animate={{ opacity: 1, y: 0 }}
@@ -536,7 +536,7 @@ function HistoryRow({ item, delay, onOpen }) {
 
       <div
         className="shrink-0 px-3 py-1.5 rounded-lg"
-        style={{ border: '1px solid rgba(212,168,72,0.40)' }}
+        style={{ border: '1px solid rgba(226, 194, 119,0.40)' }}
       >
         <span className="font-body text-[11px] font-extrabold uppercase tracking-wider" style={{ color: GOLD }}>
           View

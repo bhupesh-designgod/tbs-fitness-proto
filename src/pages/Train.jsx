@@ -72,12 +72,12 @@ function WorkoutHero({ training, planPercentage, onCalendar }) {
         style={{ filter: 'contrast(1.08) saturate(0.92) brightness(0.78)' }}
         loading="eager"
       />
-      {/* Gradient scrim — bottom-heavy, edge-fade on the title side */}
+      {/* Standard bottom-up scrim + subtle edge-fade on the title side */}
       <div
         className="absolute inset-0"
         style={{
           background:
-            'linear-gradient(180deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.25) 30%, rgba(0,0,0,0.55) 70%, #000 100%)',
+            'linear-gradient(to top, #000 0%, rgba(0,0,0,0.75) 28%, rgba(0,0,0,0) 65%)',
         }}
       />
       <div
@@ -175,7 +175,7 @@ function StatStrip({ exerciseCount, minutes, level }) {
 
   return (
     <motion.div
-      className="mx-5 -mt-4 relative z-20 rounded-2xl p-4 flex"
+      className="mx-5 -mt-4 relative z-20 rounded-xl p-4 flex"
       style={{ background: CARD_BG, border: `1px solid ${CARD_BORDER}`, boxShadow: '0 10px 40px rgba(0,0,0,0.45)' }}
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
@@ -253,7 +253,7 @@ function ExerciseRow({ exercise, exerciseIndex, shouldReduce, expanded, onToggle
 
   return (
     <motion.div
-      className="rounded-2xl overflow-hidden"
+      className="rounded-xl overflow-hidden"
       style={{ background: CARD_BG, border: `1px solid ${CARD_BORDER}` }}
       initial={shouldReduce ? {} : { opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
@@ -262,23 +262,15 @@ function ExerciseRow({ exercise, exerciseIndex, shouldReduce, expanded, onToggle
       {/* Header row — tap to expand */}
       <button
         onClick={onToggle}
-        className="w-full flex items-center gap-3 p-3.5 text-left"
+        className="w-full flex items-center gap-3.5 p-3.5 text-left"
       >
-        {/* Index */}
+        {/* Index — numeral-only treatment, no per-row icon */}
         <span
-          className="font-display text-[22px] tabular-nums tracking-tight shrink-0 w-9 text-center"
-          style={{ color: 'rgba(244,242,236,0.35)' }}
+          className="font-display text-[40px] tabular-nums tracking-tight shrink-0 w-12 text-center leading-none"
+          style={{ color: 'rgba(244,242,236,0.85)' }}
         >
           {indexLabel}
         </span>
-
-        {/* Muscle badge */}
-        <div
-          className="w-12 h-12 rounded-full flex items-center justify-center shrink-0"
-          style={{ background: 'rgba(0,0,0,0.35)', border: `1px solid ${CARD_BORDER}` }}
-        >
-          <Dumbbell size={18} strokeWidth={T.stroke} style={{ color: 'rgba(244,242,236,0.55)' }} />
-        </div>
 
         {/* Name + meta */}
         <div className="flex-1 min-w-0">
@@ -454,7 +446,7 @@ export default function Train() {
 
         <div className="px-5 mt-5">
           <motion.div
-            className="rounded-2xl px-5 py-4 flex items-center gap-4"
+            className="rounded-xl px-5 py-4 flex items-center gap-4"
             style={{ background: CARD_BG, border: `1px solid ${CARD_BORDER}` }}
             initial={shouldReduce ? {} : { opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
@@ -484,7 +476,7 @@ export default function Train() {
           >
             Mobility Work
           </motion.h2>
-          <div className="rounded-2xl px-4" style={{ background: CARD_BG, border: `1px solid ${CARD_BORDER}` }}>
+          <div className="rounded-xl px-4" style={{ background: CARD_BG, border: `1px solid ${CARD_BORDER}` }}>
             {training.recovery?.mobility?.map((item, i) => (
               <MobilityRow key={i} item={item} index={i} shouldReduce={shouldReduce} />
             ))}

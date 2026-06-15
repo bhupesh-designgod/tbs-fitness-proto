@@ -1,8 +1,8 @@
 // ── Calendar primitives ──
 // Shared WeekStrip + MonthSheet in three modes:
 //   score     — Home. One gold ring per day = daily goal completion.
-//   nutrition — Diet adherence. Dual rings: meals (orange) + hydration (cobalt).
-//   training  — Workout vs rest days (volt = trained, cobalt = rest).
+//   nutrition — Diet adherence. Dual rings: meals (gold) + hydration (steel).
+//   training  — Workout vs rest days (gold = trained, neutral = rest).
 // Today is always an outlined gold cell, same structure as every other day.
 
 import { useMemo } from 'react';
@@ -59,12 +59,13 @@ export function MiniRing({ percentage, size = 42, strokeWidth = 3, color = T.gol
   );
 }
 
-// ── Dual ring: meals (outer, orange) + hydration (inner, cobalt) ──
+// ── Dual ring: meals (outer, gold) + hydration (inner, steel-blue) ──
+// Two clearly separated rings — ~4px gap so both read at a glance.
 function DualRing({ mealPct, hydPct, size = 42 }) {
   return (
     <>
-      <MiniRing percentage={mealPct} size={size} strokeWidth={3} color={T.meal} />
-      <MiniRing percentage={hydPct} size={size} strokeWidth={3} color={T.cobalt} inset={5} />
+      <MiniRing percentage={mealPct} size={size} strokeWidth={3} color={T.gold} />
+      <MiniRing percentage={hydPct} size={size} strokeWidth={3} color={T.water} inset={7} />
     </>
   );
 }
@@ -199,18 +200,7 @@ export function WeekStrip({ mode = 'score', showPoints = true, className = '' })
 
             <DayCircle day={day} mode={mode} />
 
-            {mode === 'score' && showPoints ? (
-              <span
-                className="font-body text-[9px] font-bold tabular-nums"
-                style={{
-                  color: day.isToday ? T.gold
-                    : day.pts !== null && day.isPast ? T.textLow
-                    : 'rgba(244,242,236,0.14)',
-                }}
-              >
-                {day.pts !== null ? `${day.pts}` : '—'}
-              </span>
-            ) : mode === 'training' ? (
+            {mode === 'training' ? (
               <span
                 className="font-body text-[8px] font-extrabold uppercase tracking-wider"
                 style={{
@@ -346,7 +336,7 @@ export function MonthSheet({ isOpen, onClose, mode = 'score' }) {
               Meals
             </span>
             <span className="flex items-center gap-1.5 font-body text-[11px] font-medium" style={{ color: T.textLow }}>
-              <span className="inline-block w-2.5 h-2.5 rounded-full" style={{ background: T.cobalt }} />
+              <span className="inline-block w-2.5 h-2.5 rounded-full" style={{ background: T.water }} />
               Hydration
             </span>
           </>

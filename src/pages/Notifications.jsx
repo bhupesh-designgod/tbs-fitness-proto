@@ -15,8 +15,8 @@ import { NOTIFICATIONS } from '../data/mockData';
 const TYPE_META = {
   coach:      { icon: MessageCircle,  accent: T.gold },
   meal:       { icon: Utensils,       accent: T.meal },
-  hydration:  { icon: Droplets,       accent: T.cobalt },
-  training:   { icon: Dumbbell,       accent: T.volt },
+  hydration:  { icon: Droplets,       accent: T.water },
+  training:   { icon: Dumbbell,       accent: T.gold },
   review:     { icon: ClipboardCheck, accent: T.gold },
   streak:     { icon: Flame,          accent: T.red },
   call:       { icon: CalendarDays,   accent: T.gold },
@@ -33,7 +33,7 @@ function NotificationRow({ n, onOpen, delay }) {
       {...stagger(delay, 0.05)}
       whileTap={T.tap}
       onClick={() => onOpen(n)}
-      className="w-full flex items-start gap-3 p-3.5 rounded-2xl text-left relative"
+      className="w-full flex items-start gap-3 p-3.5 rounded-xl text-left relative"
       style={{
         background: n.read ? T.surface : T.surface2,
         border: `1px solid ${n.read ? T.hairline : T.hairlineStrong}`,

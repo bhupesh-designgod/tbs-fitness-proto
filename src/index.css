@@ -5,13 +5,14 @@
   --bg-1: #151517;
   --ink-hi: #F4F2EC;
   --ink-mid: #9D9C96;
-  --color-hairline: rgba(244, 242, 236, 0.08);
+  --color-hairline: rgba(255, 255, 255, 0.07);
   --color-hairline-strong: rgba(244, 242, 236, 0.16);
 
-  --volt: #D7FF3E;
   --red: #FF3B30;
-  --cobalt: #2B4BFF;
-  --gold: #D4A848;
+  --steel: #9FB3C8;
+  --gold: #E2C277;
+  --gold-grad: linear-gradient(135deg, #E0C074 0%, #C8A24E 100%);
+  --gold-ink: #0A0A0A;
 
   --font-display: 'Bebas Neue', sans-serif;
   --font-body: 'Manrope', sans-serif;
@@ -65,16 +66,16 @@ html, body, #root {
   text-transform: uppercase;
   color: rgba(244, 242, 236, 0.45);
 }
-.kicker-gold { color: #D4A848; } /* accent kicker — gold */
+.kicker-gold { color: #E2C277; } /* accent kicker — gold */
 
-/* ── Card family — one card style ── */
+/* ── Card family — one card style, one radius ── */
 .card {
   background: #151517;
-  border: 1px solid rgba(244, 242, 236, 0.08);
-  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 12px;
 }
 
-/* ── Button system ── */
+/* ── Button system — labels are Manrope, primary fill is the gold gradient ── */
 .btn-primary {
   display: flex;
   align-items: center;
@@ -82,13 +83,14 @@ html, body, #root {
   gap: 8px;
   width: 100%;
   padding: 14px 20px;
-  border-radius: 14px;
-  background: #D4A848;
-  color: #0B0B0C;
-  font-family: var(--font-display);
-  font-size: 20px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #E0C074 0%, #C8A24E 100%);
+  color: #0A0A0A;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 14px;
   line-height: 1;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
 }
 .btn-primary:disabled { opacity: 0.3; }
@@ -99,7 +101,7 @@ html, body, #root {
   justify-content: center;
   gap: 6px;
   padding: 12px 16px;
-  border-radius: 14px;
+  border-radius: 12px;
   background: transparent;
   border: 1px solid rgba(244, 242, 236, 0.16);
   color: rgba(244, 242, 236, 0.72);
@@ -116,7 +118,7 @@ html, body, #root {
   background: transparent;
   border: none;
   padding: 6px 0;
-  color: #D4A848;
+  color: #E2C277;
   font-family: var(--font-body);
   font-weight: 600;
   font-size: 13px;
@@ -128,14 +130,14 @@ html, body, #root {
   font-variant-numeric: tabular-nums;
 }
 
-/* ── Accent text (flat gold — gradients banned) ── */
+/* ── Accent text (flat champagne gold) ── */
 .text-gold-gradient {
-  color: #D4A848;
+  color: #E2C277;
 }
 
-/* ── Accent background (flat gold) ── */
+/* ── Accent background (flat champagne gold) ── */
 .bg-gold-gradient {
-  background: #D4A848;
+  background: #E2C277;
 }
 
 /* ── Divider ── */
@@ -144,22 +146,22 @@ html, body, #root {
   background: rgba(244, 242, 236, 0.12);
 }
 
-/* ── Scrim overlay ── */
+/* ── Scrim overlay — one standard bottom-up ramp for every photo with text ── */
 .scrim {
   background: linear-gradient(
-    to bottom,
-    rgba(0, 0, 0, 0.3) 0%,
-    rgba(0, 0, 0, 0.6) 50%,
-    rgba(0, 0, 0, 0.92) 100%
+    to top,
+    #000 0%,
+    rgba(0, 0, 0, 0.75) 28%,
+    rgba(0, 0, 0, 0) 65%
   );
 }
 
 .scrim-heavy {
   background: linear-gradient(
-    to bottom,
-    rgba(0, 0, 0, 0.5) 0%,
-    rgba(0, 0, 0, 0.85) 60%,
-    rgba(0, 0, 0, 0.98) 100%
+    to top,
+    #000 0%,
+    rgba(0, 0, 0, 0.85) 34%,
+    rgba(0, 0, 0, 0) 70%
   );
 }
 
@@ -263,8 +265,8 @@ html, body, #root {
 .coach-quote-card {
   position: relative;
   background: #151517;
-  border: 1px solid rgba(244, 242, 236, 0.08);
-  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 12px;
   overflow: hidden;
 }
 
@@ -275,6 +277,6 @@ html, body, #root {
   top: 0;
   bottom: 0;
   width: 3px;
-  background: #D4A848;
+  background: #E2C277;
   border-radius: 3px 0 0 3px;
 }

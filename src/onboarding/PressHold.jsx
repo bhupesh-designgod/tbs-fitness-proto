@@ -9,7 +9,7 @@ import { T } from '../tokens';
 
 const HOLD_MS = 1200;
 const RETRACT_MS = 200;
-const RADIUS = 16; // matches rounded-2xl-ish corners
+const RADIUS = 16; // matches rounded-xl-ish corners
 
 function buzz(pattern) { try { navigator.vibrate?.(pattern); } catch { /* unsupported */ } }
 
@@ -76,7 +76,7 @@ export default function PressHold({ label, onComplete }) {
 
   const scale = 1 + 0.04 * progress;
   const glow = progress > 0
-    ? `0 0 ${20 * progress}px ${6 * progress}px rgba(212,168,72,${0.28 * progress})`
+    ? `0 0 ${20 * progress}px ${6 * progress}px rgba(226, 194, 119,${0.28 * progress})`
     : 'none';
 
   return (
@@ -90,7 +90,7 @@ export default function PressHold({ label, onComplete }) {
       style={{ height: 60, touchAction: 'none', WebkitTapHighlightColor: 'transparent' }}
     >
       <div
-        className="absolute inset-0 rounded-2xl flex items-center justify-center"
+        className="absolute inset-0 rounded-xl flex items-center justify-center"
         style={{
           background: flash ? '#F4E2A8' : T.gold,
           transform: `scale(${scale})`,

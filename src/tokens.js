@@ -1,62 +1,69 @@
-// ── Design Tokens — "Track Jersey" palette ──
-// Black + off-white carry 85% of every screen. Volt is the engine (10%).
-// Red / cobalt / gold split the last 5%. Flat fills only — no gradients.
+// ── Design Tokens — "Champagne" palette ──
+// Black + off-white carry the screen. ONE saturated brand accent — champagne
+// gold (CTAs, achievements, brand). Steel-blue is reserved for hydration only.
+// Red survives only as a small functional alert. Everything else is neutral.
 
 export const T = {
   // Base
   bg: '#0B0B0C',
   surface: '#151517',
   surface2: '#1D1D20',
-  hairline: 'rgba(244,242,236,0.08)',
+  hairline: 'rgba(255,255,255,0.07)',
   hairlineStrong: 'rgba(244,242,236,0.16)',
 
-  // VOLT — the hero. Active states, live progress, primary CTAs.
-  // Always flat, always full saturation, black text on top.
-  volt: '#D7FF3E',
-  voltInk: '#0B0B0C',
-  voltTint: 'rgba(215,255,62,0.10)',
-  voltBorder: 'rgba(215,255,62,0.35)',
+  // GOLD — the single brand accent. Active states, progress, achievements.
+  // Primary CTAs use the gradient (goldGradCss); accents/rings/text use flat.
+  volt: '#E2C277',              // legacy alias → folds into gold
+  voltInk: '#0A0A0A',
+  voltTint: 'rgba(226,194,119,0.12)',
+  voltBorder: 'rgba(226,194,119,0.40)',
 
-  // RED — heat. PRs, max effort, alerts. Small and sharp only.
+  // RED — functional alert only. Notifications + genuine regressions.
   red: '#FF3B30',
   redTint: 'rgba(255,59,48,0.12)',
 
-  // COBALT — recovery, hydration, rest. Small doses.
-  cobalt: '#2B4BFF',
-  cobaltTint: 'rgba(43,75,255,0.14)',
-  cobaltBorder: 'rgba(43,75,255,0.40)',
+  // COBALT — neutralized. Sleep / rest / metrics read as calm neutral now.
+  cobalt: '#8A8A90',
+  cobaltTint: 'rgba(255,255,255,0.06)',
+  cobaltBorder: 'rgba(244,242,236,0.16)',
 
-  // GOLD — the action color. Primary CTAs, brand moments, achievements.
-  gold: '#D4A848',
-  goldTint: 'rgba(212,168,72,0.12)',
-  goldBorder: 'rgba(212,168,72,0.40)',
-  goldStart: '#D4A848',
-  goldEnd: '#D4A848',
-  goldGrad: '#D4A848',
+  // GOLD — champagne. Flat for accents, gradient for primary fills.
+  gold: '#E2C277',
+  goldInk: '#0A0A0A',                                       // near-black on gold
+  goldGradCss: 'linear-gradient(135deg, #E0C074 0%, #C8A24E 100%)',
+  goldTint: 'rgba(226,194,119,0.12)',
+  goldBorder: 'rgba(226,194,119,0.42)',
+  goldStart: '#E0C074',
+  goldEnd: '#C8A24E',
+  goldGrad: '#E2C277',          // flat fallback (solid fills)
 
-  // ORANGE — meal adherence rings only
-  meal: '#FF7A00',
-  mealTint: 'rgba(255,122,0,0.14)',
+  // MEAL — folds into gold (no more orange)
+  meal: '#E2C277',
+  mealTint: 'rgba(226,194,119,0.12)',
 
   // Functional — data only
-  success: '#D7FF3E',           // "done" is volt — the app lights up
-  successTint: 'rgba(215,255,62,0.12)',
-  successBorder: 'rgba(215,255,62,0.35)',
+  success: '#E2C277',           // achievement / "done" → gold
+  successTint: 'rgba(226,194,119,0.12)',
+  successBorder: 'rgba(226,194,119,0.40)',
   danger: '#FF3B30',
-  water: '#2B4BFF',
-  waterTint: 'rgba(43,75,255,0.14)',
-  waterBorder: 'rgba(43,75,255,0.40)',
-  macroFat: '#9D9C96',
-  macroCarbs: '#2B4BFF',
+  water: '#9FB3C8',             // steel-blue — hydration ONLY
+  waterFill: '#8FA9C4',         // steel-blue with more presence (bars/fills)
+  waterTint: 'rgba(159,179,200,0.14)',
+  waterBorder: 'rgba(159,179,200,0.40)',
+  // Macro set — three neutral tints, read as one family (label is the signal)
+  macroProtein: '#E8E2D4',
+  macroFat: '#B8B0A0',
+  macroCarbs: '#8C8579',
 
   // Text — warm off-white ink
   text: '#F4F2EC',
   textMid: '#9D9C96',
   textLow: 'rgba(244,242,236,0.45)',
+  textSub: 'rgba(244,242,236,0.65)',   // raised subtitle under screen titles
   textFaint: 'rgba(244,242,236,0.26)',
 
-  // Geometry
-  rCard: 20,
+  // Geometry — one radius
+  rCard: 12,
   rInner: 12,
   rPill: 999,
   stroke: 1.75,

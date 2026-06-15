@@ -48,7 +48,7 @@ function SelectCard({ icon, title, sub, selected, onSelect, big }) {
   return (
     <motion.button onClick={onSelect}
       animate={selected ? { scale: [1, 0.97, 1] } : { scale: 1 }} transition={{ duration: 0.2 }}
-      className={`w-full flex items-center gap-3.5 rounded-2xl text-left ${big ? 'p-4' : 'p-3.5'}`}
+      className={`w-full flex items-center gap-3.5 rounded-xl text-left ${big ? 'p-4' : 'p-3.5'}`}
       style={{ background: selected ? T.goldTint : T.surface, border: `1.5px solid ${selected ? T.gold : T.hairline}` }}>
       {icon && (
         <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0"
@@ -179,7 +179,7 @@ function range(min, max, step = 1) {
 // ── Stepper row ──
 function StepperRow({ icon, label, value, min, max, onChange, accentEmpty }) {
   return (
-    <div className="flex items-center gap-3 rounded-2xl px-4 py-3.5" style={{ background: T.surface, border: `1px solid ${T.hairline}` }}>
+    <div className="flex items-center gap-3 rounded-xl px-4 py-3.5" style={{ background: T.surface, border: `1px solid ${T.hairline}` }}>
       <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0" style={{ background: T.surface2, border: `1px solid ${T.hairline}` }}>{icon}</div>
       <span className="font-body text-[14px] font-semibold flex-1" style={{ color: T.text }}>{label}</span>
       <div className="flex items-center gap-3.5">
@@ -210,7 +210,7 @@ function ChipAdder({ tags, onAdd, onRemove, placeholder }) {
           {tags.map(tag => (
             <span key={tag} className="flex items-center gap-1.5 pl-3 pr-1.5 py-1.5 rounded-full" style={{ background: T.goldTint, border: `1px solid ${T.goldBorder}` }}>
               <span className="font-body text-[13px] font-semibold" style={{ color: T.gold }}>{tag}</span>
-              <button onClick={() => onRemove(tag)} className="w-4 h-4 rounded-full flex items-center justify-center" style={{ background: 'rgba(212,168,72,0.25)' }}>
+              <button onClick={() => onRemove(tag)} className="w-4 h-4 rounded-full flex items-center justify-center" style={{ background: 'rgba(226, 194, 119,0.25)' }}>
                 <X size={9} strokeWidth={2.5} style={{ color: T.gold }} />
               </button>
             </span>
@@ -245,8 +245,11 @@ function DoorScreen({ next }) {
           <span className="font-display text-[40px] tracking-[0.08em]" style={{ color: T.gold }}>TBS</span>
         </div>
         <div className="flex-1" />
-        <p className="font-display text-[34px] leading-[0.95] text-[#F4F2EC] mb-8 max-w-[88%]">
-          I TAKE 12 CLIENTS.<br />YOU'RE 9.<br /><span style={{ color: T.gold }}>WALK IN.</span>
+        <p className="font-display text-[32px] leading-[0.98] text-[#F4F2EC] mb-3 max-w-[92%]">
+          You're not on a program.<br /><span style={{ color: T.gold }}>You're on my roster.</span>
+        </p>
+        <p className="font-body text-[14px] leading-relaxed mb-8 max-w-[84%]" style={{ color: T.textSub }}>
+          I keep it small so every plan is built for one person. Let's get to work.
         </p>
         <motion.button whileTap={T.tap} onClick={next} className="btn-primary btn-shine-wrap">
           Let's do this<ArrowRight size={18} strokeWidth={2.5} />
@@ -300,7 +303,7 @@ function SexScreen({ answers, selectNext }) {
           const selected = answers.sex === v;
           return (
             <motion.button key={v} onClick={() => selectNext({ sex: v })} animate={selected ? { scale: [1, 0.97, 1] } : {}} transition={{ duration: 0.2 }}
-              className="rounded-2xl flex flex-col items-center justify-center gap-3"
+              className="rounded-xl flex flex-col items-center justify-center gap-3"
               style={{ aspectRatio: '3/4', background: selected ? T.goldTint : T.surface, border: `1.5px solid ${selected ? T.gold : T.hairline}` }}>
               <span className="font-display text-[56px] leading-none" style={{ color: selected ? T.gold : T.textMid }}>{glyph}</span>
               <span className="font-body text-[15px] font-bold" style={{ color: T.text }}>{label}</span>
@@ -399,7 +402,7 @@ function MotivationScreen({ answers, next }) {
     <div className="relative h-full overflow-hidden flex flex-col" style={{ background: T.bg }}>
       {/* Subtle gradient bg */}
       <div className="absolute inset-0" style={{
-        background: 'radial-gradient(ellipse 70% 50% at 50% 35%, rgba(212,168,72,0.08) 0%, transparent 70%)',
+        background: 'radial-gradient(ellipse 70% 50% at 50% 35%, rgba(226, 194, 119,0.08) 0%, transparent 70%)',
       }} />
 
       <div className="relative flex-1 flex flex-col items-center justify-center px-6 text-center">
@@ -419,7 +422,7 @@ function MotivationScreen({ answers, next }) {
           className="relative mb-8"
         >
           <div className="absolute inset-0 rounded-full" style={{
-            background: 'radial-gradient(circle, rgba(212,168,72,0.3) 0%, transparent 65%)',
+            background: 'radial-gradient(circle, rgba(226, 194, 119,0.3) 0%, transparent 65%)',
             transform: 'scale(1.6)',
             animation: 'pulse-glow 2.5s ease-in-out infinite',
           }} />
@@ -549,7 +552,7 @@ function DietScreen({ answers, selectNext }) {
           const selected = answers.diet === d.v;
           return (
             <motion.button key={d.v} onClick={() => selectNext({ diet: d.v })} animate={selected ? { scale: [1, 0.97, 1] } : {}} transition={{ duration: 0.2 }}
-              className="rounded-2xl flex items-center justify-center text-center px-3"
+              className="rounded-xl flex items-center justify-center text-center px-3"
               style={{ aspectRatio: '1/1', background: selected ? T.goldTint : T.surface, border: `1.5px solid ${selected ? T.gold : T.hairline}` }}>
               <span className="font-body text-[15px] font-bold leading-tight" style={{ color: T.text }}>{d.title}</span>
             </motion.button>
@@ -573,7 +576,7 @@ function DayBuilder({ answers, update, next }) {
     <Scaffold onNext={next}>
       <Question>BUILD YOUR DAY</Question>
       <p className="font-body text-[14px] mb-5" style={{ color: T.textLow }}>How a normal day of eating looks for you.</p>
-      <div className="rounded-2xl p-4 mb-5 min-h-[64px] flex items-center" style={{ background: T.surface, border: `1px solid ${T.hairline}` }}>
+      <div className="rounded-xl p-4 mb-5 min-h-[64px] flex items-center" style={{ background: T.surface, border: `1px solid ${T.hairline}` }}>
         {strip.length === 0 ? (
           <span className="font-body text-[12px]" style={{ color: T.textFaint }}>Adjust below to build your day…</span>
         ) : (
@@ -672,7 +675,7 @@ function AllergiesScreen({ answers, update, next }) {
 function PhotoTile({ label, filled, onClick }) {
   return (
     <motion.button whileTap={T.tap} onClick={onClick}
-      className="flex-1 aspect-[3/4] rounded-2xl flex flex-col items-center justify-center gap-2"
+      className="flex-1 aspect-[3/4] rounded-xl flex flex-col items-center justify-center gap-2"
       style={{ background: filled ? T.goldTint : T.surface, border: `1px ${filled ? 'solid' : 'dashed'} ${filled ? T.goldBorder : T.hairlineStrong}` }}>
       {filled ? <Check size={22} strokeWidth={2.5} style={{ color: T.gold }} /> : <Camera size={20} strokeWidth={T.stroke} style={{ color: T.textMid }} />}
       <span className="font-body text-[11px] font-bold uppercase tracking-wider" style={{ color: filled ? T.gold : T.textLow }}>{label}</span>
@@ -714,7 +717,7 @@ function BloodworkScreen({ answers, update, next, skipField }) {
       <motion.button
         whileTap={T.tap}
         onClick={() => update({ bloodwork: !hasFile })}
-        className="w-full rounded-2xl flex flex-col items-center justify-center gap-3 py-10 mb-5"
+        className="w-full rounded-xl flex flex-col items-center justify-center gap-3 py-10 mb-5"
         style={{
           background: hasFile ? T.goldTint : T.surface,
           border: `1.5px ${hasFile ? 'solid' : 'dashed'} ${hasFile ? T.goldBorder : T.hairlineStrong}`,
@@ -928,7 +931,7 @@ function PledgeScreen({ next }) {
         >
           {/* Background glow */}
           <div className="absolute inset-0 rounded-full" style={{
-            background: `radial-gradient(circle, rgba(212,168,72,${0.15 * progress}) 0%, transparent 70%)`,
+            background: `radial-gradient(circle, rgba(226, 194, 119,${0.15 * progress}) 0%, transparent 70%)`,
             transform: `scale(${1.4 + progress * 0.4})`,
             transition: holding.current ? 'none' : 'all 200ms ease-out',
           }} />

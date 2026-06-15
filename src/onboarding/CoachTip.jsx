@@ -80,11 +80,11 @@ export default function CoachTip({ stepKey, targetSelector, message, cta, onCta,
       {/* Gold ring around the spotlight */}
       {hole && (
         <div
-          className="absolute rounded-2xl pointer-events-none"
+          className="absolute rounded-xl pointer-events-none"
           style={{
             top: hole.y, left: hole.x, width: hole.w, height: hole.h,
             border: `2px solid ${T.gold}`,
-            boxShadow: `0 0 0 1px rgba(11,11,12,0.6), 0 0 22px 2px rgba(212,168,72,0.25)`,
+            boxShadow: `0 0 0 1px rgba(11,11,12,0.6), 0 0 22px 2px rgba(226, 194, 119,0.25)`,
           }}
         />
       )}
@@ -105,7 +105,7 @@ export default function CoachTip({ stepKey, targetSelector, message, cta, onCta,
             </div>
 
             {/* Speech card */}
-            <div className="flex-1 min-w-0 rounded-2xl rounded-tl-sm p-3.5"
+            <div className="flex-1 min-w-0 rounded-xl rounded-tl-sm p-3.5"
               style={{ background: T.surface, border: `1px solid ${T.hairlineStrong}`, boxShadow: '0 10px 30px rgba(0,0,0,0.45)' }}>
               <p className="font-body text-[10px] font-extrabold uppercase tracking-wider mb-1.5" style={{ color: T.gold }}>Coach Biki</p>
               <p className="font-body text-[14px] leading-snug" style={{ color: T.text }}>{message}</p>

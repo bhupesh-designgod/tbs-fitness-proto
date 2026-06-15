@@ -26,9 +26,9 @@ const ONLINE_GREEN = T.success;
 // ── Topic palette ──
 const TOPICS = {
   general:  { label: 'General',  color: '#9D9C96' },
-  workout:  { label: 'Workout',  color: '#D7FF3E' },
+  workout:  { label: 'Workout',  color: T.gold },
   diet:     { label: 'Diet',     color: '#F4F2EC' },
-  progress: { label: 'Progress', color: '#2B4BFF' },
+  progress: { label: 'Progress', color: T.water },
   other:    { label: 'Other',    color: '#FF3B30' },
 };
 const TOPIC_KEYS = Object.keys(TOPICS);
@@ -106,7 +106,7 @@ function CoachHeader() {
 function NextCallCard() {
   return (
     <motion.div
-      className="mx-5 mb-4 rounded-2xl p-4 flex items-center gap-4"
+      className="mx-5 mb-4 rounded-xl p-4 flex items-center gap-4"
       style={{ background: CARD_BG, border: `1px solid ${CARD_BORDER}` }}
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
@@ -114,7 +114,7 @@ function NextCallCard() {
     >
       <div
         className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0"
-        style={{ background: 'rgba(212,168,72,0.12)', border: `1px solid rgba(212,168,72,0.40)` }}
+        style={{ background: 'rgba(226, 194, 119,0.12)', border: `1px solid rgba(226, 194, 119,0.40)` }}
       >
         <CalendarDays size={20} strokeWidth={T.stroke} style={{ color: GOLD }} />
       </div>
@@ -161,7 +161,7 @@ function CoachAvatar() {
     <div className="relative shrink-0">
       <div
         className="w-9 h-9 rounded-full overflow-hidden"
-        style={{ border: '1.5px solid rgba(212,168,72,0.40)' }}
+        style={{ border: '1.5px solid rgba(226, 194, 119,0.40)' }}
       >
         <img
           src={PHOTOS.bikiPortrait}
@@ -222,7 +222,7 @@ function VoiceBubble({ duration }) {
 
   return (
     <div
-      className="rounded-2xl p-3 flex items-center gap-3 max-w-[78%]"
+      className="rounded-xl p-3 flex items-center gap-3 max-w-[78%]"
       style={{ background: CARD_BG, border: `1px solid ${CARD_BORDER}` }}
     >
       <motion.button
@@ -287,7 +287,7 @@ function MessageRow({ msg, delay }) {
             <VoiceBubble duration={msg.duration} />
           ) : (
             <div
-              className="rounded-2xl rounded-tl-md p-3.5"
+              className="rounded-xl rounded-tl-md p-3.5"
               style={{ background: CARD_BG, border: `1px solid ${CARD_BORDER}` }}
             >
               <p className="flex items-center gap-1.5 mb-1.5">
@@ -329,7 +329,7 @@ function MessageRow({ msg, delay }) {
       transition={{ delay: delay * 0.04 }}
     >
       <div
-        className="rounded-2xl rounded-tr-md p-3.5 max-w-[78%]"
+        className="rounded-xl rounded-tr-md p-3.5 max-w-[78%]"
         style={{ background: '#F4F2EC' }}
       >
         <p className="font-body text-[14px] text-black/85 leading-relaxed">
@@ -368,7 +368,7 @@ function InputBar({ value, onChange, onSend, topic, onTopicChange }) {
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 8 }}
-            className="mb-2 mx-1 rounded-2xl p-2 flex flex-col gap-1"
+            className="mb-2 mx-1 rounded-xl p-2 flex flex-col gap-1"
             style={{ background: CARD_BG, border: `1px solid ${CARD_BORDER}`, boxShadow: '0 12px 40px rgba(0,0,0,0.4)' }}
           >
             {TOPIC_KEYS.map(k => {
@@ -533,7 +533,7 @@ export default function Coach({ onCheckIn }) {
           >
             <CoachAvatar />
             <div
-              className="rounded-2xl rounded-tl-md px-4 py-3 flex gap-1.5 items-center"
+              className="rounded-xl rounded-tl-md px-4 py-3 flex gap-1.5 items-center"
               style={{ background: CARD_BG, border: `1px solid ${CARD_BORDER}` }}
             >
               {[0, 1, 2].map(i => (

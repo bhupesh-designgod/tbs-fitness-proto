@@ -63,7 +63,7 @@ function CoachSummaryCard({ summary }) {
   if (!summary) return null;
   return (
     <motion.div
-      className="mx-5 mb-5 rounded-2xl p-5 relative overflow-hidden"
+      className="mx-5 mb-5 rounded-xl p-5 relative overflow-hidden"
       style={{ background: CARD_BG, border: `1px solid ${CARD_BORDER}` }}
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
@@ -129,7 +129,7 @@ function MetricGridCard({ k, m }) {
 
   return (
     <div
-      className="rounded-2xl p-3.5"
+      className="rounded-xl p-3.5"
       style={{ background: CARD_BG, border: `1px solid ${CARD_BORDER}` }}
     >
       <div className="flex items-center gap-2 mb-2.5">
@@ -195,7 +195,7 @@ function PlanChanges({ changes }) {
     <div className="mx-5 mb-5">
       <p className="kicker mb-3">Plan changes</p>
       <div
-        className="rounded-2xl p-4 space-y-3"
+        className="rounded-xl p-4 space-y-3"
         style={{ background: CARD_BG, border: `1px solid ${CARD_BORDER}` }}
       >
         {changes.map((c, i) => (
@@ -208,7 +208,7 @@ function PlanChanges({ changes }) {
           >
             <div
               className="w-5 h-5 rounded-full flex items-center justify-center shrink-0 mt-0.5"
-              style={{ background: 'rgba(215,255,62,0.12)', border: '1.5px solid rgba(212,168,72,0.45)' }}
+              style={{ background: 'rgba(226, 194, 119,0.12)', border: '1.5px solid rgba(226, 194, 119,0.45)' }}
             >
               <Check size={11} strokeWidth={2.5} style={{ color: GOLD }} />
             </div>

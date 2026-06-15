@@ -25,6 +25,8 @@ const GOLD = T.gold;
 const GOLD_START = T.goldStart;
 const GOLD_END = T.goldEnd;
 const STEEL = T.water;
+// Macro set — three neutral tints, read as one family
+const PROTEIN = T.macroProtein;
 const FAT_GREY = T.macroFat;
 const CARB_BRONZE = T.macroCarbs;
 const ON_TRACK = T.success;
@@ -69,8 +71,8 @@ function TabToggle({ active, onChange }) {
             whileTap={{ scale: 0.97 }}
             className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-full font-body text-[12px] font-extrabold uppercase tracking-wider"
             style={{
-              background: isActive ? T.goldGrad : 'transparent',
-              color: isActive ? '#0B0B0C' : T.textLow,
+              background: isActive ? T.goldGradCss : 'transparent',
+              color: isActive ? T.goldInk : T.textLow,
             }}
           >
             {tab === 'Meals'
@@ -95,7 +97,7 @@ function MacrosOverview({ logged }) {
   const shouldReduce = useReducedMotion();
   const calPct = Math.min(Math.round((logged.calories / DAILY_TARGETS.calories) * 100), 100);
   const macros = [
-    { key: 'protein', label: 'Protein', short: 'P', curr: logged.protein, target: DAILY_TARGETS.protein, color: GOLD },
+    { key: 'protein', label: 'Protein', short: 'P', curr: logged.protein, target: DAILY_TARGETS.protein, color: PROTEIN },
     { key: 'fat',     label: 'Fat',     short: 'F', curr: logged.fat,     target: DAILY_TARGETS.fat,     color: FAT_GREY },
     { key: 'carbs',   label: 'Carbs',   short: 'C', curr: logged.carbs,   target: DAILY_TARGETS.carbs,   color: CARB_BRONZE },
   ];
@@ -103,7 +105,7 @@ function MacrosOverview({ logged }) {
 
   return (
     <motion.div
-      className="mx-5 mb-5 rounded-2xl p-5"
+      className="mx-5 mb-5 rounded-xl p-5"
       style={{ background: CARD_BG, border: `1px solid ${CARD_BORDER}` }}
       initial={shouldReduce ? {} : { opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
@@ -114,7 +116,7 @@ function MacrosOverview({ logged }) {
         {logged.calories > 0 && (
           <span
             className="font-body text-[11px] font-extrabold uppercase tracking-wider"
-            style={{ color: isBehind ? GOLD : ON_TRACK }}
+            style={{ color: isBehind ? GOLD : 'rgba(244,242,236,0.7)' }}
           >
             {isBehind ? 'Catch up' : 'On track'}
           </span>
@@ -223,7 +225,7 @@ function MealTimelineCard({ meal, mealIndex, onTap, delay = 0 }) {
           <div
             className="w-6 h-6 rounded-full flex items-center justify-center"
             style={{
-              background: 'rgba(215,255,62,0.12)',
+              background: T.goldTint,
               border: `1.5px solid ${GOLD}`,
             }}
           >
@@ -247,10 +249,10 @@ function MealTimelineCard({ meal, mealIndex, onTap, delay = 0 }) {
       {/* Card */}
       <div className="ml-9">
         <div
-          className="rounded-2xl p-4"
+          className="rounded-xl p-4"
           style={{
             background: CARD_BG,
-            border: `1px solid ${isLogged ? 'rgba(215,255,62,0.15)' : CARD_BORDER}`,
+            border: `1px solid ${isLogged ? T.goldBorder : CARD_BORDER}`,
             opacity: isLogged ? 1 : 0.85,
           }}
         >
@@ -290,7 +292,7 @@ function MealTimelineCard({ meal, mealIndex, onTap, delay = 0 }) {
                 </span>
               </div>
               <span className="text-white/10 font-body text-[14px]">|</span>
-              <MacroChip value={totals.protein} suffix="P" color={GOLD} />
+              <MacroChip value={totals.protein} suffix="P" color={PROTEIN} />
               <span className="text-white/10 font-body text-[14px]">|</span>
               <MacroChip value={totals.fat} suffix="F" color={FAT_GREY} />
               <span className="text-white/10 font-body text-[14px]">|</span>
@@ -423,7 +425,7 @@ function MealSheet({ meal, mealIndex, isOpen, onClose, logged, logMeal, adjustMe
         {meal.logged && (
           <span
             className="font-body text-[10px] font-extrabold uppercase tracking-wider px-2 py-1 rounded-md"
-            style={{ background: 'rgba(212,168,72,0.12)', color: GOLD, border: '1px solid rgba(212,168,72,0.40)' }}
+            style={{ background: 'rgba(226, 194, 119,0.12)', color: GOLD, border: '1px solid rgba(226, 194, 119,0.40)' }}
           >
             Logged
           </span>
@@ -444,7 +446,7 @@ function MealSheet({ meal, mealIndex, isOpen, onClose, logged, logMeal, adjustMe
                 <span className="font-body text-[9px] text-white/30 uppercase tracking-wider mt-1">Cal</span>
               </div>
               <div className="flex flex-col items-center">
-                <span className="font-display text-[18px] tabular-nums leading-none" style={{ color: GOLD }}>{totals.protein}g</span>
+                <span className="font-display text-[18px] tabular-nums leading-none" style={{ color: PROTEIN }}>{totals.protein}g</span>
                 <span className="font-body text-[9px] text-white/30 uppercase tracking-wider mt-1">Protein</span>
               </div>
               <div className="flex flex-col items-center">
@@ -470,7 +472,7 @@ function MealSheet({ meal, mealIndex, isOpen, onClose, logged, logMeal, adjustMe
                     <span className="font-body text-[11px] text-white/25">{food.portion}</span>
                   </div>
                   <div className="flex gap-2 text-[11px] tabular-nums shrink-0">
-                    <span style={{ color: GOLD }}>{food.protein}p</span>
+                    <span style={{ color: PROTEIN }}>{food.protein}p</span>
                     <span style={{ color: FAT_GREY }}>{food.fat}f</span>
                     <span style={{ color: CARB_BRONZE }}>{food.carbs}c</span>
                   </div>
@@ -530,7 +532,7 @@ function MealSheet({ meal, mealIndex, isOpen, onClose, logged, logMeal, adjustMe
                   <p className="font-body text-[13px] text-white/70 mb-2.5 pr-6">{food.name}</p>
                   <div className="grid grid-cols-3 gap-2">
                     {[
-                      { key: 'protein', label: 'Protein (g)', color: GOLD },
+                      { key: 'protein', label: 'Protein (g)', color: PROTEIN },
                       { key: 'carbs',   label: 'Carbs (g)',   color: CARB_BRONZE },
                       { key: 'fat',     label: 'Fat (g)',     color: FAT_GREY },
                     ].map(m => (
@@ -567,7 +569,7 @@ function MealSheet({ meal, mealIndex, isOpen, onClose, logged, logMeal, adjustMe
                 />
                 <div className="grid grid-cols-3 gap-2 mb-2">
                   {[
-                    { value: customProtein, set: setCustomProtein, label: 'P', color: GOLD },
+                    { value: customProtein, set: setCustomProtein, label: 'P', color: PROTEIN },
                     { value: customCarbs,   set: setCustomCarbs,   label: 'C', color: CARB_BRONZE },
                     { value: customFat,     set: setCustomFat,     label: 'F', color: FAT_GREY },
                   ].map(m => (
@@ -642,7 +644,7 @@ function MealSheet({ meal, mealIndex, isOpen, onClose, logged, logMeal, adjustMe
                   />
                   <div className="grid grid-cols-3 gap-2">
                     {[
-                      { key: 'protein', placeholder: 'Protein g', color: GOLD },
+                      { key: 'protein', placeholder: 'Protein g', color: PROTEIN },
                       { key: 'carbs',   placeholder: 'Carbs g',   color: CARB_BRONZE },
                       { key: 'fat',     placeholder: 'Fat g',     color: FAT_GREY },
                     ].map(m => (
@@ -933,7 +935,7 @@ function SupplementsSection() {
 // ═════════════════════════════════════════════
 const GLASS_ML = 250;
 const STEEL_BRIGHT = T.water;
-const STREAK_GREEN = T.red;
+const STREAK_GOLD = T.gold;
 
 // Format ISO timestamp → "9:30 PM"
 function formatTime(iso) {
@@ -954,7 +956,7 @@ function HydrationHero({ hydration }) {
 
   return (
     <motion.div
-      className="mx-5 mb-4 rounded-2xl p-5 relative overflow-hidden"
+      className="mx-5 mb-4 rounded-xl p-5 relative overflow-hidden"
       style={{ background: CARD_BG, border: `1px solid ${CARD_BORDER}` }}
       initial={shouldReduce ? {} : { opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
@@ -1058,7 +1060,7 @@ function DrinkButton({ defaultMl, logWater, setWaterDefault, hasEntries, undoLas
           whileTap={{ scale: 0.93 }}
           onClick={() => setSettingsOpen(o => !o)}
           aria-label="Customize amount"
-          className="shrink-0 w-14 rounded-2xl flex items-center justify-center"
+          className="shrink-0 w-14 rounded-xl flex items-center justify-center"
           style={{ background: CARD_BG, border: `1px solid ${CARD_BORDER}` }}
         >
           <Settings2 size={18} strokeWidth={T.stroke} className="text-white/55" />
@@ -1074,7 +1076,7 @@ function DrinkButton({ defaultMl, logWater, setWaterDefault, hasEntries, undoLas
             className="overflow-hidden"
           >
             <div
-              className="mt-2 p-4 rounded-2xl"
+              className="mt-2 p-4 rounded-xl"
               style={{ background: CARD_BG, border: `1px solid ${CARD_BORDER}` }}
             >
               <p className="kicker mb-2.5">Default drink size</p>
@@ -1110,8 +1112,8 @@ function DrinkButton({ defaultMl, logWater, setWaterDefault, hasEntries, undoLas
                 <motion.button
                   whileTap={T.tapSmall}
                   onClick={handleLogCustom}
-                  className="px-4 py-2.5 rounded-xl font-body text-[12px] font-bold text-black"
-                  style={{ background: T.goldGrad }}
+                  className="px-4 py-2.5 rounded-xl font-body text-[12px] font-bold"
+                  style={{ background: T.goldGradCss, color: T.goldInk }}
                 >
                   Log
                 </motion.button>
@@ -1157,7 +1159,7 @@ function WeeklyOverview({ history, hydration }) {
 
   return (
     <motion.div
-      className="mx-5 mb-4 rounded-2xl p-4"
+      className="mx-5 mb-4 rounded-xl p-4"
       style={{ background: CARD_BG, border: `1px solid ${CARD_BORDER}` }}
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
@@ -1281,7 +1283,7 @@ function HydrationStats({ history, hydration }) {
 
   return (
     <motion.div
-      className="mx-5 mb-4 rounded-2xl p-3 grid grid-cols-3"
+      className="mx-5 mb-4 rounded-xl p-3 grid grid-cols-3"
       style={{ background: CARD_BG, border: `1px solid ${CARD_BORDER}` }}
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
@@ -1312,10 +1314,10 @@ function HydrationStats({ history, hydration }) {
         </div>
       </div>
       <div className="flex items-start gap-2 px-2">
-        <Flame size={18} strokeWidth={T.stroke} style={{ color: STREAK_GREEN }} className="mt-0.5 shrink-0" />
+        <Flame size={18} strokeWidth={T.stroke} style={{ color: STREAK_GOLD }} className="mt-0.5 shrink-0" />
         <div className="min-w-0">
           <p className="font-body text-[9px] font-extrabold text-white/35 uppercase tracking-wider leading-none">Streak</p>
-          <p className="font-display text-[18px] tabular-nums leading-none mt-1.5" style={{ color: STREAK_GREEN }}>
+          <p className="font-display text-[18px] tabular-nums leading-none mt-1.5" style={{ color: STREAK_GOLD }}>
             {streak} {streak === 1 ? 'day' : 'days'}
           </p>
           <p className="font-body text-[9px] text-white/30 uppercase tracking-wider mt-1">
@@ -1334,7 +1336,7 @@ function RecentHistory({ waterLog, removeWaterEntry }) {
 
   return (
     <motion.div
-      className="mx-5 mb-4 rounded-2xl p-4"
+      className="mx-5 mb-4 rounded-xl p-4"
       style={{ background: CARD_BG, border: `1px solid ${CARD_BORDER}` }}
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
@@ -1492,7 +1494,7 @@ export default function Nutrition({ onMacroDetail }) {
           <h1 className="display-md text-[#F4F2EC]">
             NUTRITION
           </h1>
-          <p className="font-body text-[13px] font-medium mt-2" style={{ color: T.textLow }}>
+          <p className="font-body text-[13px] font-medium mt-2" style={{ color: T.textSub }}>
             Fuel the work.
           </p>
         </div>

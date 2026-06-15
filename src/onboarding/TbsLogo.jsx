@@ -18,9 +18,9 @@ export default function TbsLogo({ width = 240, className = '', style }) {
     >
       <defs>
         <linearGradient id="tbsGold" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="#E8C36A" />
-          <stop offset="48%" stopColor="#D4A848" />
-          <stop offset="100%" stopColor="#B8923B" />
+          <stop offset="0%" stopColor="#E8D29A" />
+          <stop offset="48%" stopColor="#E0C074" />
+          <stop offset="100%" stopColor="#C8A24E" />
         </linearGradient>
       </defs>
 

@@ -98,8 +98,9 @@ export default function Auth({ onLogin, onSignup }) {
       <div className="relative shrink-0" style={{ height: '34vh' }}>
         <img src={PHOTOS.pushHero} alt="" className="absolute inset-0 w-full h-full object-cover"
           style={{ filter: 'grayscale(100%) contrast(1.1) brightness(0.5)' }} />
+        {/* Standard bottom-up scrim — headline sits on a clean ramp, no hard seam */}
         <div className="absolute inset-0" style={{
-          background: 'linear-gradient(180deg, rgba(11,11,12,0.45) 0%, rgba(11,11,12,0.55) 50%, #0B0B0C 100%)',
+          background: 'linear-gradient(to top, #000 0%, rgba(0,0,0,0.75) 28%, rgba(0,0,0,0) 65%)',
         }} />
         <div className="absolute inset-0 flex flex-col justify-end p-5 pb-4">
           <p className="kicker kicker-gold mb-2">TBS Fitness</p>

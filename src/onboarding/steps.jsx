@@ -210,7 +210,7 @@ function ChipAdder({ tags, onAdd, onRemove, placeholder }) {
           {tags.map(tag => (
             <span key={tag} className="flex items-center gap-1.5 pl-3 pr-1.5 py-1.5 rounded-full" style={{ background: T.goldTint, border: `1px solid ${T.goldBorder}` }}>
               <span className="font-body text-[13px] font-semibold" style={{ color: T.gold }}>{tag}</span>
-              <button onClick={() => onRemove(tag)} className="w-4 h-4 rounded-full flex items-center justify-center" style={{ background: 'rgba(226, 194, 119,0.25)' }}>
+              <button onClick={() => onRemove(tag)} className="w-4 h-4 rounded-full flex items-center justify-center" style={{ background: 'rgba(246, 180, 28,0.25)' }}>
                 <X size={9} strokeWidth={2.5} style={{ color: T.gold }} />
               </button>
             </span>
@@ -402,7 +402,7 @@ function MotivationScreen({ answers, next }) {
     <div className="relative h-full overflow-hidden flex flex-col" style={{ background: T.bg }}>
       {/* Subtle gradient bg */}
       <div className="absolute inset-0" style={{
-        background: 'radial-gradient(ellipse 70% 50% at 50% 35%, rgba(226, 194, 119,0.08) 0%, transparent 70%)',
+        background: 'radial-gradient(ellipse 70% 50% at 50% 35%, rgba(246, 180, 28,0.08) 0%, transparent 70%)',
       }} />
 
       <div className="relative flex-1 flex flex-col items-center justify-center px-6 text-center">
@@ -422,7 +422,7 @@ function MotivationScreen({ answers, next }) {
           className="relative mb-8"
         >
           <div className="absolute inset-0 rounded-full" style={{
-            background: 'radial-gradient(circle, rgba(226, 194, 119,0.3) 0%, transparent 65%)',
+            background: 'radial-gradient(circle, rgba(246, 180, 28,0.3) 0%, transparent 65%)',
             transform: 'scale(1.6)',
             animation: 'pulse-glow 2.5s ease-in-out infinite',
           }} />
@@ -931,7 +931,7 @@ function PledgeScreen({ next }) {
         >
           {/* Background glow */}
           <div className="absolute inset-0 rounded-full" style={{
-            background: `radial-gradient(circle, rgba(226, 194, 119,${0.15 * progress}) 0%, transparent 70%)`,
+            background: `radial-gradient(circle, rgba(246, 180, 28,${0.15 * progress}) 0%, transparent 70%)`,
             transform: `scale(${1.4 + progress * 0.4})`,
             transition: holding.current ? 'none' : 'all 200ms ease-out',
           }} />

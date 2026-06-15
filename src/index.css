@@ -9,10 +9,10 @@
   --color-hairline-strong: rgba(244, 242, 236, 0.16);
 
   --red: #FF3B30;
-  --steel: #9FB3C8;
-  --gold: #E2C277;
-  --gold-grad: linear-gradient(135deg, #E0C074 0%, #C8A24E 100%);
-  --gold-ink: #0A0A0A;
+  --crimson: #DC2F4E;
+  --azure: #28A9F0;
+  --gold: #F6B41C;
+  --gold-ink: #241906;
 
   --font-display: 'Bebas Neue', sans-serif;
   --font-body: 'Manrope', sans-serif;
@@ -66,7 +66,7 @@ html, body, #root {
   text-transform: uppercase;
   color: rgba(244, 242, 236, 0.45);
 }
-.kicker-gold { color: #E2C277; } /* accent kicker — gold */
+.kicker-gold { color: #F6B41C; } /* accent kicker — gold */
 
 /* ── Card family — one card style, one radius ── */
 .card {
@@ -84,8 +84,8 @@ html, body, #root {
   width: 100%;
   padding: 14px 20px;
   border-radius: 12px;
-  background: linear-gradient(135deg, #E0C074 0%, #C8A24E 100%);
-  color: #0A0A0A;
+  background: #F6B41C;
+  color: #241906;
   font-family: var(--font-body);
   font-weight: 600;
   font-size: 14px;
@@ -118,7 +118,7 @@ html, body, #root {
   background: transparent;
   border: none;
   padding: 6px 0;
-  color: #E2C277;
+  color: #F6B41C;
   font-family: var(--font-body);
   font-weight: 600;
   font-size: 13px;
@@ -130,14 +130,14 @@ html, body, #root {
   font-variant-numeric: tabular-nums;
 }
 
-/* ── Accent text (flat champagne gold) ── */
+/* ── Accent text (flat gold) ── */
 .text-gold-gradient {
-  color: #E2C277;
+  color: #F6B41C;
 }
 
-/* ── Accent background (flat champagne gold) ── */
+/* ── Accent background (flat gold) ── */
 .bg-gold-gradient {
-  background: #E2C277;
+  background: #F6B41C;
 }
 
 /* ── Divider ── */
@@ -277,6 +277,6 @@ html, body, #root {
   top: 0;
   bottom: 0;
   width: 3px;
-  background: #E2C277;
+  background: #F6B41C;
   border-radius: 3px 0 0 3px;
 }

@@ -84,7 +84,7 @@ export default function CoachTip({ stepKey, targetSelector, message, cta, onCta,
           style={{
             top: hole.y, left: hole.x, width: hole.w, height: hole.h,
             border: `2px solid ${T.gold}`,
-            boxShadow: `0 0 0 1px rgba(11,11,12,0.6), 0 0 22px 2px rgba(226, 194, 119,0.25)`,
+            boxShadow: `0 0 0 1px rgba(11,11,12,0.6), 0 0 22px 2px rgba(246, 180, 28,0.25)`,
           }}
         />
       )}

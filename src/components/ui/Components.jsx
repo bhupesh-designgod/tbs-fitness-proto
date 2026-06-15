@@ -36,11 +36,12 @@ export function MacroBar({ label, current, target, color, size = 'normal' }) {
   const over = current > target ? current - target : 0;
 
   const colorMap = {
-    gold: T.goldGradCss,
-    platinum: '#C8C8C6',
-    bronze: '#9A7B4F',
+    protein: T.macroProtein,
+    fat: T.macroFat,
+    carbs: T.macroCarbs,
+    calories: T.cal,
+    water: T.water,
     white: '#F4F2EC',
-    steel: T.waterFill,
   };
 
   const isSmall = size === 'small';
@@ -105,7 +106,7 @@ export function NumericCounter({ value, suffix = '', className = '', duration = 
 }
 
 // ── Ring Counter (SVG concentric ring) ──
-export function RingCounter({ percentage, size = 120, strokeWidth = 5, color = T.gold, delay = 0, children }) {
+export function RingCounter({ percentage, size = 120, strokeWidth = 5, color = T.text, delay = 0, children }) {
   const shouldReduce = useReducedMotion();
   const radius = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;

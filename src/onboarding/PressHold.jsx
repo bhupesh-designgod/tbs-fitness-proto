@@ -76,7 +76,7 @@ export default function PressHold({ label, onComplete }) {
 
   const scale = 1 + 0.04 * progress;
   const glow = progress > 0
-    ? `0 0 ${20 * progress}px ${6 * progress}px rgba(226, 194, 119,${0.28 * progress})`
+    ? `0 0 ${20 * progress}px ${6 * progress}px rgba(246, 180, 28,${0.28 * progress})`
     : 'none';
 
   return (

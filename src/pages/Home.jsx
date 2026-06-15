@@ -367,9 +367,9 @@ export default function Home({ onProfileClick, onNavigate, onNotifications }) {
         <p className="kicker mb-3">Today's plan</p>
         <div className="grid grid-cols-2 gap-3">
           <div className="card flex flex-col items-center gap-2.5 py-5 px-4">
-            <StatusRing percentage={nutritionPct} color={T.volt} size={60} strokeWidth={4}>
+            <StatusRing percentage={nutritionPct} color={T.cal} size={60} strokeWidth={4}>
               {nutritionPct >= 100 ? (
-                <Check size={22} strokeWidth={2.5} style={{ color: T.volt }} />
+                <Check size={22} strokeWidth={2.5} style={{ color: T.cal }} />
               ) : (
                 <Utensils size={20} strokeWidth={T.stroke} style={{ color: T.textMid }} />
               )}
@@ -377,7 +377,7 @@ export default function Home({ onProfileClick, onNavigate, onNotifications }) {
             <span className="font-body text-[12px] font-bold uppercase tracking-wider" style={{ color: T.textMid }}>
               Nutrition
             </span>
-            <span className="display-xs" style={{ color: nutritionPct >= 100 ? T.volt : T.text }}>
+            <span className="display-xs" style={{ color: nutritionPct >= 100 ? T.cal : T.text }}>
               {nutritionPct >= 100 ? 'Done' : `${mealsLogged} of ${totalMeals}`}
             </span>
           </div>

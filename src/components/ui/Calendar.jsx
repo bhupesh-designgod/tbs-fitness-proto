@@ -30,7 +30,7 @@ function histPts(day) {
 }
 
 // ── Single ring ──
-export function MiniRing({ percentage, size = 42, strokeWidth = 3, color = T.gold, inset = 0 }) {
+export function MiniRing({ percentage, size = 42, strokeWidth = 3, color = T.text, inset = 0 }) {
   const radius = (size - strokeWidth) / 2 - inset;
   if (radius <= 0 || percentage === null || percentage === undefined) return null;
   const circumference = 2 * Math.PI * radius;
@@ -59,12 +59,12 @@ export function MiniRing({ percentage, size = 42, strokeWidth = 3, color = T.gol
   );
 }
 
-// ── Dual ring: meals (outer, gold) + hydration (inner, steel-blue) ──
+// ── Dual ring: meals (outer, crimson) + hydration (inner, azure) ──
 // Two clearly separated rings — ~4px gap so both read at a glance.
 function DualRing({ mealPct, hydPct, size = 42 }) {
   return (
     <>
-      <MiniRing percentage={mealPct} size={size} strokeWidth={3} color={T.gold} />
+      <MiniRing percentage={mealPct} size={size} strokeWidth={3} color={T.cal} />
       <MiniRing percentage={hydPct} size={size} strokeWidth={3} color={T.water} inset={7} />
     </>
   );
@@ -124,9 +124,9 @@ function useWeekDays() {
 // ── Training day cell content ──
 function SplitIcon({ split, isToday, isPast, trained, size = 15 }) {
   const isRest = split === 'rest';
-  const color = isToday ? T.volt
+  const color = isToday ? T.gold
     : isRest ? T.cobalt
-    : isPast && trained ? T.volt
+    : isPast && trained ? T.text
     : T.textLow;
 
   return isRest
@@ -156,7 +156,7 @@ function DayCircle({ day, mode, size = 42 }) {
             : `1px solid ${T.hairline}`,
       }}
     >
-      {mode === 'score' && <MiniRing percentage={day.pct} size={ringSize} strokeWidth={3} color={T.gold} />}
+      {mode === 'score' && <MiniRing percentage={day.pct} size={ringSize} strokeWidth={3} color={T.text} />}
       {mode === 'nutrition' && <DualRing mealPct={day.mealPct} hydPct={day.hydPct} size={ringSize} />}
 
       {mode === 'training' ? (
@@ -324,7 +324,7 @@ export function MonthSheet({ isOpen, onClose, mode = 'score' }) {
         {mode === 'score' && (
           <span className="flex items-center gap-1.5 font-body text-[11px] font-medium" style={{ color: T.textLow }}>
             <span className="relative inline-block w-4 h-4 rounded-full" style={{ border: `1px solid ${T.hairline}` }}>
-              <MiniRing percentage={75} size={16} strokeWidth={2} color={T.gold} />
+              <MiniRing percentage={75} size={16} strokeWidth={2} color={T.text} />
             </span>
             Goal completion
           </span>
@@ -344,7 +344,7 @@ export function MonthSheet({ isOpen, onClose, mode = 'score' }) {
         {mode === 'training' && (
           <>
             <span className="flex items-center gap-1.5 font-body text-[11px] font-medium" style={{ color: T.textLow }}>
-              <Dumbbell size={13} strokeWidth={T.stroke} style={{ color: T.volt }} />
+              <Dumbbell size={13} strokeWidth={T.stroke} style={{ color: T.text }} />
               Workout
             </span>
             <span className="flex items-center gap-1.5 font-body text-[11px] font-medium" style={{ color: T.textLow }}>

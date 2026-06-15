@@ -18,6 +18,7 @@ const GOLD = T.gold;
 const GOLD_START = T.goldStart;
 const GOLD_END = T.goldEnd;
 const ON_TRACK = T.success;
+const POSITIVE = T.positive;
 const RED = T.danger;
 
 const DAY = 86_400_000;
@@ -98,7 +99,7 @@ function LatestReviewCard({ checkIn, onView }) {
           </h2>
           <span
             className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md"
-            style={{ background: 'rgba(226, 194, 119,0.12)', border: '1px solid rgba(226, 194, 119,0.40)' }}
+            style={{ background: 'rgba(246, 180, 28,0.12)', border: '1px solid rgba(246, 180, 28,0.40)' }}
           >
             <span
               className="w-2.5 h-2.5 rounded-full flex items-center justify-center"
@@ -118,7 +119,7 @@ function LatestReviewCard({ checkIn, onView }) {
         <div className="flex items-center gap-2 mt-3">
           <div
             className="w-7 h-7 rounded-full overflow-hidden shrink-0"
-            style={{ border: '1px solid rgba(226, 194, 119,0.40)' }}
+            style={{ border: '1px solid rgba(246, 180, 28,0.40)' }}
           >
             <img
               src={PHOTOS.bikiPortrait}
@@ -193,7 +194,7 @@ function NextCheckInCard({ next, onStart }) {
       <div className="flex items-center gap-4">
         <div
           className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0"
-          style={{ background: 'rgba(226, 194, 119,0.12)', border: '1px solid rgba(226, 194, 119,0.40)' }}
+          style={{ background: 'rgba(246, 180, 28,0.12)', border: '1px solid rgba(246, 180, 28,0.40)' }}
         >
           <CalendarDays size={20} strokeWidth={T.stroke} style={{ color: GOLD }} />
         </div>
@@ -302,7 +303,7 @@ function WeekPicker({ value, options, onChange }) {
                   key={opt.id}
                   onClick={() => { onChange(opt.id); setOpen(false); }}
                   className="w-full text-left px-3.5 py-2.5 flex items-center justify-between"
-                  style={{ background: isActive ? 'rgba(226, 194, 119,0.12)' : 'transparent' }}
+                  style={{ background: isActive ? 'rgba(246, 180, 28,0.12)' : 'transparent' }}
                 >
                   <span
                     className="font-body text-[12px] font-bold"
@@ -335,8 +336,8 @@ function CompareAngleToggle({ active, onChange }) {
             whileTap={{ scale: 0.96 }}
             className="px-4 py-1.5 rounded-full"
             style={{
-              background: isActive ? 'rgba(226, 194, 119,0.16)' : 'transparent',
-              border: isActive ? '1px solid rgba(226, 194, 119,0.4)' : '1px solid transparent',
+              background: isActive ? 'rgba(246, 180, 28,0.16)' : 'transparent',
+              border: isActive ? '1px solid rgba(246, 180, 28,0.4)' : '1px solid transparent',
             }}
           >
             <span
@@ -407,18 +408,19 @@ function DeltaPill({ delta }) {
     );
   }
 
+  const tone = isDown ? POSITIVE : RED;
   return (
     <div
       className="rounded-full px-2.5 py-1.5 whitespace-nowrap flex items-center gap-1"
       style={{
-        background: 'rgba(226, 194, 119,0.14)',
-        border: '1px solid rgba(226, 194, 119,0.4)',
+        background: 'rgba(255,255,255,0.06)',
+        border: `1px solid ${CARD_BORDER}`,
       }}
     >
       {isDown
-        ? <ArrowDown size={11} strokeWidth={2.5} style={{ color: ON_TRACK }} />
-        : <ArrowUp   size={11} strokeWidth={2.5} style={{ color: ON_TRACK }} />}
-      <span className="font-body text-[11px] font-extrabold tabular-nums" style={{ color: ON_TRACK }}>
+        ? <ArrowDown size={11} strokeWidth={2.5} style={{ color: tone }} />
+        : <ArrowUp   size={11} strokeWidth={2.5} style={{ color: tone }} />}
+      <span className="font-body text-[11px] font-extrabold tabular-nums" style={{ color: tone }}>
         {abs} kg
       </span>
     </div>
@@ -521,11 +523,11 @@ function HistoryRow({ item, delay, onOpen }) {
             </span>
             <div className="flex items-center gap-0.5">
               {p.deltaDir === 'up'
-                ? <ArrowUp size={10} strokeWidth={2.5} style={{ color: p.deltaTone === 'good' ? ON_TRACK : RED }} />
-                : <ArrowDown size={10} strokeWidth={2.5} style={{ color: p.deltaTone === 'good' ? ON_TRACK : RED }} />}
+                ? <ArrowUp size={10} strokeWidth={2.5} style={{ color: p.deltaTone === 'good' ? POSITIVE : RED }} />
+                : <ArrowDown size={10} strokeWidth={2.5} style={{ color: p.deltaTone === 'good' ? POSITIVE : RED }} />}
               <span
                 className="font-body text-[11px] font-extrabold tabular-nums"
-                style={{ color: p.deltaTone === 'good' ? ON_TRACK : RED }}
+                style={{ color: p.deltaTone === 'good' ? POSITIVE : RED }}
               >
                 {p.delta}
               </span>
@@ -536,7 +538,7 @@ function HistoryRow({ item, delay, onOpen }) {
 
       <div
         className="shrink-0 px-3 py-1.5 rounded-lg"
-        style={{ border: '1px solid rgba(226, 194, 119,0.40)' }}
+        style={{ border: '1px solid rgba(246, 180, 28,0.40)' }}
       >
         <span className="font-body text-[11px] font-extrabold uppercase tracking-wider" style={{ color: GOLD }}>
           View

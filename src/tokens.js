@@ -1,7 +1,8 @@
-// ── Design Tokens — "Champagne" palette ──
-// Black + off-white carry the screen. ONE saturated brand accent — champagne
-// gold (CTAs, achievements, brand). Steel-blue is reserved for hydration only.
-// Red survives only as a small functional alert. Everything else is neutral.
+// ── Design Tokens — "Gold + vivid data" palette ──
+// Black + off-white carry the screen. GOLD (#F6B41C) is for ACTIONS ONLY —
+// it never encodes a ring, stat, or data value. Data has its own vivid, solid
+// set: crimson (calories), azure (hydration), jade/persimmon/amethyst (P/F/C).
+// Every fill is a flat solid — no gradients anywhere in the UI.
 
 export const T = {
   // Base
@@ -11,12 +12,11 @@ export const T = {
   hairline: 'rgba(255,255,255,0.07)',
   hairlineStrong: 'rgba(244,242,236,0.16)',
 
-  // GOLD — the single brand accent. Active states, progress, achievements.
-  // Primary CTAs use the gradient (goldGradCss); accents/rings/text use flat.
-  volt: '#E2C277',              // legacy alias → folds into gold
-  voltInk: '#0A0A0A',
-  voltTint: 'rgba(226,194,119,0.12)',
-  voltBorder: 'rgba(226,194,119,0.40)',
+  // VOLT — legacy alias → folds into gold (actions only)
+  volt: '#F6B41C',
+  voltInk: '#241906',
+  voltTint: 'rgba(246,180,28,0.12)',
+  voltBorder: 'rgba(246,180,28,0.40)',
 
   // RED — functional alert only. Notifications + genuine regressions.
   red: '#FF3B30',
@@ -27,33 +27,37 @@ export const T = {
   cobaltTint: 'rgba(255,255,255,0.06)',
   cobaltBorder: 'rgba(244,242,236,0.16)',
 
-  // GOLD — champagne. Flat for accents, gradient for primary fills.
-  gold: '#E2C277',
-  goldInk: '#0A0A0A',                                       // near-black on gold
-  goldGradCss: 'linear-gradient(135deg, #E0C074 0%, #C8A24E 100%)',
-  goldTint: 'rgba(226,194,119,0.12)',
-  goldBorder: 'rgba(226,194,119,0.42)',
-  goldStart: '#E0C074',
-  goldEnd: '#C8A24E',
-  goldGrad: '#E2C277',          // flat fallback (solid fills)
+  // GOLD — the action accent. Solid flat fill only, near-black ink on top.
+  gold: '#F6B41C',
+  goldInk: '#241906',                                       // near-black on gold
+  goldGradCss: '#F6B41C',       // (solid — gradients removed app-wide)
+  goldTint: 'rgba(246,180,28,0.14)',
+  goldBorder: 'rgba(246,180,28,0.42)',
+  goldStart: '#F6B41C',
+  goldEnd: '#F6B41C',
+  goldGrad: '#F6B41C',          // flat solid
 
-  // MEAL — folds into gold (no more orange)
-  meal: '#E2C277',
-  mealTint: 'rgba(226,194,119,0.12)',
+  // MEAL / calorie family → persimmon (data)
+  meal: '#EF6240',
+  mealTint: 'rgba(239,98,64,0.14)',
 
-  // Functional — data only
-  success: '#E2C277',           // achievement / "done" → gold
-  successTint: 'rgba(226,194,119,0.12)',
-  successBorder: 'rgba(226,194,119,0.40)',
+  // Functional
+  success: '#F6B41C',           // achievement / confirmation → gold (action result)
+  successTint: 'rgba(246,180,28,0.14)',
+  successBorder: 'rgba(246,180,28,0.40)',
+  positive: '#23A968',          // good data delta (e.g. weight down) — jade
   danger: '#FF3B30',
-  water: '#9FB3C8',             // steel-blue — hydration ONLY
-  waterFill: '#8FA9C4',         // steel-blue with more presence (bars/fills)
-  waterTint: 'rgba(159,179,200,0.14)',
-  waterBorder: 'rgba(159,179,200,0.40)',
-  // Macro set — three neutral tints, read as one family (label is the signal)
-  macroProtein: '#E8E2D4',
-  macroFat: '#B8B0A0',
-  macroCarbs: '#8C8579',
+
+  // ── DATA palette — vivid solids, each on a neutral track. Never gold. ──
+  cal: '#EF6240',               // calories → persimmon
+  calTint: 'rgba(239,98,64,0.14)',
+  water: '#28A9F0',             // hydration → azure
+  waterFill: '#28A9F0',
+  waterTint: 'rgba(40,169,240,0.14)',
+  waterBorder: 'rgba(40,169,240,0.40)',
+  macroProtein: '#23A968',      // jade
+  macroFat: '#DC2F4E',          // crimson
+  macroCarbs: '#A24FC9',        // amethyst
 
   // Text — warm off-white ink
   text: '#F4F2EC',

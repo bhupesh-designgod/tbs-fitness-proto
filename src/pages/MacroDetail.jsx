@@ -8,17 +8,17 @@ import { DAILY_TARGETS } from '../data/mockData';
 import { T } from '../tokens';
 
 const MACROS = [
-  { key: 'protein', label: 'Protein', color: 'gold', unit: 'g' },
-  { key: 'carbs', label: 'Carbs', color: 'platinum', unit: 'g' },
-  { key: 'fat', label: 'Fat', color: 'bronze', unit: 'g' },
-  { key: 'calories', label: 'Calories', color: 'white', unit: '' },
+  { key: 'protein', label: 'Protein', color: 'protein', unit: 'g' },
+  { key: 'carbs', label: 'Carbs', color: 'carbs', unit: 'g' },
+  { key: 'fat', label: 'Fat', color: 'fat', unit: 'g' },
+  { key: 'calories', label: 'Calories', color: 'calories', unit: '' },
 ];
 
 const colorValues = {
-  gold: T.gold,
-  platinum: T.macroFat,
-  bronze: T.macroCarbs,
-  white: '#F4F2EC',
+  protein: T.macroProtein,   // jade
+  carbs: T.macroCarbs,       // amethyst
+  fat: T.macroFat,           // persimmon
+  calories: T.cal,           // crimson
 };
 
 export default function MacroDetail({ onBack }) {

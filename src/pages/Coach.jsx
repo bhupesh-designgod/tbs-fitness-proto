@@ -26,7 +26,7 @@ const ONLINE_GREEN = T.success;
 // ── Topic palette ──
 const TOPICS = {
   general:  { label: 'General',  color: '#9D9C96' },
-  workout:  { label: 'Workout',  color: T.gold },
+  workout:  { label: 'Workout',  color: T.cal },
   diet:     { label: 'Diet',     color: '#F4F2EC' },
   progress: { label: 'Progress', color: T.water },
   other:    { label: 'Other',    color: '#FF3B30' },
@@ -114,7 +114,7 @@ function NextCallCard() {
     >
       <div
         className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0"
-        style={{ background: 'rgba(226, 194, 119,0.12)', border: `1px solid rgba(226, 194, 119,0.40)` }}
+        style={{ background: 'rgba(246, 180, 28,0.12)', border: `1px solid rgba(246, 180, 28,0.40)` }}
       >
         <CalendarDays size={20} strokeWidth={T.stroke} style={{ color: GOLD }} />
       </div>
@@ -161,7 +161,7 @@ function CoachAvatar() {
     <div className="relative shrink-0">
       <div
         className="w-9 h-9 rounded-full overflow-hidden"
-        style={{ border: '1.5px solid rgba(226, 194, 119,0.40)' }}
+        style={{ border: '1.5px solid rgba(246, 180, 28,0.40)' }}
       >
         <img
           src={PHOTOS.bikiPortrait}

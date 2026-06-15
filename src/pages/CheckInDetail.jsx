@@ -18,6 +18,7 @@ const GOLD = T.gold;
 const GOLD_START = T.goldStart;
 const GOLD_END = T.goldEnd;
 const ON_TRACK = T.success;
+const POSITIVE = T.positive;
 const RED = T.danger;
 
 // ─────────────────────────────────────────────
@@ -99,11 +100,11 @@ function CoachSummaryCard({ summary }) {
 // ─────────────────────────────────────────────
 const METRIC_ICONS = {
   weight:  { icon: Scale,      tint: T.cobalt },
-  protein: { icon: Beef,       tint: T.volt },
-  workout: { icon: Dumbbell,   tint: T.red },
+  protein: { icon: Beef,       tint: T.macroProtein },
+  workout: { icon: Dumbbell,   tint: T.textMid },
   steps:   { icon: Footprints, tint: T.textMid },
   waist:   { icon: Ruler,      tint: T.cobalt },
-  energy:  { icon: Zap,        tint: T.gold },
+  energy:  { icon: Zap,        tint: T.textMid },
 };
 
 function formatNumber(v) {
@@ -155,11 +156,11 @@ function MetricGridCard({ k, m }) {
         {hasDelta ? (
           <div className="flex items-center gap-1">
             {m.delta > 0
-              ? <ArrowUp   size={11} strokeWidth={2.5} style={{ color: isGood ? ON_TRACK : RED }} />
-              : <ArrowDown size={11} strokeWidth={2.5} style={{ color: isGood ? ON_TRACK : RED }} />}
+              ? <ArrowUp   size={11} strokeWidth={2.5} style={{ color: isGood ? POSITIVE : RED }} />
+              : <ArrowDown size={11} strokeWidth={2.5} style={{ color: isGood ? POSITIVE : RED }} />}
             <span
               className="font-body text-[13px] font-extrabold tabular-nums"
-              style={{ color: isGood ? ON_TRACK : RED }}
+              style={{ color: isGood ? POSITIVE : RED }}
             >
               {formatDelta(m.delta)}{m.unit}
             </span>
@@ -208,7 +209,7 @@ function PlanChanges({ changes }) {
           >
             <div
               className="w-5 h-5 rounded-full flex items-center justify-center shrink-0 mt-0.5"
-              style={{ background: 'rgba(226, 194, 119,0.12)', border: '1.5px solid rgba(226, 194, 119,0.45)' }}
+              style={{ background: 'rgba(246, 180, 28,0.12)', border: '1.5px solid rgba(246, 180, 28,0.45)' }}
             >
               <Check size={11} strokeWidth={2.5} style={{ color: GOLD }} />
             </div>

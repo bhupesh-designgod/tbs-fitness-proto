@@ -126,7 +126,7 @@ function MacrosOverview({ logged }) {
       <div className="flex items-center gap-5">
         {/* Big calorie ring — the hero number */}
         <div className="shrink-0">
-          <RingCounter percentage={calPct} size={118} strokeWidth={5} delay={0.1}>
+          <RingCounter percentage={calPct} size={118} strokeWidth={5} color={T.cal} delay={0.1}>
             <div className="flex flex-col items-center">
               <NumericCounter
                 value={logged.calories}
@@ -170,7 +170,7 @@ function MacrosOverview({ logged }) {
                 </div>
                 <span
                   className="font-body text-[10px] tabular-nums"
-                  style={{ color: delta < 0 ? GOLD : 'rgba(255,255,255,0.3)' }}
+                  style={{ color: delta < 0 ? m.color : 'rgba(255,255,255,0.3)' }}
                 >
                   {delta < 0 ? `${delta}g` : delta === 0 ? 'On target' : `+${delta}g`}
                 </span>
@@ -425,7 +425,7 @@ function MealSheet({ meal, mealIndex, isOpen, onClose, logged, logMeal, adjustMe
         {meal.logged && (
           <span
             className="font-body text-[10px] font-extrabold uppercase tracking-wider px-2 py-1 rounded-md"
-            style={{ background: 'rgba(226, 194, 119,0.12)', color: GOLD, border: '1px solid rgba(226, 194, 119,0.40)' }}
+            style={{ background: 'rgba(246, 180, 28,0.12)', color: GOLD, border: '1px solid rgba(246, 180, 28,0.40)' }}
           >
             Logged
           </span>
@@ -824,7 +824,7 @@ function AddMealSheet({ isOpen, onClose, addMeal }) {
             />
             <div className="grid grid-cols-3 gap-2">
               {[
-                { key: 'protein', placeholder: 'Protein g', color: GOLD },
+                { key: 'protein', placeholder: 'Protein g', color: PROTEIN },
                 { key: 'carbs',   placeholder: 'Carbs g',   color: CARB_BRONZE },
                 { key: 'fat',     placeholder: 'Fat g',     color: FAT_GREY },
               ].map(m => (
@@ -935,7 +935,7 @@ function SupplementsSection() {
 // ═════════════════════════════════════════════
 const GLASS_ML = 250;
 const STEEL_BRIGHT = T.water;
-const STREAK_GOLD = T.gold;
+const STREAK_GOLD = T.water;
 
 // Format ISO timestamp → "9:30 PM"
 function formatTime(iso) {
@@ -965,7 +965,7 @@ function HydrationHero({ hydration }) {
       {/* Subtle water-tint glow */}
       <div
         className="absolute -right-10 -top-10 w-48 h-48 rounded-full pointer-events-none"
-        style={{ background: 'radial-gradient(closest-side, rgba(91,124,153,0.18), transparent 70%)' }}
+        style={{ background: 'radial-gradient(closest-side, rgba(40,169,240,0.16), transparent 70%)' }}
       />
 
       <div className="flex items-center gap-5 relative">
@@ -1191,12 +1191,12 @@ function WeeklyOverview({ history, hydration }) {
               className="flex-1"
               style={{
                 height: 1,
-                backgroundImage: `repeating-linear-gradient(to right, ${GOLD} 0px, ${GOLD} 4px, transparent 4px, transparent 8px)`,
+                backgroundImage: `repeating-linear-gradient(to right, rgba(244,242,236,0.45) 0px, rgba(244,242,236,0.45) 4px, transparent 4px, transparent 8px)`,
               }}
             />
             <span
               className="font-body text-[9px] font-extrabold uppercase tracking-wider ml-1.5 leading-none"
-              style={{ color: GOLD }}
+              style={{ color: T.textLow }}
             >
               Goal
             </span>
@@ -1206,7 +1206,7 @@ function WeeklyOverview({ history, hydration }) {
           <div className="absolute inset-0 flex items-end justify-around" style={{ height: chartH }}>
             {days.map((day, i) => {
               const h = day.ml > 0 ? Math.max(2, (day.ml / maxMl) * chartH) : 4;
-              const barColor = day.isToday ? GOLD : STEEL_BRIGHT;
+              const barColor = STEEL_BRIGHT;
               return (
                 <div key={i} className="flex flex-col items-center" style={{ width: `${100 / 7}%` }}>
                   {day.ml > 0 && (
@@ -1222,7 +1222,7 @@ function WeeklyOverview({ history, hydration }) {
                       width: '60%',
                       maxWidth: 28,
                       background: day.isFuture ? 'transparent' : barColor,
-                      border: day.isFuture ? `1.5px dashed ${GOLD}55` : 'none',
+                      border: day.isFuture ? `1.5px dashed ${STEEL_BRIGHT}55` : 'none',
                       borderRadius: '4px 4px 0 0',
                       opacity: day.ml === 0 && !day.isFuture ? 0.2 : 1,
                     }}
@@ -1302,10 +1302,10 @@ function HydrationStats({ history, hydration }) {
         </div>
       </div>
       <div className="flex items-start gap-2 px-2 border-l border-r" style={{ borderColor: CARD_BORDER }}>
-        <Trophy size={18} strokeWidth={T.stroke} style={{ color: T.gold }} className="mt-0.5 shrink-0" />
+        <Trophy size={18} strokeWidth={T.stroke} style={{ color: T.water }} className="mt-0.5 shrink-0" />
         <div className="min-w-0">
           <p className="font-body text-[9px] font-extrabold text-white/35 uppercase tracking-wider leading-none">Best day</p>
-          <p className="font-display text-[18px] tabular-nums leading-none mt-1.5" style={{ color: T.gold }}>
+          <p className="font-display text-[18px] tabular-nums leading-none mt-1.5" style={{ color: T.water }}>
             {bestDay ? `${(bestDay.waterMl / 1000).toFixed(1)}L` : '—'}
           </p>
           <p className="font-body text-[9px] text-white/30 uppercase tracking-wider mt-1">

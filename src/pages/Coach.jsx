@@ -5,7 +5,7 @@
 import { useState, useMemo, useRef, useEffect } from 'react';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import {
-  MoreHorizontal, ArrowLeft,
+  MoreHorizontal,
   Play, Pause, Plus, Mic, Send, ChevronDown,
   BadgeCheck, CalendarDays,
 } from 'lucide-react';
@@ -46,21 +46,18 @@ const INITIAL_MESSAGES = [
 // ─────────────────────────────────────────────
 // Header
 // ─────────────────────────────────────────────
-function CoachHeader({ onBack }) {
+function CoachHeader() {
   return (
     <div
-      className="sticky top-0 z-30 px-5 pt-4 pb-3 flex items-center gap-3"
-      style={{ background: T.bg, borderBottom: `1px solid ${T.hairline}` }}
+      className="fixed top-0 left-0 right-0 z-30 mx-auto px-5 pt-4 pb-3 flex items-center gap-3"
+      style={{
+        maxWidth: 430,
+        background: 'rgba(20,20,23,0.82)',
+        backdropFilter: 'blur(16px)',
+        WebkitBackdropFilter: 'blur(16px)',
+        borderBottom: `1px solid ${T.hairlineStrong}`,
+      }}
     >
-      {/* Back (kept for visual parity; tab nav makes it no-op by default) */}
-      <button
-        onClick={onBack}
-        aria-label="Back"
-        className="w-9 h-9 rounded-full flex items-center justify-center shrink-0"
-      >
-        <ArrowLeft size={18} strokeWidth={1.75} className="text-white/80" />
-      </button>
-
       {/* Avatar */}
       <div className="relative shrink-0">
         <div
@@ -468,7 +465,7 @@ function InputBar({ value, onChange, onSend, topic, onTopicChange }) {
 // ─────────────────────────────────────────────
 // Main
 // ─────────────────────────────────────────────
-export default function Coach({ onCheckIn, onBack }) {
+export default function Coach({ onCheckIn }) {
   const { behaviorState } = useApp();
   const shouldReduce = useReducedMotion();
   const [messages, setMessages] = useState(INITIAL_MESSAGES);
@@ -511,9 +508,12 @@ export default function Coach({ onCheckIn, onBack }) {
 
   return (
     <div className="min-h-screen pb-44" style={{ background: T.bg }}>
-      <CoachHeader onBack={onBack} />
+      <CoachHeader />
 
-      <div className="pt-4">
+      {/* Spacer offsets the fixed header so content starts below it */}
+      <div aria-hidden style={{ height: 92 }} />
+
+      <div>
         <NextCallCard />
       </div>
 

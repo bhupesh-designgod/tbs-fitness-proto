@@ -45,8 +45,8 @@ export const T = {
   success: '#F6B41C',           // achievement / confirmation → gold (action result)
   successTint: 'rgba(246,180,28,0.14)',
   successBorder: 'rgba(246,180,28,0.40)',
-  positive: '#23A968',          // good data delta (e.g. weight down) — jade
-  green: '#30D158',             // live/online status — fresh active green
+  positive: '#9CE910',          // good data delta (e.g. weight down) — volt green
+  green: '#9CE910',             // live/online status — volt green
   danger: '#FF3B30',
 
   // ── DATA palette — vivid solids, each on a neutral track. Never gold. ──

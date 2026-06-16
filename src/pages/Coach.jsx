@@ -32,6 +32,8 @@ const TOPICS = {
   other:    { label: 'Other',    color: '#FF3B30' },
 };
 const TOPIC_KEYS = Object.keys(TOPICS);
+// "Other" is a display-only tag for past messages — not selectable when composing.
+const INPUT_TOPIC_KEYS = TOPIC_KEYS.filter(k => k !== 'other');
 
 // ── Seed chat ──
 const INITIAL_MESSAGES = [
@@ -89,7 +91,7 @@ function CoachHeader() {
         <div className="flex items-center gap-1.5 mt-1">
           <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: ONLINE_GREEN }} />
           <span className="font-body text-[10px] text-white/45 truncate">
-            Online · Replies in a few hours
+            Online
           </span>
         </div>
       </div>
@@ -185,7 +187,7 @@ function CoachAvatar() {
         />
       </div>
       <span
-        className="absolute -bottom-0 -right-0 w-2.5 h-2.5 rounded-full"
+        className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full translate-x-[15%] translate-y-[15%]"
         style={{ background: ONLINE_GREEN, border: '2px solid #000' }}
       />
     </div>
@@ -385,7 +387,7 @@ function InputBar({ value, onChange, onSend, topic, onTopicChange }) {
             className="mb-2 mx-1 rounded-xl p-2 flex flex-col gap-1"
             style={{ background: CARD_BG, border: `1px solid ${CARD_BORDER}`, boxShadow: '0 12px 40px rgba(0,0,0,0.4)' }}
           >
-            {TOPIC_KEYS.map(k => {
+            {INPUT_TOPIC_KEYS.map(k => {
               const t = TOPICS[k];
               const active = k === topic;
               return (

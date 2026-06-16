@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import { CHECK_IN_HISTORY, NEXT_CHECKIN, PHOTOS } from '../data/mockData';
 import { T } from '../tokens';
+import { BottomSheet } from '../components/ui/Components';
 
 // ── Aliases from the token sheet — no local values ──
 const CARD_BG = T.surface;
@@ -167,6 +168,7 @@ function LatestReviewCard({ checkIn, onView }) {
 // Next check-in card (only ≤3 days)
 // ─────────────────────────────────────────────
 function NextCheckInCard({ next, onStart }) {
+  const [detailOpen, setDetailOpen] = useState(false);
   const days = daysUntil(next.date);
   if (days < 0 || days > 3) return null;
 
@@ -208,27 +210,39 @@ function NextCheckInCard({ next, onStart }) {
           </p>
           <p className="font-body text-[11px] text-white/40 mt-1">{sub}</p>
         </div>
-        <div className="relative shrink-0" style={{ width: size, height: size }}>
-          <svg width={size} height={size} className="-rotate-90">
-            <circle cx={size/2} cy={size/2} r={r} fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth={stroke} />
-            <circle
-              cx={size/2} cy={size/2} r={r} fill="none"
-              stroke={GOLD} strokeWidth={stroke} strokeLinecap="round"
-              strokeDasharray={c} strokeDashoffset={off}
-            />
-          </svg>
-          <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <span className="font-display text-[20px] text-[#F4F2EC] tabular-nums leading-none">
-              {days}
-            </span>
-            <span className="font-body text-[8px] font-extrabold text-white/45 uppercase tracking-wider">
-              days
-            </span>
+        {days === 0 ? (
+          <div className="relative shrink-0" style={{ width: size, height: size }}>
+            <svg width={size} height={size} className="-rotate-90">
+              <circle cx={size/2} cy={size/2} r={r} fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth={stroke} />
+              <circle
+                cx={size/2} cy={size/2} r={r} fill="none"
+                stroke={GOLD} strokeWidth={stroke} strokeLinecap="round"
+                strokeDasharray={c} strokeDashoffset={off}
+              />
+            </svg>
+            <div className="absolute inset-0 flex flex-col items-center justify-center">
+              <span className="font-display text-[20px] text-[#F4F2EC] tabular-nums leading-none">
+                {days}
+              </span>
+              <span className="font-body text-[8px] font-extrabold text-white/45 uppercase tracking-wider">
+                days
+              </span>
+            </div>
           </div>
-        </div>
+        ) : (
+          <motion.button
+            whileTap={T.tapSmall}
+            onClick={() => setDetailOpen(true)}
+            aria-label="What you'll submit"
+            className="w-9 h-9 rounded-full flex items-center justify-center shrink-0"
+            style={{ border: `1px solid ${CARD_BORDER}` }}
+          >
+            <ChevronDown size={16} strokeWidth={T.stroke} style={{ color: T.textLow }} />
+          </motion.button>
+        )}
       </div>
 
-      {days === 0 ? (
+      {days === 0 && (
         <motion.button
           whileTap={T.tap}
           onClick={onStart}
@@ -237,22 +251,23 @@ function NextCheckInCard({ next, onStart }) {
           Start check-in
           <ArrowRight size={16} strokeWidth={2} />
         </motion.button>
-      ) : (
-        <div className="mt-4 pt-4" style={{ borderTop: `1px solid ${CARD_BORDER}` }}>
-          <p className="kicker mb-2.5">What you'll submit</p>
-          <div className="grid grid-cols-2 gap-x-4 gap-y-2">
-            {['Progress photos', 'Body weight', 'Waist & measures', 'Energy & adherence'].map(item => (
-              <span key={item} className="flex items-center gap-2 font-body text-[12px]" style={{ color: T.textLow }}>
-                <span className="w-1 h-1 rounded-full shrink-0" style={{ background: T.gold }} />
-                {item}
-              </span>
-            ))}
-          </div>
-          <p className="font-body text-[11px] mt-3.5" style={{ color: T.textFaint }}>
-            Opens {dueDayName}. We'll remind you — nothing to do until then.
-          </p>
-        </div>
       )}
+
+      <BottomSheet isOpen={detailOpen} onClose={() => setDetailOpen(false)}>
+        <p className="kicker kicker-gold mb-1">Next check-in</p>
+        <h2 className="display-sm text-[#F4F2EC] uppercase mb-4">What you'll submit</h2>
+        <div className="grid grid-cols-2 gap-x-4 gap-y-2.5 mb-4">
+          {['Progress photos', 'Body weight', 'Waist & measures', 'Energy & adherence'].map(item => (
+            <span key={item} className="flex items-center gap-2 font-body text-[12px]" style={{ color: T.textLow }}>
+              <span className="w-1 h-1 rounded-full shrink-0" style={{ background: T.gold }} />
+              {item}
+            </span>
+          ))}
+        </div>
+        <p className="font-body text-[12px] pb-2" style={{ color: T.textFaint }}>
+          Opens {dueDayName}. We'll remind you — nothing to do until then.
+        </p>
+      </BottomSheet>
     </motion.div>
   );
 }
@@ -348,14 +363,14 @@ function CompareAngleToggle({ active, onChange }) {
             key={a}
             onClick={() => onChange(a)}
             whileTap={{ scale: 0.96 }}
-            className="py-1 rounded-md text-center"
+            className="py-1.5 rounded-md text-center flex items-center justify-center"
             style={{
               background: isActive ? GOLD : 'transparent',
               border: `1px solid ${isActive ? GOLD : CARD_BORDER}`,
             }}
           >
             <span
-              className="font-body text-[11px] font-bold uppercase tracking-wider"
+              className="font-body text-[11px] font-bold uppercase tracking-wider leading-none"
               style={{ color: isActive ? T.goldInk : 'rgba(255,255,255,0.45)' }}
             >
               {a.charAt(0).toUpperCase() + a.slice(1)}
@@ -414,8 +429,11 @@ function DeltaPill({ delta }) {
 
   return (
     <div
-      className="whitespace-nowrap flex items-center gap-1"
-      style={{ textShadow: '0 1px 4px rgba(0,0,0,0.85)' }}
+      className="whitespace-nowrap flex items-center gap-1 px-2 py-1 rounded-full"
+      style={{
+        background: isZero ? 'rgba(255,255,255,0.08)' : `${tone}1A`,
+        border: `1px solid ${tone}`,
+      }}
     >
       {!isZero && (isDown
         ? <ArrowDown size={13} strokeWidth={3} style={{ color: tone }} />
@@ -460,7 +478,7 @@ function CompareProgress({ entries, leftId, rightId, onLeftChange, onRightChange
           <div style={{ borderLeft: '1px solid rgba(255,255,255,0.14)' }}>
             <PhotoCard entry={right} angle={angle} accent={GOLD} />
           </div>
-          <div className="absolute top-2.5 right-3 z-10">
+          <div className="absolute bottom-2.5 right-3 z-10">
             <DeltaPill delta={delta} />
           </div>
         </div>

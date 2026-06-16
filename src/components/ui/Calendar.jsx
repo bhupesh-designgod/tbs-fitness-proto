@@ -152,7 +152,8 @@ function DayCircle({ day, mode, size = 42, markToday = true }) {
         width: size,
         height: size,
         background: T.surface,
-        border: showToday
+        outlineOffset: -1,
+        outline: showToday
           ? `1.5px solid ${T.gold}`
           : mode === 'training' && day.split === 'rest'
             ? `1px dashed ${T.hairlineStrong}`
@@ -166,7 +167,7 @@ function DayCircle({ day, mode, size = 42, markToday = true }) {
         <SplitIcon split={day.split} isToday={day.isToday} isPast={day.isPast} trained={day.trained} />
       ) : (
         <span
-          className="font-body text-[12px] font-extrabold tabular-nums relative z-10"
+          className="font-body text-[10px] font-normal tabular-nums relative z-10"
           style={{
             color: showToday ? T.gold
               : hasData ? 'rgba(244,242,236,0.85)'

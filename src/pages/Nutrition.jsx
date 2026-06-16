@@ -1560,7 +1560,7 @@ export default function Nutrition({ onMacroDetail }) {
             </div>
           </div>
 
-          {/* Add Meal CTA */}
+          {/* Add Meal CTA — matches unlogged meal card styling */}
           <motion.div
             className="px-5 mt-5"
             initial={shouldReduce ? {} : { opacity: 0, y: 8 }}
@@ -1568,12 +1568,15 @@ export default function Nutrition({ onMacroDetail }) {
             transition={{ delay: 0.5 }}
           >
             <motion.button
-              whileTap={T.tap}
+              whileTap={{ scale: 0.985 }}
               onClick={() => setAddMealOpen(true)}
-              className="btn-primary"
+              className="w-full flex items-center justify-center gap-2 rounded-xl py-4"
+              style={{ background: CARD_BG, border: '1px dashed rgba(255,255,255,0.18)' }}
             >
-              <Plus size={16} strokeWidth={2.5} />
-              Add meal
+              <Plus size={16} strokeWidth={2.5} style={{ color: 'rgba(255,255,255,0.45)' }} />
+              <span className="font-body text-[12px] font-bold uppercase tracking-wider" style={{ color: 'rgba(255,255,255,0.45)' }}>
+                Add meal
+              </span>
             </motion.button>
           </motion.div>
 

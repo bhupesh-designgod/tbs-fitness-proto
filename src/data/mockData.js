@@ -9,6 +9,9 @@ export const PHOTOS = {
   restHero: 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=800&q=80&auto=format&fit=crop',
   bikiPortrait: 'https://images.unsplash.com/photo-1567013127542-490d757e51fc?w=400&q=80&auto=format&fit=crop',
   sessionComplete: 'https://images.unsplash.com/photo-1550345332-09e3ac987658?w=800&q=80&auto=format&fit=crop',
+  nutritionBg: 'https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=600&q=80&auto=format&fit=crop',
+  hydrationBg: 'https://images.unsplash.com/photo-1548839140-29a749e1cf4d?w=600&q=80&auto=format&fit=crop',
+  sleepBg: 'https://images.unsplash.com/photo-1455642305367-68834a1da7ab?w=800&q=80&auto=format&fit=crop',
 };
 
 // ── User profile ──

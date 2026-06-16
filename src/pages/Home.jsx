@@ -366,15 +366,23 @@ export default function Home({ onProfileClick, onNavigate, onNotifications }) {
       <motion.div className="mx-5 mb-3" {...enter(0.2)}>
         <p className="kicker mb-3">Today's plan</p>
         <div className="grid grid-cols-2 gap-3">
-          <div className="card flex flex-col items-center gap-2.5 py-5 px-4 relative overflow-hidden">
+          <motion.button
+            whileTap={T.tapSmall}
+            onClick={() => onNavigate && onNavigate('nutrition', 'meals')}
+            className="card flex flex-col items-center gap-2.5 py-5 px-4 relative overflow-hidden text-left"
+          >
             <img
               src={PHOTOS.nutritionBg}
               alt=""
-              className="absolute inset-0 w-full h-full object-cover opacity-15"
+              className="absolute inset-0 w-full h-full object-cover opacity-30"
             />
             <div
               className="absolute inset-0"
-              style={{ background: 'linear-gradient(to bottom, rgba(11,11,12,0.55), rgba(11,11,12,0.92))' }}
+              style={{ background: `radial-gradient(140% 140% at 0% 0%, ${T.cal}3D 0%, transparent 60%)` }}
+            />
+            <div
+              className="absolute inset-0"
+              style={{ background: 'linear-gradient(to bottom, rgba(11,11,12,0.35), rgba(11,11,12,0.85))' }}
             />
             <div className="relative z-10 flex flex-col items-center gap-2.5">
               <StatusRing percentage={nutritionPct} color={T.cal} size={60} strokeWidth={6}>
@@ -391,17 +399,25 @@ export default function Home({ onProfileClick, onNavigate, onNotifications }) {
                 {nutritionPct >= 100 ? 'Done' : `${mealsLogged} of ${totalMeals}`}
               </span>
             </div>
-          </div>
+          </motion.button>
 
-          <div className="card flex flex-col items-center gap-2.5 py-5 px-4 relative overflow-hidden">
+          <motion.button
+            whileTap={T.tapSmall}
+            onClick={() => onNavigate && onNavigate('nutrition', 'hydration')}
+            className="card flex flex-col items-center gap-2.5 py-5 px-4 relative overflow-hidden text-left"
+          >
             <img
               src={PHOTOS.hydrationBg}
               alt=""
-              className="absolute inset-0 w-full h-full object-cover opacity-15"
+              className="absolute inset-0 w-full h-full object-cover opacity-30"
             />
             <div
               className="absolute inset-0"
-              style={{ background: 'linear-gradient(to bottom, rgba(11,11,12,0.55), rgba(11,11,12,0.92))' }}
+              style={{ background: `radial-gradient(140% 140% at 0% 0%, ${T.water}3D 0%, transparent 60%)` }}
+            />
+            <div
+              className="absolute inset-0"
+              style={{ background: 'linear-gradient(to bottom, rgba(11,11,12,0.35), rgba(11,11,12,0.85))' }}
             />
             <div className="relative z-10 flex flex-col items-center gap-2.5">
               <StatusRing percentage={hydrationPct} color={T.water} size={60} strokeWidth={6}>
@@ -418,7 +434,7 @@ export default function Home({ onProfileClick, onNavigate, onNotifications }) {
                 {hydrationPct >= 100 ? 'Done' : `${hydrationPct}%`}
               </span>
             </div>
-          </div>
+          </motion.button>
         </div>
       </motion.div>
 
@@ -483,11 +499,15 @@ export default function Home({ onProfileClick, onNavigate, onNotifications }) {
         <img
           src={PHOTOS.sleepBg}
           alt=""
-          className="absolute inset-0 w-full h-full object-cover opacity-15"
+          className="absolute inset-0 w-full h-full object-cover opacity-30"
         />
         <div
           className="absolute inset-0"
-          style={{ background: 'linear-gradient(to bottom, rgba(11,11,12,0.55), rgba(11,11,12,0.92))' }}
+          style={{ background: `radial-gradient(140% 140% at 0% 0%, ${T.macroCarbs}3D 0%, transparent 60%)` }}
+        />
+        <div
+          className="absolute inset-0"
+          style={{ background: 'linear-gradient(to bottom, rgba(11,11,12,0.35), rgba(11,11,12,0.85))' }}
         />
         <div className="relative z-10 flex items-start gap-3">
           <div

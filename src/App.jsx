@@ -4,6 +4,7 @@
 import { useState, useCallback } from 'react';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { Home as HomeIcon, Utensils, Dumbbell, MessageCircle, ClipboardCheck } from 'lucide-react';
+import { Agentation } from 'agentation';
 import { TabBar } from './components/ui/Components';
 import { AppProvider } from './context/AppContext';
 import { useLocalStorage } from './hooks/useLocalStorage';
@@ -36,6 +37,7 @@ function AppContent() {
   const [activeTab, setActiveTab] = useState('home');
   const [overlay, setOverlay] = useState(null); // 'profile' | 'checkin' | 'macroDetail' | 'checkinDetail'
   const [checkInId, setCheckInId] = useState(null);
+  const [nutritionTab, setNutritionTab] = useState('meals');
 
   const pageVariants = shouldReduce
     ? { initial: { opacity: 0 }, animate: { opacity: 1 }, exit: { opacity: 0 } }
@@ -71,7 +73,7 @@ function AppContent() {
 
     switch (activeTab) {
       case 'home': return <Home onProfileClick={() => setOverlay('profile')} onNavigate={handleTabChange} onNotifications={() => setOverlay('notifications')} />;
-      case 'nutrition': return <Nutrition onMacroDetail={() => setOverlay('macroDetail')} />;
+      case 'nutrition': return <Nutrition onMacroDetail={() => setOverlay('macroDetail')} initialTab={nutritionTab} />;
       case 'train': return <Train />;
       case 'coach': return <Coach onCheckIn={() => setOverlay('checkin')} />;
       case 'progress': return (
@@ -84,9 +86,10 @@ function AppContent() {
     }
   };
 
-  const handleTabChange = useCallback((tab) => {
+  const handleTabChange = useCallback((tab, subTab) => {
     setOverlay(null);
     setActiveTab(tab);
+    if (tab === 'nutrition') setNutritionTab(subTab || 'meals');
   }, []);
 
   return (
@@ -159,22 +162,26 @@ export default function App() {
     setOnboarding({ done: true, answers });
   };
 
+  let content;
   if (!auth.loggedIn) {
-    return <Auth onLogin={handleLogin} onSignup={handleSignup} />;
-  }
-
-  // Always show splash first after auth (auth resolves during it).
-  if (!splashDone) {
-    return <Splash onDone={() => setSplashDone(true)} />;
-  }
-
-  if (!onboarding.done) {
-    return <Onboarding onComplete={finishOnboarding} />;
+    content = <Auth onLogin={handleLogin} onSignup={handleSignup} />;
+  } else if (!splashDone) {
+    // Always show splash first after auth (auth resolves during it).
+    content = <Splash onDone={() => setSplashDone(true)} />;
+  } else if (!onboarding.done) {
+    content = <Onboarding onComplete={finishOnboarding} />;
+  } else {
+    content = (
+      <AppProvider>
+        <AppContent />
+      </AppProvider>
+    );
   }
 
   return (
-    <AppProvider>
-      <AppContent />
-    </AppProvider>
+    <>
+      {content}
+      {import.meta.env.DEV && <Agentation />}
+    </>
   );
 }

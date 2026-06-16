@@ -1431,7 +1431,7 @@ function HydrationView({
 // ═════════════════════════════════════════════
 // ── MAIN NUTRITION SCREEN ──
 // ═════════════════════════════════════════════
-export default function Nutrition({ onMacroDetail }) {
+export default function Nutrition({ onMacroDetail, initialTab = 'meals' }) {
   const {
     meals, logged, hydration, history, waterLog, waterDefaultMl,
     logMeal, adjustMeal, updateMealFoods, addMeal,
@@ -1439,7 +1439,7 @@ export default function Nutrition({ onMacroDetail }) {
   } = useApp();
 
   const shouldReduce = useReducedMotion();
-  const [activeTab, setActiveTab] = useState('meals');
+  const [activeTab, setActiveTab] = useState(initialTab);
   const [selectedMeal, setSelectedMeal] = useState(null);
   const [sheetOpen, setSheetOpen] = useState(false);
   const [addMealOpen, setAddMealOpen] = useState(false);

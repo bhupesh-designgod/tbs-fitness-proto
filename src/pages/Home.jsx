@@ -369,71 +369,41 @@ export default function Home({ onProfileClick, onNavigate, onNotifications }) {
           <motion.button
             whileTap={T.tapSmall}
             onClick={() => onNavigate && onNavigate('nutrition', 'meals')}
-            className="card flex flex-col items-center gap-2.5 py-5 px-4 relative overflow-hidden text-left"
+            className="card flex flex-col items-center gap-2.5 py-5 px-4 text-left"
           >
-            <img
-              src={PHOTOS.nutritionBg}
-              alt=""
-              className="absolute inset-0 w-full h-full object-cover opacity-30"
-            />
-            <div
-              className="absolute inset-0"
-              style={{ background: `radial-gradient(140% 140% at 0% 0%, ${T.cal}3D 0%, transparent 60%)` }}
-            />
-            <div
-              className="absolute inset-0"
-              style={{ background: 'linear-gradient(to bottom, rgba(11,11,12,0.35), rgba(11,11,12,0.85))' }}
-            />
-            <div className="relative z-10 flex flex-col items-center gap-2.5">
-              <StatusRing percentage={nutritionPct} color={T.cal} size={60} strokeWidth={6}>
-                {nutritionPct >= 100 ? (
-                  <Check size={22} strokeWidth={2.5} style={{ color: T.cal }} />
-                ) : (
-                  <Utensils size={20} strokeWidth={T.stroke} style={{ color: T.textMid }} />
-                )}
-              </StatusRing>
-              <span className="font-body text-[12px] font-bold uppercase tracking-wider" style={{ color: T.textMid }}>
-                Nutrition
-              </span>
-              <span className="display-xs" style={{ color: nutritionPct >= 100 ? T.cal : T.text }}>
-                {nutritionPct >= 100 ? 'Done' : `${mealsLogged} of ${totalMeals}`}
-              </span>
-            </div>
+            <StatusRing percentage={nutritionPct} color={T.cal} size={60} strokeWidth={6}>
+              {nutritionPct >= 100 ? (
+                <Check size={22} strokeWidth={2.5} style={{ color: T.cal }} />
+              ) : (
+                <Utensils size={20} strokeWidth={T.stroke} style={{ color: T.textMid }} />
+              )}
+            </StatusRing>
+            <span className="font-body text-[12px] font-bold uppercase tracking-wider" style={{ color: T.textMid }}>
+              Nutrition
+            </span>
+            <span className="display-xs" style={{ color: nutritionPct >= 100 ? T.cal : T.text }}>
+              {nutritionPct >= 100 ? 'Done' : `${mealsLogged} of ${totalMeals}`}
+            </span>
           </motion.button>
 
           <motion.button
             whileTap={T.tapSmall}
             onClick={() => onNavigate && onNavigate('nutrition', 'hydration')}
-            className="card flex flex-col items-center gap-2.5 py-5 px-4 relative overflow-hidden text-left"
+            className="card flex flex-col items-center gap-2.5 py-5 px-4 text-left"
           >
-            <img
-              src={PHOTOS.hydrationBg}
-              alt=""
-              className="absolute inset-0 w-full h-full object-cover opacity-30"
-            />
-            <div
-              className="absolute inset-0"
-              style={{ background: `radial-gradient(140% 140% at 0% 0%, ${T.water}3D 0%, transparent 60%)` }}
-            />
-            <div
-              className="absolute inset-0"
-              style={{ background: 'linear-gradient(to bottom, rgba(11,11,12,0.35), rgba(11,11,12,0.85))' }}
-            />
-            <div className="relative z-10 flex flex-col items-center gap-2.5">
-              <StatusRing percentage={hydrationPct} color={T.water} size={60} strokeWidth={6}>
-                {hydrationPct >= 100 ? (
-                  <Check size={22} strokeWidth={2.5} style={{ color: T.water }} />
-                ) : (
-                  <Droplets size={20} strokeWidth={T.stroke} style={{ color: T.textMid }} />
-                )}
-              </StatusRing>
-              <span className="font-body text-[12px] font-bold uppercase tracking-wider" style={{ color: T.textMid }}>
-                Hydration
-              </span>
-              <span className="display-xs" style={{ color: hydrationPct >= 100 ? T.water : '#F4F2EC' }}>
-                {hydrationPct >= 100 ? 'Done' : `${hydrationPct}%`}
-              </span>
-            </div>
+            <StatusRing percentage={hydrationPct} color={T.water} size={60} strokeWidth={6}>
+              {hydrationPct >= 100 ? (
+                <Check size={22} strokeWidth={2.5} style={{ color: T.water }} />
+              ) : (
+                <Droplets size={20} strokeWidth={T.stroke} style={{ color: T.textMid }} />
+              )}
+            </StatusRing>
+            <span className="font-body text-[12px] font-bold uppercase tracking-wider" style={{ color: T.textMid }}>
+              Hydration
+            </span>
+            <span className="display-xs" style={{ color: hydrationPct >= 100 ? T.water : '#F4F2EC' }}>
+              {hydrationPct >= 100 ? 'Done' : `${hydrationPct}%`}
+            </span>
           </motion.button>
         </div>
       </motion.div>
@@ -495,21 +465,8 @@ export default function Home({ onProfileClick, onNavigate, onNotifications }) {
       </motion.div>
 
       {/* ═══ 8. SLEEP NOTE ═══ */}
-      <motion.div className="card mx-5 mb-4 p-4 pl-5 relative overflow-hidden" {...enter(0.28)}>
-        <img
-          src={PHOTOS.sleepBg}
-          alt=""
-          className="absolute inset-0 w-full h-full object-cover opacity-30"
-        />
-        <div
-          className="absolute inset-0"
-          style={{ background: `radial-gradient(140% 140% at 0% 0%, ${T.macroCarbs}3D 0%, transparent 60%)` }}
-        />
-        <div
-          className="absolute inset-0"
-          style={{ background: 'linear-gradient(to bottom, rgba(11,11,12,0.35), rgba(11,11,12,0.85))' }}
-        />
-        <div className="relative z-10 flex items-start gap-3">
+      <motion.div className="card mx-5 mb-4 p-4 pl-5" {...enter(0.28)}>
+        <div className="flex items-start gap-3">
           <div
             className="w-9 h-9 rounded-full flex items-center justify-center shrink-0"
             style={{ background: T.cobaltTint }}

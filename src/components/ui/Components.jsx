@@ -301,7 +301,7 @@ export function TabBar({ activeTab, onTabChange, tabs }) {
   const shouldReduce = useReducedMotion();
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-30 mx-auto" style={{ maxWidth: 430 }}>
+    <div className="absolute bottom-0 left-0 right-0 z-30">
       <div
         className="flex items-center justify-around px-2 pt-2 pb-6"
         style={{

@@ -255,10 +255,18 @@ html, body, #root {
 .app-shell {
   max-width: 430px;
   margin: 0 auto;
-  min-height: 100dvh;
+  height: 100dvh;
   position: relative;
-  overflow-x: hidden;
+  overflow: hidden;
   background: #0B0B0C;
+}
+
+.app-scroll {
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 80px;
 }
 
 /* ── Coach quote card ── */

@@ -94,32 +94,34 @@ function AppContent() {
 
   return (
     <div className="app-shell">
-      {/* Overlay back button — pages with their own header don't need this */}
-      {overlay && overlay !== 'checkinDetail' && overlay !== 'notifications' && (
-        <div className="px-5 pt-3">
-          <motion.button
-            whileTap={{ scale: 0.95 }}
-            onClick={() => setOverlay(null)}
-            className="font-body text-[14px] text-white/50 flex items-center gap-1"
-          >
-            <span className="text-white/30">&larr;</span> Back
-          </motion.button>
-        </div>
-      )}
+      <div className="app-scroll">
+        {/* Overlay back button — pages with their own header don't need this */}
+        {overlay && overlay !== 'checkinDetail' && overlay !== 'notifications' && (
+          <div className="px-5 pt-3">
+            <motion.button
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setOverlay(null)}
+              className="font-body text-[14px] text-white/50 flex items-center gap-1"
+            >
+              <span className="text-white/30">&larr;</span> Back
+            </motion.button>
+          </div>
+        )}
 
-      {/* Page content with transitions */}
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={overlay || activeTab}
-          variants={pageVariants}
-          initial="initial"
-          animate="animate"
-          exit="exit"
-          transition={{ duration: 0.2 }}
-        >
-          {renderPage()}
-        </motion.div>
-      </AnimatePresence>
+        {/* Page content with transitions */}
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={overlay || activeTab}
+            variants={pageVariants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            transition={{ duration: 0.2 }}
+          >
+            {renderPage()}
+          </motion.div>
+        </AnimatePresence>
+      </div>
 
       {/* Tab bar (hidden during overlays) */}
       {!overlay && (

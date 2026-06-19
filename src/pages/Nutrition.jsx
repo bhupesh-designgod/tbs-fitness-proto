@@ -138,10 +138,10 @@ function MacrosOverview({ logged }) {
           const over = remaining < -50;
           const accent = onTarget ? PROTEIN : over ? FAT_GREY : T.cal;
           const label = onTarget
-            ? 'Right on target'
+            ? 'Locked in'
             : over
-              ? `${Math.abs(remaining).toLocaleString()} over`
-              : `${remaining.toLocaleString()} kcal to go`;
+              ? `+${Math.abs(remaining).toLocaleString()} surplus`
+              : `${remaining.toLocaleString()} to close`;
           return (
             <span
               className="flex items-center gap-1.5 px-2.5 py-1 rounded-full font-body text-[11px] font-bold tabular-nums"

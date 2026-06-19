@@ -50,7 +50,7 @@ export function MiniRing({ percentage, size = 42, strokeWidth = 3, color = T.tex
           fill="none"
           stroke={color}
           strokeWidth={strokeWidth}
-          strokeLinecap="round"
+          strokeLinecap="butt"
           strokeDasharray={circumference}
           strokeDashoffset={offset}
         />

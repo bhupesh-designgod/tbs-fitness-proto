@@ -132,7 +132,7 @@ export function RingCounter({ percentage, size = 120, strokeWidth = 5, color = T
           fill="none"
           stroke={color}
           strokeWidth={strokeWidth}
-          strokeLinecap="round"
+          strokeLinecap="butt"
           strokeDasharray={circumference}
           initial={shouldReduce ? { strokeDashoffset: offset } : { strokeDashoffset: circumference }}
           animate={{ strokeDashoffset: offset }}

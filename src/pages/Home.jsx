@@ -6,7 +6,7 @@ import { useMemo, useState, useCallback, useEffect } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 import {
   Utensils, Droplets, Dumbbell, Clock, ChevronRight, ChevronLeft,
-  Bell, MoonStar, Moon, Check, CalendarDays, MessageCircle,
+  Bell, MoonStar, Moon, Check, CalendarDays,
 } from 'lucide-react';
 import { NumericCounter } from '../components/ui/Components';
 import { WeekStrip, MonthSheet } from '../components/ui/Calendar';
@@ -77,6 +77,32 @@ function StatusRing({ percentage, size = 60, strokeWidth = 6, color, children })
         {children}
       </div>
     </div>
+  );
+}
+
+// ── Profile avatar — photo with initial fallback ──
+function Avatar({ onClick }) {
+  const [err, setErr] = useState(false);
+  return (
+    <motion.button
+      whileTap={T.tapSmall}
+      onClick={onClick}
+      aria-label="Profile"
+      className="relative w-11 h-11 rounded-full overflow-hidden flex items-center justify-center font-display text-[18px]"
+      style={{ background: T.surface, border: `2px solid ${T.hairlineStrong}`, color: T.text }}
+    >
+      {(err || !PHOTOS.userAvatar)
+        ? USER_PROFILE.name.charAt(0)
+        : (
+          <img
+            src={PHOTOS.userAvatar}
+            alt={USER_PROFILE.name}
+            className="w-full h-full object-cover"
+            style={{ filter: 'grayscale(15%) contrast(1.05)' }}
+            onError={() => setErr(true)}
+          />
+        )}
+    </motion.button>
   );
 }
 
@@ -246,8 +272,6 @@ export default function Home({ onProfileClick, onNavigate, onNotifications }) {
       queue.push({
         key: `meal-${nextMealIdx}`,
         icon: Utensils,
-        image: meal.image || PHOTOS.nutritionBg,
-        color: T.cal,
         title: `Log ${meal.label}`,
         subtitle: `${Math.round(totalCal)} cal · ${Math.round(totalProtein)}g protein`,
         points: 5,
@@ -259,8 +283,6 @@ export default function Home({ onProfileClick, onNavigate, onNotifications }) {
       queue.push({
         key: 'hydration',
         icon: Droplets,
-        image: PHOTOS.hydrationBg,
-        color: T.water,
         title: 'Drink water',
         subtitle: `${pct}% of today's goal`,
         points: 5,
@@ -295,18 +317,7 @@ export default function Home({ onProfileClick, onNavigate, onNotifications }) {
         {...enter(0)}
       >
         <div className="flex items-center gap-3">
-          <motion.button
-            whileTap={T.tapSmall}
-            onClick={onProfileClick}
-            className="w-11 h-11 rounded-full flex items-center justify-center font-display text-[18px]"
-            style={{
-              background: T.surface,
-              border: `2px solid ${T.hairlineStrong}`,
-              color: T.text,
-            }}
-          >
-            {USER_PROFILE.name.charAt(0)}
-          </motion.button>
+          <Avatar onClick={onProfileClick} />
           <div>
             <p className="font-body text-[13px] font-medium" style={{ color: T.textLow }}>
               {greeting},
@@ -359,13 +370,9 @@ export default function Home({ onProfileClick, onNavigate, onNotifications }) {
 
       {!viewingDay && (
       <>
-      {/* ═══ 3. COACH NOTE — a message from Biki, tap to reply ═══ */}
+      {/* ═══ 3. COACH NOTE — a message from Biki ═══ */}
       <motion.div className="mx-5 mb-4" {...enter(0.08)}>
-        <motion.button
-          whileTap={T.tap}
-          onClick={() => onNavigate && onNavigate('coach')}
-          className="coach-quote-card w-full text-left p-4 pl-5"
-        >
+        <div className="coach-quote-card p-4 pl-5">
           <div className="flex items-start gap-3">
             <div className="shrink-0 relative">
               <div
@@ -386,24 +393,13 @@ export default function Home({ onProfileClick, onNavigate, onNotifications }) {
             </div>
 
             <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-1.5 mb-1.5">
-                <span className="kicker kicker-gold">Coach Biki</span>
-                <span className="font-body text-[10px] font-semibold" style={{ color: T.textFaint }}>
-                  · now
-                </span>
-              </div>
+              <p className="kicker kicker-gold mb-1.5">Coach Biki</p>
               <p className="font-body text-[14px] font-medium leading-relaxed" style={{ color: T.text }}>
                 {coachQuote}
               </p>
-              <div className="flex items-center gap-1.5 mt-2.5">
-                <MessageCircle size={12} strokeWidth={T.stroke} style={{ color: T.textFaint }} />
-                <span className="font-body text-[11px] font-semibold" style={{ color: T.textLow }}>
-                  Reply to Biki
-                </span>
-              </div>
             </div>
           </div>
-        </motion.button>
+        </div>
       </motion.div>
 
       {/* ═══ 4. SCORE HERO — open air, number bleeds right ═══ */}
@@ -472,48 +468,36 @@ export default function Home({ onProfileClick, onNavigate, onNotifications }) {
                   {...stagger(i, 0.2)}
                   whileTap={T.tap}
                   onClick={() => onNavigate && onNavigate(t.target)}
-                  className="card w-full flex items-stretch text-left overflow-hidden"
+                  className="card w-full flex items-center gap-3 p-3 text-left"
                 >
-                  {/* Image tile — same photo language as the workout card */}
-                  <div className="relative w-16 shrink-0 overflow-hidden">
-                    <img
-                      src={t.image}
-                      alt=""
-                      loading="lazy"
-                      className="absolute inset-0 w-full h-full object-cover"
-                      style={{ filter: 'grayscale(35%) contrast(1.05) brightness(0.78)' }}
-                    />
-                    {/* Data-color wash, then fade into the card surface */}
-                    <div className="absolute inset-0" style={{ background: `linear-gradient(135deg, ${t.color}59 0%, transparent 58%)` }} />
-                    <div className="absolute inset-0" style={{ background: `linear-gradient(to right, transparent 35%, ${T.surface} 100%)` }} />
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <Icon size={20} strokeWidth={2.25} style={{ color: '#F4F2EC' }} />
-                    </div>
+                  <div
+                    className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0"
+                    style={{ background: T.surface2, border: `1px solid ${T.hairline}` }}
+                  >
+                    <Icon size={20} strokeWidth={T.stroke} style={{ color: T.textMid }} />
                   </div>
 
-                  <div className="flex-1 min-w-0 flex items-center gap-2 py-3 pr-3 pl-3.5">
-                    <div className="flex-1 min-w-0">
-                      <p className="display-xs text-[#F4F2EC] leading-tight">
-                        {t.title}
-                      </p>
-                      <p className="font-body text-[12px] font-medium mt-0.5 truncate" style={{ color: T.textLow }}>
-                        {t.subtitle}
-                      </p>
-                    </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="display-xs text-[#F4F2EC] leading-tight">
+                      {t.title}
+                    </p>
+                    <p className="font-body text-[12px] font-medium mt-0.5 truncate" style={{ color: T.textLow }}>
+                      {t.subtitle}
+                    </p>
+                  </div>
 
-                    <div className="flex items-center gap-2 shrink-0">
-                      <span
-                        className="font-body text-[11px] font-extrabold uppercase tracking-wider px-2 py-1 rounded-md inline-block"
-                        style={{
-                          color: T.gold,
-                          border: `1px solid ${T.goldBorder}`,
-                          rotate: '-2deg',
-                        }}
-                      >
-                        +{t.points} pts
-                      </span>
-                      <ChevronRight size={16} strokeWidth={T.stroke} style={{ color: T.textFaint }} />
-                    </div>
+                  <div className="flex items-center gap-2 flex-shrink-0">
+                    <span
+                      className="font-body text-[11px] font-extrabold uppercase tracking-wider px-2 py-1 rounded-md inline-block"
+                      style={{
+                        color: T.gold,
+                        border: `1px solid ${T.goldBorder}`,
+                        rotate: '-2deg',
+                      }}
+                    >
+                      +{t.points} pts
+                    </span>
+                    <ChevronRight size={16} strokeWidth={T.stroke} style={{ color: T.textFaint }} />
                   </div>
                 </motion.button>
               );

@@ -147,7 +147,8 @@ const SPLIT_SHORT = { push: 'PUSH', pull: 'PULL', legs: 'LEGS', rest: 'REST' };
 function DayCircle({ day, mode, size = 42, markToday = true, selected = false }) {
   const showToday = day.isToday && markToday;
   const hasData = mode === 'score' ? day.pts !== null : day.mealPct !== null;
-  const marked = showToday || selected;
+  // Today (month view) reads gold; a tapped selection reads white.
+  const outlineColor = showToday ? T.gold : selected ? T.text : null;
   return (
     <div
       className="rounded-full flex items-center justify-center relative"
@@ -156,8 +157,8 @@ function DayCircle({ day, mode, size = 42, markToday = true, selected = false })
         height: size,
         background: T.surface,
         outlineOffset: -1,
-        outline: marked
-          ? `1.5px solid ${T.gold}`
+        outline: outlineColor
+          ? `1.5px solid ${outlineColor}`
           : mode === 'training' && day.split === 'rest'
             ? `1px dashed ${T.hairlineStrong}`
             : 'none',
@@ -172,9 +173,10 @@ function DayCircle({ day, mode, size = 42, markToday = true, selected = false })
         <span
           className="font-body text-[10px] font-normal tabular-nums relative z-10"
           style={{
-            color: marked ? T.gold
-              : hasData ? 'rgba(244,242,236,0.85)'
-                : 'rgba(244,242,236,0.25)',
+            color: showToday ? T.gold
+              : selected ? T.text
+                : hasData ? 'rgba(244,242,236,0.85)'
+                  : 'rgba(244,242,236,0.25)',
           }}
         >
           {day.date}
@@ -207,14 +209,19 @@ export function WeekStrip({ mode = 'score', showPoints = true, className = '', o
                 : {})}
               {...stagger(i, 0.05)}
             >
-              <span
-                className="font-body text-[9px] font-extrabold uppercase tracking-wider"
-                style={day.isToday
-                  ? { color: T.goldInk, background: T.gold, padding: '2px 6px', borderRadius: 999 }
-                  : { color: isSelected ? T.gold : T.textFaint }}
-              >
-                {day.label}
-              </span>
+              {/* Weekday label + today dot (today is marked by the dot, not a highlight) */}
+              <div className="flex flex-col items-center gap-0.5">
+                <span
+                  className="font-body text-[9px] font-extrabold uppercase tracking-wider"
+                  style={{ color: isSelected ? T.text : T.textFaint }}
+                >
+                  {day.label}
+                </span>
+                <span
+                  className="w-1 h-1 rounded-full"
+                  style={{ background: day.isToday ? T.gold : 'transparent' }}
+                />
+              </div>
 
               <DayCircle day={day} mode={mode} markToday={false} selected={isSelected} />
 

@@ -96,6 +96,48 @@ function CoachSummaryCard({ summary }) {
 }
 
 // ─────────────────────────────────────────────
+// Submitted Photos — front / back / side
+// ─────────────────────────────────────────────
+function SubmittedPhotos({ photos }) {
+  if (!photos) return null;
+  const views = [
+    { key: 'front', label: 'Front', src: photos.front },
+    { key: 'back',  label: 'Back',  src: photos.back },
+    { key: 'side',  label: 'Side',  src: photos.left || photos.right },
+  ].filter(v => v.src);
+  if (!views.length) return null;
+
+  return (
+    <div className="mx-5 mb-5">
+      <p className="kicker mb-3">Check-in photos</p>
+      <div className="grid grid-cols-3 gap-2.5">
+        {views.map((v, i) => (
+          <motion.div
+            key={v.key}
+            className="relative rounded-xl overflow-hidden"
+            style={{ aspectRatio: '3 / 4', border: `1px solid ${CARD_BORDER}` }}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: i * 0.06 }}
+          >
+            <img
+              src={v.src}
+              alt={v.label}
+              className="absolute inset-0 w-full h-full object-cover"
+              style={{ filter: 'grayscale(20%) contrast(1.05) brightness(0.92)' }}
+            />
+            <div className="absolute inset-x-0 bottom-0 scrim" style={{ height: '55%' }} />
+            <span className="absolute bottom-2 left-2.5 font-body text-[10px] font-extrabold uppercase tracking-wider text-white/90">
+              {v.label}
+            </span>
+          </motion.div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────
 // Submitted Data 2-column grid
 // ─────────────────────────────────────────────
 const METRIC_ICONS = {
@@ -174,9 +216,14 @@ function MetricGridCard({ k, m }) {
   );
 }
 
+// Steps, workout compliance and energy aren't part of what the athlete submits
+// at check-in — they're app/coach-tracked, so they're left out of this report.
+const NON_SUBMITTED = new Set(['steps', 'workout', 'energy']);
+
 function SubmittedData({ data }) {
   if (!data) return null;
-  const keys = Object.keys(data);
+  const keys = Object.keys(data).filter(k => !NON_SUBMITTED.has(k));
+  if (!keys.length) return null;
   return (
     <div className="mx-5 mb-5">
       <p className="kicker mb-3">Submitted data</p>
@@ -268,6 +315,7 @@ export default function CheckInDetail({ checkInId, onBack, onMessageBiki }) {
             transition={{ duration: 0.2 }}
           >
             <CoachSummaryCard summary={checkIn.coachSummary} />
+            <SubmittedPhotos photos={checkIn.photos} />
             <SubmittedData data={checkIn.submittedData} />
             <PlanChanges changes={checkIn.planChanges} />
           </motion.div>

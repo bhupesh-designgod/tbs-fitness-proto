@@ -5,7 +5,7 @@
 import { useState, useMemo, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import {
-  Check, X, ChevronRight, Droplets, BookOpen, Plus, Minus, MoreHorizontal,
+  Check, X, ChevronRight, ChevronLeft, Droplets, BookOpen, Plus, Minus, MoreHorizontal,
   RefreshCw, Trophy, Flame, GlassWater, Settings2, Undo2, CalendarDays,
   Pill, Clock,
 } from 'lucide-react';
@@ -134,20 +134,25 @@ function MacrosOverview({ logged }) {
         <p className="kicker">Macros</p>
         {(() => {
           const remaining = PLAN_TOTALS.calories - logged.calories;
-          const onTarget = Math.abs(remaining) <= 50;
+          const started = logged.calories > 0;
+          const onTarget = started && Math.abs(remaining) <= 50;
           const over = remaining < -50;
-          const accent = onTarget ? PROTEIN : over ? FAT_GREY : T.cal;
-          const label = onTarget
-            ? 'Locked in'
-            : over
-              ? `+${Math.abs(remaining).toLocaleString()} surplus`
-              : `${remaining.toLocaleString()} to close`;
+          const accent = onTarget ? GOLD : over ? FAT_GREY : !started ? T.textMid : T.cal;
+          const label = !started
+            ? 'Day ahead'
+            : onTarget
+              ? 'Locked in'
+              : over
+                ? `${Math.abs(remaining).toLocaleString()} over`
+                : `${remaining.toLocaleString()} to go`;
           return (
             <span
               className="flex items-center gap-1.5 px-2.5 py-1 rounded-full font-body text-[11px] font-bold tabular-nums"
               style={{ background: `${accent}1F`, color: accent }}
             >
-              <span className="w-1.5 h-1.5 rounded-full" style={{ background: accent }} />
+              {onTarget
+                ? <Check size={12} strokeWidth={3} />
+                : <span className="w-1.5 h-1.5 rounded-full" style={{ background: accent }} />}
               {label}
             </span>
           );
@@ -350,7 +355,7 @@ function MacroChip({ value, suffix, color }) {
 // ═════════════════════════════════════════════
 // ── Meal Timeline Card ── (tap to open sheet)
 // ═════════════════════════════════════════════
-function MealTimelineCard({ meal, mealIndex, onTap, delay = 0 }) {
+function MealTimelineCard({ meal, mealIndex, onTap, delay = 0, readOnly = false }) {
   const shouldReduce = useReducedMotion();
   const [imgError, setImgError] = useState(false);
   const totals = sumFoods(meal.foods);
@@ -365,11 +370,12 @@ function MealTimelineCard({ meal, mealIndex, onTap, delay = 0 }) {
     .replace(/\s+/g, ' ')
     .trim();
 
+  const Wrapper = readOnly ? motion.div : motion.button;
+
   return (
-    <motion.button
-      data-tour={mealIndex === 0 ? 'meal-card' : undefined}
-      onClick={() => onTap(mealIndex)}
-      whileTap={{ scale: 0.985 }}
+    <Wrapper
+      data-tour={!readOnly && mealIndex === 0 ? 'meal-card' : undefined}
+      {...(readOnly ? {} : { onClick: () => onTap(mealIndex), whileTap: { scale: 0.985 } })}
       className="relative block w-full text-left"
       initial={shouldReduce ? {} : { opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
@@ -443,9 +449,11 @@ function MealTimelineCard({ meal, mealIndex, onTap, delay = 0 }) {
                 className="font-body text-[10px] font-extrabold uppercase tracking-wider"
                 style={{ color: isLogged ? GOLD : isAdjusted ? T.textMid : 'rgba(255,255,255,0.28)' }}
               >
-                {isLogged ? 'Logged' : isAdjusted ? 'Adjusted' : 'Not logged'}
+                {isLogged ? 'Logged' : isAdjusted ? 'Adjusted' : readOnly ? 'Planned' : 'Not logged'}
               </span>
-              <ChevronRight size={14} strokeWidth={T.stroke} className="text-white/25" />
+              {!readOnly && (
+                <ChevronRight size={14} strokeWidth={T.stroke} className="text-white/25" />
+              )}
             </div>
           </div>
 
@@ -471,7 +479,7 @@ function MealTimelineCard({ meal, mealIndex, onTap, delay = 0 }) {
           </div>
         </div>
       </div>
-    </motion.button>
+    </Wrapper>
   );
 }
 
@@ -1671,6 +1679,151 @@ function HydrationView({
 }
 
 // ═════════════════════════════════════════════
+// ── Selected-day view (past = read-only stats, future = planned plate) ──
+// ═════════════════════════════════════════════
+function DayNutritionView({ day, hist, onBack }) {
+  const isFuture = day.isFuture;
+
+  // ── Future day — the planned plate, read-only ──
+  if (isFuture) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
+      >
+        <div className="px-5 mb-1">
+          <button onClick={onBack} className="btn-ghost !py-0 mb-3" style={{ color: T.textMid }}>
+            <ChevronLeft size={14} strokeWidth={T.stroke} /> Back to today
+          </button>
+          <p className="kicker mb-1">Planned · {day.label} {day.date}</p>
+          <p className="font-body text-[13px] font-medium mb-1" style={{ color: T.textLow }}>
+            Here’s the plate waiting for you. Logging opens on the day.
+          </p>
+        </div>
+
+        <div className="px-5 mb-3 mt-4 flex items-center justify-between">
+          <p className="kicker">The plan</p>
+        </div>
+        <div className="relative px-5 mt-2">
+          <div
+            className="absolute left-[37px] top-3 bottom-3 w-px"
+            style={{
+              backgroundImage:
+                'repeating-linear-gradient(to bottom, rgba(255,255,255,0.08) 0px, rgba(255,255,255,0.08) 4px, transparent 4px, transparent 10px)',
+            }}
+          />
+          <div className="space-y-3">
+            {MEAL_PLAN.map((meal, i) => (
+              <MealTimelineCard key={i} meal={meal} mealIndex={i} delay={i} readOnly />
+            ))}
+          </div>
+        </div>
+
+        <SupplementsSection />
+      </motion.div>
+    );
+  }
+
+  // ── Past day — read-only status ──
+  const macros = hist?.macros || { calories: 0, protein: 0, carbs: 0, fat: 0 };
+  const adherence = hist?.adherence ?? day.mealPct ?? 0;
+  const waterMl = hist?.waterMl ?? 0;
+  const hydPct = Math.min(Math.round((waterMl / DAILY_TARGETS.water) * 100), 100);
+  const calPct = Math.min(Math.round((macros.calories / PLAN_TOTALS.calories) * 100), 100);
+  const macroRows = [
+    { short: 'P', label: 'Protein', curr: macros.protein, target: PLAN_TOTALS.protein, color: PROTEIN },
+    { short: 'F', label: 'Fat',     curr: macros.fat,     target: PLAN_TOTALS.fat,     color: FAT_GREY },
+    { short: 'C', label: 'Carbs',   curr: macros.carbs,   target: PLAN_TOTALS.carbs,   color: CARB_BRONZE },
+  ];
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
+    >
+      <div className="px-5 mb-4">
+        <button onClick={onBack} className="btn-ghost !py-0 mb-3" style={{ color: T.textMid }}>
+          <ChevronLeft size={14} strokeWidth={T.stroke} /> Back to today
+        </button>
+        <p className="kicker mb-1">Recap · {day.label} {day.date}</p>
+        <p className="font-body text-[13px] font-medium" style={{ color: T.textLow }}>
+          Closed out at <span className="font-bold tabular-nums" style={{ color: T.text }}>{adherence}%</span> of plan. A day that’s done stays done.
+        </p>
+      </div>
+
+      {/* Macros summary — mirrors the live card, read-only */}
+      <div className="mx-5 mb-4 rounded-xl p-5" style={{ background: CARD_BG, border: `1px solid ${CARD_BORDER}` }}>
+        <div className="flex items-center justify-between mb-4">
+          <p className="kicker">Macros</p>
+          <span
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded-full font-body text-[11px] font-bold tabular-nums"
+            style={{ background: `${T.cal}1F`, color: T.cal }}
+          >
+            <span className="w-1.5 h-1.5 rounded-full" style={{ background: T.cal }} />
+            {adherence}% adherence
+          </span>
+        </div>
+        <div className="flex items-center gap-5">
+          <div className="shrink-0">
+            <RingCounter percentage={calPct} size={118} strokeWidth={9} color={T.cal} delay={0.05}>
+              <div className="flex flex-col items-center">
+                <span className="font-display text-[38px] leading-none text-[#F4F2EC] tabular-nums">{macros.calories}</span>
+                <span className="font-body text-[10px] font-bold mt-1" style={{ color: T.textFaint }}>
+                  / {PLAN_TOTALS.calories} KCAL
+                </span>
+              </div>
+            </RingCounter>
+          </div>
+          <div className="flex-1 grid grid-cols-3 gap-3">
+            {macroRows.map(m => {
+              const pct = Math.min((m.curr / m.target) * 100, 100);
+              return (
+                <div key={m.short}>
+                  <div className="flex items-center gap-1 mb-1">
+                    <span className="font-body text-[11px] font-extrabold" style={{ color: m.color }}>{m.short}</span>
+                    <span className="font-body text-[9px] font-bold uppercase tracking-wider" style={{ color: T.textFaint }}>{m.label}</span>
+                  </div>
+                  <div className="flex items-baseline gap-0.5 mb-1.5">
+                    <span className="font-display text-[18px] text-[#F4F2EC] tabular-nums leading-none">{m.curr}</span>
+                    <span className="font-body text-[10px] text-white/25">/{m.target}g</span>
+                  </div>
+                  <div className="w-full h-[3px] rounded-full" style={{ background: 'rgba(255,255,255,0.06)' }}>
+                    <div className="h-full rounded-full" style={{ background: m.color, width: `${pct}%` }} />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
+      {/* Hydration summary */}
+      <div className="mx-5 mb-4 rounded-xl p-5 flex items-center gap-5" style={{ background: CARD_BG, border: `1px solid ${CARD_BORDER}` }}>
+        <div className="shrink-0">
+          <RingCounter percentage={hydPct} size={92} strokeWidth={8} color={T.water} delay={0.05}>
+            <span className="font-display text-[22px] text-[#F4F2EC] leading-none tabular-nums">
+              {(waterMl / 1000).toFixed(1)}L
+            </span>
+          </RingCounter>
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="kicker mb-1">Hydration</p>
+          <div className="flex items-baseline gap-1" style={{ color: T.water }}>
+            <span className="font-display text-[40px] leading-none tabular-nums">{hydPct}</span>
+            <span className="display-sm">%</span>
+          </div>
+          <p className="font-body text-[11px] mt-1" style={{ color: T.textLow }}>
+            of {(DAILY_TARGETS.water / 1000).toFixed(1)}L goal
+          </p>
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
+// ═════════════════════════════════════════════
 // ── MAIN NUTRITION SCREEN ──
 // ═════════════════════════════════════════════
 export default function Nutrition({ onMacroDetail, initialTab = 'meals' }) {
@@ -1686,6 +1839,10 @@ export default function Nutrition({ onMacroDetail, initialTab = 'meals' }) {
   const [sheetOpen, setSheetOpen] = useState(false);
   const [addMealOpen, setAddMealOpen] = useState(false);
   const [monthOpen, setMonthOpen] = useState(false);
+  const [selectedDay, setSelectedDay] = useState(null);
+
+  const viewingDay = selectedDay && !selectedDay.isToday;
+  const histForDay = viewingDay ? history.find(h => h.date === selectedDay.iso) : null;
 
   const handleMealTap = useCallback(idx => { setSelectedMeal(idx); setSheetOpen(true); }, []);
   const handleClose = useCallback(() => {
@@ -1765,9 +1922,17 @@ export default function Nutrition({ onMacroDetail, initialTab = 'meals' }) {
       </motion.div>
 
       <div className="mb-4">
-        <WeekStrip mode="nutrition" />
+        <WeekStrip
+          mode="nutrition"
+          selectedIso={selectedDay?.iso}
+          onSelectDay={(d) => setSelectedDay(d.isToday ? null : d)}
+        />
       </div>
 
+      {viewingDay ? (
+        <DayNutritionView day={selectedDay} hist={histForDay} onBack={() => setSelectedDay(null)} />
+      ) : (
+      <>
       <TabToggle active={activeTab} onChange={setActiveTab} />
 
       {activeTab === 'meals' ? (
@@ -1836,6 +2001,8 @@ export default function Nutrition({ onMacroDetail, initialTab = 'meals' }) {
           waterDefaultMl={waterDefaultMl ?? 300}
           setWaterDefault={setWaterDefault}
         />
+      )}
+      </>
       )}
 
       <MealSheet

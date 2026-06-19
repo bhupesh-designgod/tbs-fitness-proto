@@ -216,7 +216,7 @@ function NextCheckInCard({ next, onStart }) {
               <circle cx={size/2} cy={size/2} r={r} fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth={stroke} />
               <circle
                 cx={size/2} cy={size/2} r={r} fill="none"
-                stroke={GOLD} strokeWidth={stroke} strokeLinecap="round"
+                stroke={GOLD} strokeWidth={stroke} strokeLinecap="butt"
                 strokeDasharray={c} strokeDashoffset={off}
               />
             </svg>

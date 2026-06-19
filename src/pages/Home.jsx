@@ -5,8 +5,8 @@
 import { useMemo, useState, useCallback, useEffect } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 import {
-  Utensils, Droplets, Dumbbell, Clock, ChevronRight,
-  Bell, Moon, Check, CalendarDays,
+  Utensils, Droplets, Dumbbell, Clock, ChevronRight, ChevronLeft,
+  Bell, MoonStar, Moon, Check, CalendarDays, MessageCircle,
 } from 'lucide-react';
 import { NumericCounter } from '../components/ui/Components';
 import { WeekStrip, MonthSheet } from '../components/ui/Calendar';
@@ -28,14 +28,15 @@ function getGreeting() {
   return 'Good evening';
 }
 
-// ── Coach daily quotes ──
-const COACH_QUOTES = [
-  "Champions are built on ordinary days. This is one of them. Own it.",
-  "You showed up. That's the hard part. Now make it count.",
-  "Consistency beats intensity. Don't be perfect today — be present.",
-  "One meal, one rep, one glass of water at a time. Stay locked in.",
-  "Rest when you need to. Push when you can. Never quit on yourself.",
-  "Every rep today is a vote for who you're becoming.",
+// ── Coach daily notes — written like a DM from Biki, not a poster ──
+// {name} is swapped for the athlete's first name at render time.
+const COACH_NOTES = [
+  "Morning, {name}. Yesterday's in the bank — let's stack a clean one on top.",
+  "Watching the small things this week: water, sleep, protein. Nail those, the rest follows.",
+  "Don't chase perfect today. Chase present. Log honest, show up, repeat.",
+  "One meal, one rep, one glass at a time. That's how we build you, {name}.",
+  "Tired is fine, skipping isn't. Give me the work — I'll handle the plan.",
+  "Every rep today is a vote for the guy you're becoming. Go cast a few.",
 ];
 
 // ── Points system ──
@@ -64,7 +65,7 @@ function StatusRing({ percentage, size = 60, strokeWidth = 6, color, children })
         {percentage > 0 && (
           <motion.circle
             cx={size / 2} cy={size / 2} r={radius}
-            fill="none" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round"
+            fill="none" stroke={color} strokeWidth={strokeWidth} strokeLinecap="butt"
             strokeDasharray={circumference}
             initial={shouldReduce ? { strokeDashoffset: offset } : { strokeDashoffset: circumference }}
             animate={{ strokeDashoffset: offset }}
@@ -79,8 +80,124 @@ function StatusRing({ percentage, size = 60, strokeWidth = 6, color, children })
   );
 }
 
+// ── Split → friendly name ──
+const SPLIT_NAME = { push: 'Push Day', pull: 'Pull Day', legs: 'Legs Day', rest: 'Rest Day' };
+
+// ── Selected-day recap (past or future) ──
+// Replaces the live sections when the user taps a non-today date in the week strip.
+function DayRecap({ day, onBack }) {
+  const isFuture = day.isFuture;
+  const isRest = day.split === 'rest';
+  const splitName = SPLIT_NAME[day.split] || 'Training';
+  const scorePts = day.pts ?? 0;
+  const mealPct = day.mealPct ?? 0;
+  const hydPct = day.hydPct ?? 0;
+
+  return (
+    <motion.div
+      className="px-5"
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.28, ease: T.easeOut }}
+    >
+      <button onClick={onBack} className="btn-ghost !py-0 mb-4" style={{ color: T.textMid }}>
+        <ChevronLeft size={14} strokeWidth={T.stroke} /> Back to today
+      </button>
+
+      {isFuture ? (
+        // ── Future day — what's scheduled ──
+        <>
+          <p className="kicker mb-1">Scheduled · {day.label} {day.date}</p>
+          <h2 className="display-lg text-[#F4F2EC] uppercase leading-none mb-1.5">
+            {isRest ? 'Rest Day' : splitName}
+          </h2>
+          <p className="font-body text-[13px] font-medium mb-5" style={{ color: T.textLow }}>
+            {isRest
+              ? 'Recovery and mobility. Earn the next one.'
+              : "On the board. Nothing to log until the day arrives."}
+          </p>
+
+          <div className="card p-4 flex items-center gap-3.5">
+            <div
+              className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0"
+              style={{ background: T.surface2, border: `1px solid ${T.hairline}` }}
+            >
+              {isRest
+                ? <Moon size={20} strokeWidth={T.stroke} style={{ color: T.textMid }} />
+                : <Dumbbell size={20} strokeWidth={T.stroke} style={{ color: T.gold }} />}
+            </div>
+            <div className="min-w-0">
+              <p className="kicker mb-0.5">Training</p>
+              <p className="display-xs text-[#F4F2EC]">{isRest ? 'Rest & recover' : splitName}</p>
+            </div>
+          </div>
+        </>
+      ) : (
+        // ── Past day — what got done ──
+        <>
+          <p className="kicker mb-1">Recap · {day.label} {day.date}</p>
+          <div className="flex items-end gap-3 -mb-1">
+            <span className="display-xl text-[#F4F2EC] tabular-nums">{scorePts}</span>
+            <div className="flex items-baseline gap-1 pb-2.5">
+              <span className="display-sm" style={{ color: T.textFaint }}>/30</span>
+              <span className="display-xs" style={{ color: T.textFaint }}>PTS</span>
+            </div>
+          </div>
+          <p className="font-body text-[13px] font-medium mt-1 mb-5" style={{ color: T.textLow }}>
+            {scorePts >= 25 ? 'Strong day. That’s the standard.'
+              : scorePts >= 15 ? 'Solid effort on the board.'
+                : 'Logged, with room to build on.'}
+          </p>
+
+          <div className="grid grid-cols-2 gap-3 mb-3">
+            <div className="card flex flex-col items-center gap-2.5 py-5 px-4">
+              <StatusRing percentage={mealPct} color={T.cal} size={60} strokeWidth={6}>
+                <Utensils size={20} strokeWidth={T.stroke} style={{ color: T.textMid }} />
+              </StatusRing>
+              <span className="font-body text-[12px] font-bold uppercase tracking-wider" style={{ color: T.textMid }}>Nutrition</span>
+              <span className="display-xs text-[#F4F2EC]">{mealPct}%</span>
+            </div>
+            <div className="card flex flex-col items-center gap-2.5 py-5 px-4">
+              <StatusRing percentage={hydPct} color={T.water} size={60} strokeWidth={6}>
+                <Droplets size={20} strokeWidth={T.stroke} style={{ color: T.textMid }} />
+              </StatusRing>
+              <span className="font-body text-[12px] font-bold uppercase tracking-wider" style={{ color: T.textMid }}>Hydration</span>
+              <span className="display-xs text-[#F4F2EC]">{hydPct}%</span>
+            </div>
+          </div>
+
+          <div className="card p-4 flex items-center gap-3.5">
+            <div
+              className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0"
+              style={{ background: T.surface2, border: `1px solid ${T.hairline}` }}
+            >
+              {isRest
+                ? <Moon size={20} strokeWidth={T.stroke} style={{ color: T.textMid }} />
+                : <Dumbbell size={20} strokeWidth={T.stroke} style={{ color: day.trained ? T.gold : T.textMid }} />}
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="kicker mb-0.5">Training</p>
+              <p className="display-xs text-[#F4F2EC]">{isRest ? 'Rest Day' : splitName}</p>
+            </div>
+            <span
+              className="font-body text-[10px] font-extrabold uppercase tracking-wider px-2 py-1 rounded-md"
+              style={!isRest && day.trained
+                ? { color: T.gold, border: `1px solid ${T.goldBorder}` }
+                : { color: T.textLow, border: `1px solid ${T.hairlineStrong}` }}
+            >
+              {isRest ? 'Recovery' : day.trained ? 'Trained' : 'Missed'}
+            </span>
+          </div>
+        </>
+      )}
+    </motion.div>
+  );
+}
+
 export default function Home({ onProfileClick, onNavigate, onNotifications }) {
   const { training, meals, hydration, isRestDay } = useApp();
+  const [selectedDay, setSelectedDay] = useState(null);
+  const viewingDay = selectedDay && !selectedDay.isToday;
 
   const shouldReduce = useReducedMotion();
   const today = new Date();
@@ -129,6 +246,8 @@ export default function Home({ onProfileClick, onNavigate, onNotifications }) {
       queue.push({
         key: `meal-${nextMealIdx}`,
         icon: Utensils,
+        image: meal.image || PHOTOS.nutritionBg,
+        color: T.cal,
         title: `Log ${meal.label}`,
         subtitle: `${Math.round(totalCal)} cal · ${Math.round(totalProtein)}g protein`,
         points: 5,
@@ -140,6 +259,8 @@ export default function Home({ onProfileClick, onNavigate, onNotifications }) {
       queue.push({
         key: 'hydration',
         icon: Droplets,
+        image: PHOTOS.hydrationBg,
+        color: T.water,
         title: 'Drink water',
         subtitle: `${pct}% of today's goal`,
         points: 5,
@@ -156,7 +277,8 @@ export default function Home({ onProfileClick, onNavigate, onNotifications }) {
     const dayOfYear = Math.floor(
       (today - new Date(today.getFullYear(), 0, 0)) / (1000 * 60 * 60 * 24),
     );
-    return COACH_QUOTES[dayOfYear % COACH_QUOTES.length];
+    const note = COACH_NOTES[dayOfYear % COACH_NOTES.length];
+    return note.replace('{name}', USER_PROFILE.name);
   }, []);
 
   const totalDots = 6;
@@ -223,12 +345,27 @@ export default function Home({ onProfileClick, onNavigate, onNotifications }) {
 
       {/* ═══ 2. THIS WEEK STRIP ═══ */}
       <motion.div {...enter(0.04)} className="pt-3 mb-4">
-        <WeekStrip mode="score" />
+        <WeekStrip
+          mode="score"
+          selectedIso={selectedDay?.iso}
+          onSelectDay={(day) => setSelectedDay(day.isToday ? null : day)}
+        />
       </motion.div>
 
-      {/* ═══ 3. COACH QUOTE ═══ */}
+      {/* ═══ SELECTED-DAY RECAP — replaces live sections when a past/future day is tapped ═══ */}
+      {viewingDay && (
+        <DayRecap day={selectedDay} onBack={() => setSelectedDay(null)} />
+      )}
+
+      {!viewingDay && (
+      <>
+      {/* ═══ 3. COACH NOTE — a message from Biki, tap to reply ═══ */}
       <motion.div className="mx-5 mb-4" {...enter(0.08)}>
-        <div className="coach-quote-card p-4 pl-5">
+        <motion.button
+          whileTap={T.tap}
+          onClick={() => onNavigate && onNavigate('coach')}
+          className="coach-quote-card w-full text-left p-4 pl-5"
+        >
           <div className="flex items-start gap-3">
             <div className="shrink-0 relative">
               <div
@@ -249,13 +386,24 @@ export default function Home({ onProfileClick, onNavigate, onNotifications }) {
             </div>
 
             <div className="flex-1 min-w-0">
-              <p className="kicker kicker-gold mb-1.5">Coach Biki</p>
-              <p className="font-body text-[14px] font-medium leading-relaxed" style={{ color: T.textMid }}>
-                "{coachQuote}"
+              <div className="flex items-center gap-1.5 mb-1.5">
+                <span className="kicker kicker-gold">Coach Biki</span>
+                <span className="font-body text-[10px] font-semibold" style={{ color: T.textFaint }}>
+                  · now
+                </span>
+              </div>
+              <p className="font-body text-[14px] font-medium leading-relaxed" style={{ color: T.text }}>
+                {coachQuote}
               </p>
+              <div className="flex items-center gap-1.5 mt-2.5">
+                <MessageCircle size={12} strokeWidth={T.stroke} style={{ color: T.textFaint }} />
+                <span className="font-body text-[11px] font-semibold" style={{ color: T.textLow }}>
+                  Reply to Biki
+                </span>
+              </div>
             </div>
           </div>
-        </div>
+        </motion.button>
       </motion.div>
 
       {/* ═══ 4. SCORE HERO — open air, number bleeds right ═══ */}
@@ -324,36 +472,48 @@ export default function Home({ onProfileClick, onNavigate, onNotifications }) {
                   {...stagger(i, 0.2)}
                   whileTap={T.tap}
                   onClick={() => onNavigate && onNavigate(t.target)}
-                  className="card w-full flex items-center gap-3 p-3 text-left"
+                  className="card w-full flex items-stretch text-left overflow-hidden"
                 >
-                  <div
-                    className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0"
-                    style={{ background: T.surface2, border: `1px solid ${T.hairline}` }}
-                  >
-                    <Icon size={20} strokeWidth={T.stroke} style={{ color: T.textMid }} />
+                  {/* Image tile — same photo language as the workout card */}
+                  <div className="relative w-16 shrink-0 overflow-hidden">
+                    <img
+                      src={t.image}
+                      alt=""
+                      loading="lazy"
+                      className="absolute inset-0 w-full h-full object-cover"
+                      style={{ filter: 'grayscale(35%) contrast(1.05) brightness(0.78)' }}
+                    />
+                    {/* Data-color wash, then fade into the card surface */}
+                    <div className="absolute inset-0" style={{ background: `linear-gradient(135deg, ${t.color}59 0%, transparent 58%)` }} />
+                    <div className="absolute inset-0" style={{ background: `linear-gradient(to right, transparent 35%, ${T.surface} 100%)` }} />
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <Icon size={20} strokeWidth={2.25} style={{ color: '#F4F2EC' }} />
+                    </div>
                   </div>
 
-                  <div className="flex-1 min-w-0">
-                    <p className="display-xs text-[#F4F2EC] leading-tight">
-                      {t.title}
-                    </p>
-                    <p className="font-body text-[12px] font-medium mt-0.5 truncate" style={{ color: T.textLow }}>
-                      {t.subtitle}
-                    </p>
-                  </div>
+                  <div className="flex-1 min-w-0 flex items-center gap-2 py-3 pr-3 pl-3.5">
+                    <div className="flex-1 min-w-0">
+                      <p className="display-xs text-[#F4F2EC] leading-tight">
+                        {t.title}
+                      </p>
+                      <p className="font-body text-[12px] font-medium mt-0.5 truncate" style={{ color: T.textLow }}>
+                        {t.subtitle}
+                      </p>
+                    </div>
 
-                  <div className="flex items-center gap-2 flex-shrink-0">
-                    <span
-                      className="font-body text-[11px] font-extrabold uppercase tracking-wider px-2 py-1 rounded-md inline-block"
-                      style={{
-                        color: T.gold,
-                        border: `1px solid ${T.goldBorder}`,
-                        rotate: '-2deg',
-                      }}
-                    >
-                      +{t.points} pts
-                    </span>
-                    <ChevronRight size={16} strokeWidth={T.stroke} style={{ color: T.textFaint }} />
+                    <div className="flex items-center gap-2 shrink-0">
+                      <span
+                        className="font-body text-[11px] font-extrabold uppercase tracking-wider px-2 py-1 rounded-md inline-block"
+                        style={{
+                          color: T.gold,
+                          border: `1px solid ${T.goldBorder}`,
+                          rotate: '-2deg',
+                        }}
+                      >
+                        +{t.points} pts
+                      </span>
+                      <ChevronRight size={16} strokeWidth={T.stroke} style={{ color: T.textFaint }} />
+                    </div>
                   </div>
                 </motion.button>
               );
@@ -382,7 +542,7 @@ export default function Home({ onProfileClick, onNavigate, onNotifications }) {
               Nutrition
             </span>
             <span className="display-xs" style={{ color: nutritionPct >= 100 ? T.cal : T.text }}>
-              {nutritionPct >= 100 ? 'Done' : `${mealsLogged} of ${totalMeals}`}
+              {nutritionPct >= 100 ? 'Fuelled' : `${mealsLogged} of ${totalMeals}`}
             </span>
           </motion.button>
 
@@ -402,7 +562,7 @@ export default function Home({ onProfileClick, onNavigate, onNotifications }) {
               Hydration
             </span>
             <span className="display-xs" style={{ color: hydrationPct >= 100 ? T.water : '#F4F2EC' }}>
-              {hydrationPct >= 100 ? 'Done' : `${hydrationPct}%`}
+              {hydrationPct >= 100 ? 'Hydrated' : `${hydrationPct}%`}
             </span>
           </motion.button>
         </div>
@@ -464,26 +624,28 @@ export default function Home({ onProfileClick, onNavigate, onNotifications }) {
         </div>
       </motion.div>
 
-      {/* ═══ 8. SLEEP NOTE ═══ */}
+      {/* ═══ 8. SLEEP NOTE — bare violet moon: the one off-palette accent ═══ */}
       <motion.div className="card mx-5 mb-4 p-4 pl-5" {...enter(0.28)}>
-        <div className="flex items-start gap-3">
-          <div
-            className="w-9 h-9 rounded-full flex items-center justify-center shrink-0"
-            style={{ background: T.cobaltTint }}
-          >
-            <Moon size={16} strokeWidth={T.stroke} style={{ color: T.cobalt }} />
-          </div>
+        <div className="flex items-start gap-3.5">
+          <MoonStar
+            size={28}
+            strokeWidth={1.5}
+            style={{ color: T.macroCarbs }}
+            className="shrink-0 mt-1"
+          />
           <div className="flex-1 min-w-0">
-            <p className="kicker mb-1.5">Sleep</p>
+            <p className="kicker mb-1.5" style={{ color: T.macroCarbs, opacity: 0.85 }}>Wind down</p>
             <p className="display-sm text-[#F4F2EC] mb-1.5">
               7–8 HOURS TONIGHT
             </p>
             <p className="font-body text-[13px] font-medium leading-relaxed" style={{ color: T.textLow }}>
-              Muscle is built while you sleep. Lights off early.
+              Muscle is built while you sleep. Lights low, screens down.
             </p>
           </div>
         </div>
       </motion.div>
+      </>
+      )}
 
       {/* Month overlay */}
       <MonthSheet isOpen={monthOpen} onClose={() => setMonthOpen(false)} mode="score" />

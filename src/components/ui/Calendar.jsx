@@ -114,6 +114,7 @@ function useWeekDays() {
       days.push({
         label: DAY_ABBR[d.getDay()],
         date: d.getDate(),
+        iso: dateStr,
         isToday, isPast, isFuture,
         pts, pct, mealPct, hydPct, split,
         trained: hist?.trained ?? false,
@@ -143,9 +144,10 @@ const SPLIT_SHORT = { push: 'PUSH', pull: 'PULL', legs: 'LEGS', rest: 'REST' };
 // perfectly concentric and aligned. `markToday` draws today's gold ring/number
 // (month view); the week strip turns it off and marks today via the weekday
 // label instead (Apple-style, simple). ──
-function DayCircle({ day, mode, size = 42, markToday = true }) {
+function DayCircle({ day, mode, size = 42, markToday = true, selected = false }) {
   const showToday = day.isToday && markToday;
   const hasData = mode === 'score' ? day.pts !== null : day.mealPct !== null;
+  const marked = showToday || selected;
   return (
     <div
       className="rounded-full flex items-center justify-center relative"
@@ -154,7 +156,7 @@ function DayCircle({ day, mode, size = 42, markToday = true }) {
         height: size,
         background: T.surface,
         outlineOffset: -1,
-        outline: showToday
+        outline: marked
           ? `1.5px solid ${T.gold}`
           : mode === 'training' && day.split === 'rest'
             ? `1px dashed ${T.hairlineStrong}`
@@ -170,7 +172,7 @@ function DayCircle({ day, mode, size = 42, markToday = true }) {
         <span
           className="font-body text-[10px] font-normal tabular-nums relative z-10"
           style={{
-            color: showToday ? T.gold
+            color: marked ? T.gold
               : hasData ? 'rgba(244,242,236,0.85)'
                 : 'rgba(244,242,236,0.25)',
           }}
@@ -185,44 +187,52 @@ function DayCircle({ day, mode, size = 42, markToday = true }) {
 // ═════════════════════════════════════════════
 // WeekStrip
 // ═════════════════════════════════════════════
-export function WeekStrip({ mode = 'score', showPoints = true, className = '' }) {
+export function WeekStrip({ mode = 'score', showPoints = true, className = '', onSelectDay, selectedIso }) {
   const { days, completedDays } = useWeekDays();
+  const interactive = typeof onSelectDay === 'function';
+  const Cell = interactive ? motion.button : motion.div;
 
   return (
     <div className={`px-5 ${className}`}>
       <p className="kicker mb-3">This week</p>
       <div className="grid grid-cols-7 gap-1.5">
-        {days.map((day, i) => (
-          <motion.div
-            key={i}
-            className="flex flex-col items-center gap-1"
-            {...stagger(i, 0.05)}
-          >
-            <span
-              className="font-body text-[9px] font-extrabold uppercase tracking-wider"
-              style={day.isToday
-                ? { color: T.goldInk, background: T.gold, padding: '2px 6px', borderRadius: 999 }
-                : { color: T.textFaint }}
+        {days.map((day, i) => {
+          const isSelected = interactive && selectedIso === day.iso && !day.isToday;
+          return (
+            <Cell
+              key={i}
+              className="flex flex-col items-center gap-1"
+              {...(interactive
+                ? { onClick: () => onSelectDay(day), whileTap: { scale: 0.9 }, type: 'button' }
+                : {})}
+              {...stagger(i, 0.05)}
             >
-              {day.label}
-            </span>
-
-            <DayCircle day={day} mode={mode} markToday={false} />
-
-            {mode === 'training' ? (
               <span
-                className="font-body text-[8px] font-extrabold uppercase tracking-wider"
-                style={{
-                  color: day.isToday ? T.gold
-                    : day.split === 'rest' ? T.textFaint
-                    : T.textLow,
-                }}
+                className="font-body text-[9px] font-extrabold uppercase tracking-wider"
+                style={day.isToday
+                  ? { color: T.goldInk, background: T.gold, padding: '2px 6px', borderRadius: 999 }
+                  : { color: isSelected ? T.gold : T.textFaint }}
               >
-                {SPLIT_SHORT[day.split] || '—'}
+                {day.label}
               </span>
-            ) : null}
-          </motion.div>
-        ))}
+
+              <DayCircle day={day} mode={mode} markToday={false} selected={isSelected} />
+
+              {mode === 'training' ? (
+                <span
+                  className="font-body text-[8px] font-extrabold uppercase tracking-wider"
+                  style={{
+                    color: day.isToday ? T.gold
+                      : day.split === 'rest' ? T.textFaint
+                      : T.textLow,
+                  }}
+                >
+                  {SPLIT_SHORT[day.split] || '—'}
+                </span>
+              ) : null}
+            </Cell>
+          );
+        })}
       </div>
 
       {mode === 'score' && showPoints && (

@@ -405,25 +405,23 @@ function MealTimelineCard({ meal, mealIndex, onTap, delay = 0 }) {
       {/* Card */}
       <div className="ml-9">
         <div
-          className="rounded-xl p-4"
+          className="rounded-xl overflow-hidden flex"
           style={{
             background: CARD_BG,
             border: `1px solid ${isLogged ? T.goldBorder : CARD_BORDER}`,
             opacity: isLogged ? 1 : 0.85,
           }}
         >
-         <div className="flex gap-3">
           {showImage && (
             <img
               src={meal.image}
               alt=""
               loading="lazy"
               onError={() => setImgError(true)}
-              className="w-12 h-12 rounded-lg object-cover shrink-0"
-              style={{ border: `1px solid ${T.hairline}` }}
+              className="w-14 object-cover self-stretch shrink-0"
             />
           )}
-          <div className="flex-1 min-w-0">
+          <div className="flex-1 min-w-0 p-4">
           {/* Header row */}
           <div className={`flex items-start justify-between ${showMacros ? 'mb-3' : ''}`}>
             <div className="min-w-0 flex-1 pr-3">
@@ -471,7 +469,6 @@ function MealTimelineCard({ meal, mealIndex, onTap, delay = 0 }) {
             </div>
           )}
           </div>
-         </div>
         </div>
       </div>
     </motion.button>
@@ -497,11 +494,11 @@ function MealSheet({ meal, mealIndex, isOpen, onClose, logged, logMeal, adjustMe
     if (meal && isOpen) {
       // Capture each food's base portion + macros so quantity scaling is stable.
       setEditFoods(meal.foods.map(f => {
-        const { qty, unit } = parsePortion(f.portion);
+        const { qty } = parsePortion(f.portion);
         return {
           ...f,
           qty,
-          unit,
+          unit: 'g',
           _base: { qty: qty || 1, protein: f.protein, carbs: f.carbs, fat: f.fat, calories: f.calories },
         };
       }));
@@ -558,10 +555,10 @@ function MealSheet({ meal, mealIndex, isOpen, onClose, logged, logMeal, adjustMe
     const cal = Math.round(p * 4 + c * 4 + f * 9);
     setEditFoods(prev => [...prev, {
       name: customName.trim(),
-      portion: '1 serving',
+      portion: '100g',
       protein: p, carbs: c, fat: f, calories: cal,
-      qty: 1, unit: 'serving',
-      _base: { qty: 1, protein: p, carbs: c, fat: f, calories: cal },
+      qty: 100, unit: 'g',
+      _base: { qty: 100, protein: p, carbs: c, fat: f, calories: cal },
     }]);
     setCustomName(''); setCustomProtein(''); setCustomCarbs(''); setCustomFat('');
   }, [customName, customProtein, customCarbs, customFat]);

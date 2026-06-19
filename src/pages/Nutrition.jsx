@@ -494,11 +494,11 @@ function MealSheet({ meal, mealIndex, isOpen, onClose, logged, logMeal, adjustMe
     if (meal && isOpen) {
       // Capture each food's base portion + macros so quantity scaling is stable.
       setEditFoods(meal.foods.map(f => {
-        const { qty } = parsePortion(f.portion);
+        const { qty, unit } = parsePortion(f.portion);
         return {
           ...f,
           qty,
-          unit: 'g',
+          unit,
           _base: { qty: qty || 1, protein: f.protein, carbs: f.carbs, fat: f.fat, calories: f.calories },
         };
       }));

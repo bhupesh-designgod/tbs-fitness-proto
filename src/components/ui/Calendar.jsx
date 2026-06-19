@@ -60,13 +60,14 @@ export function MiniRing({ percentage, size = 42, strokeWidth = 3, color = T.tex
 }
 
 // ── Dual ring: meals (outer) + hydration (inner, azure) ──
-// SVGs fill the whole cell and are inset symmetrically, so both rings stay
-// perfectly concentric — ~4px gap between them.
+// SVGs fill the whole cell, inset symmetrically so the rings stay concentric.
+// The hydration ring sits just inside the meals ring (tight ~1.5px gap) with a
+// clear void around the date number.
 function DualRing({ mealPct, hydPct, size = 42 }) {
   return (
     <>
-      <MiniRing percentage={mealPct} size={size} strokeWidth={3} inset={3} color={T.cal} />
-      <MiniRing percentage={hydPct} size={size} strokeWidth={3} inset={10} color={T.water} />
+      <MiniRing percentage={mealPct} size={size} strokeWidth={3} inset={2.5} color={T.cal} />
+      <MiniRing percentage={hydPct} size={size} strokeWidth={3} inset={7} color={T.water} />
     </>
   );
 }
@@ -157,7 +158,7 @@ function DayCircle({ day, mode, size = 42, markToday = true }) {
           ? `1.5px solid ${T.gold}`
           : mode === 'training' && day.split === 'rest'
             ? `1px dashed ${T.hairlineStrong}`
-            : `1px solid ${T.hairline}`,
+            : 'none',
       }}
     >
       {mode === 'score' && <MiniRing percentage={day.pct} size={size} strokeWidth={3} inset={3} color={T.text} />}

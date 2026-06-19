@@ -104,12 +104,14 @@ export function AppProvider({ children }) {
   // Log a meal with edited/replaced foods — logs exactly what was eaten.
   // We no longer silently rescale the other meals; the user redistributes any
   // shortfall to a meal of their choice via redistributeToMeal.
-  const adjustMeal = useCallback((mealIndex, newFoods) => {
+  const adjustMeal = useCallback((mealIndex, newFoods, opts = {}) => {
     setState(prev => {
       const meals = clone(prev.meals);
       meals[mealIndex].foods = newFoods;
       meals[mealIndex].logged = true;
       meals[mealIndex].rebalanced = false;
+      // A replaced meal is a different dish — drop the planned photo.
+      if (opts.clearImage) meals[mealIndex].image = null;
       return { ...prev, meals };
     });
   }, [setState]);

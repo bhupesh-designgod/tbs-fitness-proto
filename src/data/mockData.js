@@ -167,6 +167,7 @@ export const MEAL_PLAN = [
     id: 'meal-1',
     time: '8:00 AM',
     label: 'Breakfast',
+    image: 'https://images.unsplash.com/photo-1626700051175-6818013e1d4f?w=200&q=70&auto=format&fit=crop',
     foods: [
       { name: 'Paneer Bhurji', portion: '150g', protein: 25, carbs: 6, fat: 18, calories: 290 },
       { name: 'Multigrain Roti', portion: '2 pcs', protein: 8, carbs: 40, fat: 4, calories: 230 },
@@ -178,6 +179,7 @@ export const MEAL_PLAN = [
     id: 'meal-2',
     time: '1:00 PM',
     label: 'Lunch',
+    image: 'https://images.unsplash.com/photo-1532550907401-a500c9a57435?w=200&q=70&auto=format&fit=crop',
     foods: [
       { name: 'Chicken Breast', portion: '200g', protein: 46, carbs: 0, fat: 6, calories: 240 },
       { name: 'Basmati Rice', portion: '150g cooked', protein: 4, carbs: 52, fat: 1, calories: 230 },
@@ -190,6 +192,7 @@ export const MEAL_PLAN = [
     id: 'meal-3',
     time: '5:00 PM',
     label: 'Pre-workout',
+    image: 'https://images.unsplash.com/photo-1638176066666-ffb2f013c7dd?w=200&q=70&auto=format&fit=crop',
     foods: [
       { name: 'Whey Protein Shake', portion: '1 scoop', protein: 24, carbs: 4, fat: 2, calories: 130 },
       { name: 'Banana', portion: '1 large', protein: 1, carbs: 31, fat: 0, calories: 120 },
@@ -201,6 +204,7 @@ export const MEAL_PLAN = [
     id: 'meal-4',
     time: '9:00 PM',
     label: 'Dinner',
+    image: 'https://images.unsplash.com/photo-1599487488170-d11ec9c172f0?w=200&q=70&auto=format&fit=crop',
     foods: [
       { name: 'Grilled Chicken Tikka', portion: '180g', protein: 40, carbs: 4, fat: 8, calories: 250 },
       { name: 'Curd Rice', portion: '1 bowl', protein: 6, carbs: 38, fat: 5, calories: 220 },

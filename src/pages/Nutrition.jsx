@@ -5,7 +5,7 @@
 import { useState, useMemo, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import {
-  Check, X, ChevronRight, Droplets, BookOpen, Plus, MoreHorizontal,
+  Check, X, ChevronRight, Droplets, BookOpen, Plus, Minus, MoreHorizontal,
   RefreshCw, Trophy, Flame, GlassWater, Settings2, Undo2, CalendarDays,
   Pill, Clock,
 } from 'lucide-react';
@@ -48,6 +48,25 @@ function foodSummary(foods) {
   if (!foods || foods.length === 0) return '';
   if (foods.length === 1) return foods[0].name;
   return `${foods[0].name} & ${foods[1].name}${foods.length > 2 ? ` +${foods.length - 2}` : ''}`;
+}
+
+// Split a portion string into a numeric quantity + its unit label.
+// "150g cooked" → { qty: 150, unit: 'g cooked' }, "2 pcs" → { qty: 2, unit: 'pcs' }
+function parsePortion(portion = '') {
+  const m = String(portion).match(/^(\d+(?:\.\d+)?)\s*(.*)$/);
+  if (m) return { qty: parseFloat(m[1]), unit: (m[2] || '').trim() };
+  return { qty: 1, unit: (portion || 'serving').trim() };
+}
+
+// Weight units sit flush ("250g"); count units get a space ("2 pcs").
+function joinPortion(qty, unit) {
+  const sep = /^(g|ml|kg|l)\b/i.test(unit) ? '' : ' ';
+  return `${qty}${unit ? sep + unit : ''}`;
+}
+
+// Sensible stepper increment for a unit.
+function stepFor(unit) {
+  return /^(g|ml)\b/i.test(unit) ? 25 : 1;
 }
 
 const DAY_ABBR = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
@@ -102,7 +121,6 @@ function MacrosOverview({ logged }) {
     { key: 'fat',     label: 'Fat',     short: 'F', curr: logged.fat,     target: PLAN_TOTALS.fat,     color: FAT_GREY },
     { key: 'carbs',   label: 'Carbs',   short: 'C', curr: logged.carbs,   target: PLAN_TOTALS.carbs,   color: CARB_BRONZE },
   ];
-  const isBehind = logged.calories < PLAN_TOTALS.calories;
 
   return (
     <motion.div
@@ -114,14 +132,26 @@ function MacrosOverview({ logged }) {
     >
       <div className="flex items-center justify-between mb-4">
         <p className="kicker">Macros</p>
-        {logged.calories > 0 && (
-          <span
-            className="font-body text-[11px] font-extrabold uppercase tracking-wider"
-            style={{ color: isBehind ? GOLD : 'rgba(244,242,236,0.7)' }}
-          >
-            {isBehind ? 'Catch up' : 'On track'}
-          </span>
-        )}
+        {(() => {
+          const remaining = PLAN_TOTALS.calories - logged.calories;
+          const onTarget = Math.abs(remaining) <= 50;
+          const over = remaining < -50;
+          const accent = onTarget ? PROTEIN : over ? FAT_GREY : T.cal;
+          const label = onTarget
+            ? 'Right on target'
+            : over
+              ? `${Math.abs(remaining).toLocaleString()} over`
+              : `${remaining.toLocaleString()} kcal to go`;
+          return (
+            <span
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded-full font-body text-[11px] font-bold tabular-nums"
+              style={{ background: `${accent}1F`, color: accent }}
+            >
+              <span className="w-1.5 h-1.5 rounded-full" style={{ background: accent }} />
+              {label}
+            </span>
+          );
+        })()}
       </div>
 
       <div className="flex items-center gap-5">
@@ -267,23 +297,39 @@ function CatchUpCard({ meals, onRedistribute }) {
       </div>
 
       <p className="font-body text-[10px] font-extrabold uppercase tracking-wider mb-2" style={{ color: T.textFaint }}>
-        {short ? 'Add it to an upcoming meal' : 'Trim it from an upcoming meal'}
+        {short ? 'Bump up one of these meals' : 'Ease back one of these meals'}
       </p>
-      <div className="flex flex-wrap gap-2">
-        {upcoming.map(({ m, i }) => (
-          <motion.button
-            key={i}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => onRedistribute(i)}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-full font-body text-[12px] font-bold"
-            style={{ background: T.surface2, color: T.text, border: `1px solid ${T.hairlineStrong}` }}
-          >
-            {short
-              ? <Plus size={12} strokeWidth={2.5} style={{ color: accent }} />
-              : <X size={11} strokeWidth={2.5} style={{ color: accent }} />}
-            {m.label}
-          </motion.button>
-        ))}
+      <div className="space-y-2">
+        {upcoming.map(({ m, i }) => {
+          const cur = sumFoods(m.foods).calories;
+          const next = Math.max(0, cur + gap.calories); // this meal absorbs the whole gap
+          return (
+            <motion.button
+              key={i}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => onRedistribute(i)}
+              className="w-full flex items-center justify-between px-3.5 py-3 rounded-xl"
+              style={{ background: T.surface2, border: `1px solid ${T.hairline}` }}
+            >
+              <div className="min-w-0 text-left">
+                <p className="font-body text-[13px] font-bold leading-tight" style={{ color: T.text }}>
+                  {m.label}
+                </p>
+                <p className="font-body text-[11px] mt-0.5 tabular-nums" style={{ color: T.textMid }}>
+                  {cur} <span style={{ color: T.textFaint }}>→</span>{' '}
+                  <span className="font-bold" style={{ color: accent }}>{next}</span> cal
+                </p>
+              </div>
+              <span
+                className="flex items-center gap-1 px-3 py-1.5 rounded-full font-body text-[11px] font-extrabold uppercase tracking-wider shrink-0"
+                style={{ background: `${accent}1F`, color: accent }}
+              >
+                {short ? 'Add' : 'Trim'}
+                <ChevronRight size={13} strokeWidth={2.5} />
+              </span>
+            </motion.button>
+          );
+        })}
       </div>
     </motion.div>
   );
@@ -306,10 +352,12 @@ function MacroChip({ value, suffix, color }) {
 // ═════════════════════════════════════════════
 function MealTimelineCard({ meal, mealIndex, onTap, delay = 0 }) {
   const shouldReduce = useReducedMotion();
+  const [imgError, setImgError] = useState(false);
   const totals = sumFoods(meal.foods);
   const isLogged = meal.logged;
+  const showImage = meal.image && !imgError;
   const isAdjusted = !isLogged && meal.rebalanced; // upcoming meal scaled to catch up
-  const showMacros = isLogged || isAdjusted;
+  const showMacros = isLogged; // adjusted upcoming meals stay quiet, like unlogged
   const summary = foodSummary(meal.foods);
   // Short time label like "8 AM"
   const shortTime = (meal.time || '')
@@ -360,16 +408,28 @@ function MealTimelineCard({ meal, mealIndex, onTap, delay = 0 }) {
           className="rounded-xl p-4"
           style={{
             background: CARD_BG,
-            border: `1px solid ${isLogged ? T.goldBorder : isAdjusted ? T.calTint.replace('0.14', '0.40') : CARD_BORDER}`,
-            opacity: showMacros ? 1 : 0.85,
+            border: `1px solid ${isLogged ? T.goldBorder : CARD_BORDER}`,
+            opacity: isLogged ? 1 : 0.85,
           }}
         >
+         <div className="flex gap-3">
+          {showImage && (
+            <img
+              src={meal.image}
+              alt=""
+              loading="lazy"
+              onError={() => setImgError(true)}
+              className="w-12 h-12 rounded-lg object-cover shrink-0"
+              style={{ border: `1px solid ${T.hairline}` }}
+            />
+          )}
+          <div className="flex-1 min-w-0">
           {/* Header row */}
           <div className={`flex items-start justify-between ${showMacros ? 'mb-3' : ''}`}>
             <div className="min-w-0 flex-1 pr-3">
               <p
                 className="display-xs uppercase leading-tight"
-                style={{ color: showMacros ? '#F4F2EC' : 'rgba(255,255,255,0.55)' }}
+                style={{ color: isLogged ? '#F4F2EC' : 'rgba(255,255,255,0.55)' }}
               >
                 {meal.label}
               </p>
@@ -378,11 +438,14 @@ function MealTimelineCard({ meal, mealIndex, onTap, delay = 0 }) {
               </p>
             </div>
             <div className="flex items-center gap-1 shrink-0">
+              {isAdjusted && (
+                <RefreshCw size={10} strokeWidth={T.stroke} style={{ color: T.textMid }} />
+              )}
               <span
                 className="font-body text-[10px] font-extrabold uppercase tracking-wider"
-                style={{ color: isLogged ? GOLD : isAdjusted ? T.cal : 'rgba(255,255,255,0.28)' }}
+                style={{ color: isLogged ? GOLD : isAdjusted ? T.textMid : 'rgba(255,255,255,0.28)' }}
               >
-                {isLogged ? 'Logged' : isAdjusted ? 'Adjusted ↑' : 'Not logged'}
+                {isLogged ? 'Logged' : isAdjusted ? 'Adjusted' : 'Not logged'}
               </span>
               <ChevronRight size={14} strokeWidth={T.stroke} className="text-white/25" />
             </div>
@@ -407,6 +470,8 @@ function MealTimelineCard({ meal, mealIndex, onTap, delay = 0 }) {
               <MacroChip value={totals.carbs} suffix="C" color={CARB_BRONZE} />
             </div>
           )}
+          </div>
+         </div>
         </div>
       </div>
     </motion.button>
@@ -430,7 +495,16 @@ function MealSheet({ meal, mealIndex, isOpen, onClose, logged, logMeal, adjustMe
 
   useEffect(() => {
     if (meal && isOpen) {
-      setEditFoods(meal.foods.map(f => ({ ...f })));
+      // Capture each food's base portion + macros so quantity scaling is stable.
+      setEditFoods(meal.foods.map(f => {
+        const { qty, unit } = parsePortion(f.portion);
+        return {
+          ...f,
+          qty,
+          unit,
+          _base: { qty: qty || 1, protein: f.protein, carbs: f.carbs, fat: f.fat, calories: f.calories },
+        };
+      }));
       setView('main');
       setCustomName('');
       setCustomProtein('');
@@ -449,8 +523,32 @@ function MealSheet({ meal, mealIndex, isOpen, onClose, logged, logMeal, adjustMe
     });
   }, []);
 
+  // Scale a food's macros + calories proportionally to a new quantity.
+  const handleQtyChange = useCallback((fi, nextQty) => {
+    setEditFoods(prev => {
+      const next = [...prev];
+      const f = { ...next[fi] };
+      const base = f._base || { qty: 1, protein: f.protein, carbs: f.carbs, fat: f.fat, calories: f.calories };
+      const q = Math.max(0, Math.round((Number(nextQty) || 0) * 100) / 100);
+      const ratio = base.qty > 0 ? q / base.qty : 0;
+      f.qty = q;
+      f.protein = Math.round(base.protein * ratio);
+      f.carbs = Math.round(base.carbs * ratio);
+      f.fat = Math.round(base.fat * ratio);
+      f.calories = Math.round(base.calories * ratio);
+      f.portion = joinPortion(q, f.unit);
+      next[fi] = f;
+      return next;
+    });
+  }, []);
+
   const handleLogAsIs = useCallback(() => { logMeal(mealIndex); onClose(); }, [logMeal, mealIndex, onClose]);
-  const handleConfirmAdjust = useCallback(() => { adjustMeal(mealIndex, editFoods); onClose(); }, [adjustMeal, mealIndex, editFoods, onClose]);
+  const handleConfirmAdjust = useCallback(() => {
+    // Drop the scaling helpers before persisting.
+    const cleaned = editFoods.map(({ _base, qty, unit, ...rest }) => rest);
+    adjustMeal(mealIndex, cleaned);
+    onClose();
+  }, [adjustMeal, mealIndex, editFoods, onClose]);
 
   const handleAddCustom = useCallback(() => {
     if (!customName.trim()) return;
@@ -460,8 +558,10 @@ function MealSheet({ meal, mealIndex, isOpen, onClose, logged, logMeal, adjustMe
     const cal = Math.round(p * 4 + c * 4 + f * 9);
     setEditFoods(prev => [...prev, {
       name: customName.trim(),
-      portion: 'custom',
+      portion: '1 serving',
       protein: p, carbs: c, fat: f, calories: cal,
+      qty: 1, unit: 'serving',
+      _base: { qty: 1, protein: p, carbs: c, fat: f, calories: cal },
     }]);
     setCustomName(''); setCustomProtein(''); setCustomCarbs(''); setCustomFat('');
   }, [customName, customProtein, customCarbs, customFat]);
@@ -503,7 +603,7 @@ function MealSheet({ meal, mealIndex, isOpen, onClose, logged, logMeal, adjustMe
         calories: Math.round(p * 4 + c * 4 + fat * 9),
       };
     });
-    adjustMeal(mealIndex, built); // replaces + logs
+    adjustMeal(mealIndex, built, { clearImage: true }); // replaces + logs (custom dish, no photo)
     onClose();
   }, [replaceFoods, adjustMeal, mealIndex, onClose]);
 
@@ -638,6 +738,43 @@ function MealSheet({ meal, mealIndex, isOpen, onClose, logged, logMeal, adjustMe
                   </button>
 
                   <p className="font-body text-[13px] text-white/70 mb-2.5 pr-6">{food.name}</p>
+
+                  {/* Quantity stepper — scales macros automatically */}
+                  <div
+                    className="flex items-center justify-between mb-3 px-2.5 py-2 rounded-lg"
+                    style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}
+                  >
+                    <span className="font-body text-[10px] font-extrabold uppercase tracking-wider" style={{ color: T.textMid }}>
+                      Quantity
+                    </span>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => handleQtyChange(fi, (Number(food.qty) || 0) - stepFor(food.unit))}
+                        className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0"
+                        style={{ background: 'rgba(255,255,255,0.05)', border: `1px solid ${CARD_BORDER}` }}
+                      >
+                        <Minus size={13} strokeWidth={2.5} className="text-white/70" />
+                      </button>
+                      <div className="flex items-baseline gap-1 justify-center min-w-[72px]">
+                        <input
+                          type="number" min={0} value={food.qty}
+                          onChange={e => handleQtyChange(fi, e.target.value)}
+                          className="w-12 bg-transparent text-center font-display text-[17px] text-[#F4F2EC] tabular-nums outline-none"
+                        />
+                        <span className="font-body text-[11px]" style={{ color: T.textLow }}>{food.unit}</span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => handleQtyChange(fi, (Number(food.qty) || 0) + stepFor(food.unit))}
+                        className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0"
+                        style={{ background: 'rgba(255,255,255,0.05)', border: `1px solid ${CARD_BORDER}` }}
+                      >
+                        <Plus size={13} strokeWidth={2.5} className="text-white/70" />
+                      </button>
+                    </div>
+                  </div>
+
                   <div className="grid grid-cols-3 gap-2">
                     {[
                       { key: 'protein', label: 'Protein (g)', color: PROTEIN },

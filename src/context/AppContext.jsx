@@ -4,13 +4,24 @@
 import { createContext, useContext, useCallback, useMemo } from 'react';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import {
-  MEAL_PLAN, DAILY_TARGETS, generateHistory,
+  MEAL_PLAN, DAILY_TARGETS, PLAN_TOTALS, generateHistory,
   getSessionForDay, PLAN_PROGRESS, TRAINING_SESSIONS,
 } from '../data/mockData';
 import {
   sumMealMacros, computeRemaining, deriveState,
-  rebalanceMeals, weekAdherence, calcAdherence,
+  weekAdherence, calcAdherence,
 } from '../data/stateEngine';
+
+// Sum the macros of one meal's foods
+const sumFoods = (foods) => foods.reduce(
+  (a, f) => ({
+    calories: a.calories + (f.calories || 0),
+    protein: a.protein + (f.protein || 0),
+    carbs: a.carbs + (f.carbs || 0),
+    fat: a.fat + (f.fat || 0),
+  }),
+  { calories: 0, protein: 0, carbs: 0, fat: 0 }
+);
 
 const AppContext = createContext(null);
 
@@ -90,13 +101,54 @@ export function AppProvider({ children }) {
     });
   }, [setState]);
 
+  // Log a meal with edited/replaced foods — logs exactly what was eaten.
+  // We no longer silently rescale the other meals; the user redistributes any
+  // shortfall to a meal of their choice via redistributeToMeal.
   const adjustMeal = useCallback((mealIndex, newFoods) => {
     setState(prev => {
       const meals = clone(prev.meals);
       meals[mealIndex].foods = newFoods;
       meals[mealIndex].logged = true;
-      const rebalanced = rebalanceMeals(meals, mealIndex);
-      return { ...prev, meals: rebalanced };
+      meals[mealIndex].rebalanced = false;
+      return { ...prev, meals };
+    });
+  }, [setState]);
+
+  // Absorb the day's off-plan difference into one chosen upcoming meal by
+  // scaling its quantities so the projected day total lands back on the plan.
+  const redistributeToMeal = useCallback((targetIndex) => {
+    setState(prev => {
+      const meals = clone(prev.meals);
+      const target = meals[targetIndex];
+      if (!target || target.logged) return prev;
+
+      // Projected day total if every meal is eaten as currently set.
+      const projected = meals.reduce((acc, m) => {
+        const s = sumFoods(m.foods);
+        return {
+          calories: acc.calories + s.calories,
+          protein: acc.protein + s.protein,
+          carbs: acc.carbs + s.carbs,
+          fat: acc.fat + s.fat,
+        };
+      }, { calories: 0, protein: 0, carbs: 0, fat: 0 });
+
+      const gapCal = PLAN_TOTALS.calories - projected.calories;
+      const targetTotal = sumFoods(target.foods);
+      if (targetTotal.calories <= 0) return prev;
+
+      // One quantity factor moves all macros together (a real portion change).
+      const factor = Math.max(0.1, (targetTotal.calories + gapCal) / targetTotal.calories);
+      target.foods = target.foods.map(f => ({
+        ...f,
+        protein: Math.max(0, Math.round((f.protein || 0) * factor)),
+        carbs: Math.max(0, Math.round((f.carbs || 0) * factor)),
+        fat: Math.max(0, Math.round((f.fat || 0) * factor)),
+        calories: Math.max(0, Math.round((f.calories || 0) * factor)),
+      }));
+      target.rebalanced = true;
+      meals[targetIndex] = target;
+      return { ...prev, meals };
     });
   }, [setState]);
 
@@ -184,6 +236,7 @@ export function AppProvider({ children }) {
     ...computed,
     logMeal,
     adjustMeal,
+    redistributeToMeal,
     swapMealFood,
     updateMealFoods,
     addMeal,
@@ -193,7 +246,7 @@ export function AppProvider({ children }) {
     toggleSet,
     setStateOverride,
     resetData,
-  }), [state, computed, logMeal, adjustMeal, swapMealFood, updateMealFoods, addMeal, logWater, setWaterDefault, removeWaterEntry, toggleSet, setStateOverride, resetData]);
+  }), [state, computed, logMeal, adjustMeal, redistributeToMeal, swapMealFood, updateMealFoods, addMeal, logWater, setWaterDefault, removeWaterEntry, toggleSet, setStateOverride, resetData]);
 
   return (
     <AppContext.Provider value={value}>

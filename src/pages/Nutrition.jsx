@@ -16,7 +16,7 @@ import { useLocalStorage } from '../hooks/useLocalStorage';
 import CoachTip from '../onboarding/CoachTip';
 import { track } from '../lib/analytics';
 import { T } from '../tokens';
-import { DAILY_TARGETS, MEAL_PLAN, USER_PROFILE, SUPPLEMENTS } from '../data/mockData';
+import { DAILY_TARGETS, PLAN_TOTALS, MEAL_PLAN, USER_PROFILE, SUPPLEMENTS } from '../data/mockData';
 
 // ── Aliases from the token sheet — no local values ──
 const CARD_BG = T.surface;
@@ -95,13 +95,14 @@ function TabToggle({ active, onChange }) {
 // ═════════════════════════════════════════════
 function MacrosOverview({ logged }) {
   const shouldReduce = useReducedMotion();
-  const calPct = Math.min(Math.round((logged.calories / DAILY_TARGETS.calories) * 100), 100);
+  // The plan IS the budget — targets are the sum of the planned meals.
+  const calPct = Math.min(Math.round((logged.calories / PLAN_TOTALS.calories) * 100), 100);
   const macros = [
-    { key: 'protein', label: 'Protein', short: 'P', curr: logged.protein, target: DAILY_TARGETS.protein, color: PROTEIN },
-    { key: 'fat',     label: 'Fat',     short: 'F', curr: logged.fat,     target: DAILY_TARGETS.fat,     color: FAT_GREY },
-    { key: 'carbs',   label: 'Carbs',   short: 'C', curr: logged.carbs,   target: DAILY_TARGETS.carbs,   color: CARB_BRONZE },
+    { key: 'protein', label: 'Protein', short: 'P', curr: logged.protein, target: PLAN_TOTALS.protein, color: PROTEIN },
+    { key: 'fat',     label: 'Fat',     short: 'F', curr: logged.fat,     target: PLAN_TOTALS.fat,     color: FAT_GREY },
+    { key: 'carbs',   label: 'Carbs',   short: 'C', curr: logged.carbs,   target: PLAN_TOTALS.carbs,   color: CARB_BRONZE },
   ];
-  const isBehind = logged.calories < DAILY_TARGETS.calories;
+  const isBehind = logged.calories < PLAN_TOTALS.calories;
 
   return (
     <motion.div
@@ -134,7 +135,7 @@ function MacrosOverview({ logged }) {
                 duration={0.6}
               />
               <span className="font-body text-[10px] font-bold mt-1" style={{ color: T.textFaint }}>
-                / {DAILY_TARGETS.calories} KCAL
+                / {PLAN_TOTALS.calories} KCAL
               </span>
             </div>
           </RingCounter>
@@ -184,6 +185,111 @@ function MacrosOverview({ logged }) {
 }
 
 // ═════════════════════════════════════════════
+// ── Catch-up Card ──
+// Appears when logged/adjusted meals push the projected day off the plan.
+// Shows the difference and lets the user pour it into a chosen upcoming meal.
+// ═════════════════════════════════════════════
+function CatchUpCard({ meals, onRedistribute }) {
+  const shouldReduce = useReducedMotion();
+
+  const projected = meals.reduce(
+    (acc, m) => {
+      const s = sumFoods(m.foods);
+      return {
+        calories: acc.calories + s.calories,
+        protein: acc.protein + s.protein,
+        carbs: acc.carbs + s.carbs,
+        fat: acc.fat + s.fat,
+      };
+    },
+    { calories: 0, protein: 0, carbs: 0, fat: 0 }
+  );
+
+  const gap = {
+    calories: PLAN_TOTALS.calories - projected.calories,
+    protein: PLAN_TOTALS.protein - projected.protein,
+    carbs: PLAN_TOTALS.carbs - projected.carbs,
+    fat: PLAN_TOTALS.fat - projected.fat,
+  };
+
+  const loggedCount = meals.filter(m => m.logged).length;
+  const upcoming = meals.map((m, i) => ({ m, i })).filter(({ m }) => !m.logged);
+
+  // Only nudge once something's been logged off-plan and there's room to fix it.
+  if (loggedCount === 0 || upcoming.length === 0 || Math.abs(gap.calories) < 25) {
+    return null;
+  }
+
+  const short = gap.calories > 0;
+  const accent = short ? T.cal : T.textMid;
+  const macroBits = [
+    { v: gap.protein, suffix: 'P', color: PROTEIN },
+    { v: gap.fat,     suffix: 'F', color: FAT_GREY },
+    { v: gap.carbs,   suffix: 'C', color: CARB_BRONZE },
+  ].filter(b => Math.abs(b.v) >= 2);
+
+  return (
+    <motion.div
+      className="mx-5 mb-5 rounded-xl p-4"
+      style={{ background: CARD_BG, border: `1px solid ${short ? T.calTint.replace('0.14', '0.34') : CARD_BORDER}` }}
+      initial={shouldReduce ? {} : { opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+    >
+      <div className="flex items-start gap-3 mb-3.5">
+        <div
+          className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
+          style={{ background: short ? T.calTint : T.surface2, border: `1px solid ${short ? T.calTint.replace('0.14', '0.34') : T.hairline}` }}
+        >
+          <RefreshCw size={15} strokeWidth={T.stroke} style={{ color: accent }} />
+        </div>
+        <div className="min-w-0 flex-1">
+          <p className="font-body text-[13px] font-bold leading-tight" style={{ color: T.text }}>
+            {short ? 'Off plan — more to go' : 'Over plan today'}
+          </p>
+          <p className="font-body text-[11px] mt-0.5 leading-snug" style={{ color: T.textMid }}>
+            <span className="font-bold tabular-nums" style={{ color: accent }}>
+              {short ? '+' : ''}{Math.abs(gap.calories)} kcal
+            </span>{' '}
+            {short ? 'still needed' : 'above plan'}
+            {macroBits.length > 0 && (
+              <>
+                {'  ·  '}
+                {macroBits.map((b, j) => (
+                  <span key={b.suffix} className="tabular-nums" style={{ color: b.color }}>
+                    {j > 0 ? '  ' : ''}{b.v > 0 ? '+' : ''}{b.v}{b.suffix}
+                  </span>
+                ))}
+              </>
+            )}
+          </p>
+        </div>
+      </div>
+
+      <p className="font-body text-[10px] font-extrabold uppercase tracking-wider mb-2" style={{ color: T.textFaint }}>
+        {short ? 'Add it to an upcoming meal' : 'Trim it from an upcoming meal'}
+      </p>
+      <div className="flex flex-wrap gap-2">
+        {upcoming.map(({ m, i }) => (
+          <motion.button
+            key={i}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => onRedistribute(i)}
+            className="flex items-center gap-1.5 px-3 py-2 rounded-full font-body text-[12px] font-bold"
+            style={{ background: T.surface2, color: T.text, border: `1px solid ${T.hairlineStrong}` }}
+          >
+            {short
+              ? <Plus size={12} strokeWidth={2.5} style={{ color: accent }} />
+              : <X size={11} strokeWidth={2.5} style={{ color: accent }} />}
+            {m.label}
+          </motion.button>
+        ))}
+      </div>
+    </motion.div>
+  );
+}
+
+// ═════════════════════════════════════════════
 // ── Macro Pill (in meal cards) ──
 // ═════════════════════════════════════════════
 function MacroChip({ value, suffix, color }) {
@@ -202,6 +308,8 @@ function MealTimelineCard({ meal, mealIndex, onTap, delay = 0 }) {
   const shouldReduce = useReducedMotion();
   const totals = sumFoods(meal.foods);
   const isLogged = meal.logged;
+  const isAdjusted = !isLogged && meal.rebalanced; // upcoming meal scaled to catch up
+  const showMacros = isLogged || isAdjusted;
   const summary = foodSummary(meal.foods);
   // Short time label like "8 AM"
   const shortTime = (meal.time || '')
@@ -252,16 +360,16 @@ function MealTimelineCard({ meal, mealIndex, onTap, delay = 0 }) {
           className="rounded-xl p-4"
           style={{
             background: CARD_BG,
-            border: `1px solid ${isLogged ? T.goldBorder : CARD_BORDER}`,
-            opacity: isLogged ? 1 : 0.85,
+            border: `1px solid ${isLogged ? T.goldBorder : isAdjusted ? T.calTint.replace('0.14', '0.40') : CARD_BORDER}`,
+            opacity: showMacros ? 1 : 0.85,
           }}
         >
           {/* Header row */}
-          <div className={`flex items-start justify-between ${isLogged ? 'mb-3' : ''}`}>
+          <div className={`flex items-start justify-between ${showMacros ? 'mb-3' : ''}`}>
             <div className="min-w-0 flex-1 pr-3">
               <p
                 className="display-xs uppercase leading-tight"
-                style={{ color: isLogged ? '#F4F2EC' : 'rgba(255,255,255,0.55)' }}
+                style={{ color: showMacros ? '#F4F2EC' : 'rgba(255,255,255,0.55)' }}
               >
                 {meal.label}
               </p>
@@ -272,16 +380,16 @@ function MealTimelineCard({ meal, mealIndex, onTap, delay = 0 }) {
             <div className="flex items-center gap-1 shrink-0">
               <span
                 className="font-body text-[10px] font-extrabold uppercase tracking-wider"
-                style={{ color: isLogged ? GOLD : 'rgba(255,255,255,0.28)' }}
+                style={{ color: isLogged ? GOLD : isAdjusted ? T.cal : 'rgba(255,255,255,0.28)' }}
               >
-                {isLogged ? 'Logged' : 'Not logged'}
+                {isLogged ? 'Logged' : isAdjusted ? 'Adjusted ↑' : 'Not logged'}
               </span>
               <ChevronRight size={14} strokeWidth={T.stroke} className="text-white/25" />
             </div>
           </div>
 
-          {/* Macro row — only when logged */}
-          {isLogged && (
+          {/* Macro row — when logged, or when scaled up to catch up */}
+          {showMacros && (
             <div className="flex items-baseline gap-3">
               <div className="flex flex-col">
                 <span className="font-display text-[18px] text-[#F4F2EC] tabular-nums leading-none">
@@ -1434,7 +1542,7 @@ function HydrationView({
 export default function Nutrition({ onMacroDetail, initialTab = 'meals' }) {
   const {
     meals, logged, hydration, history, waterLog, waterDefaultMl,
-    logMeal, adjustMeal, updateMealFoods, addMeal,
+    logMeal, adjustMeal, redistributeToMeal, updateMealFoods, addMeal,
     logWater, removeWaterEntry, setWaterDefault,
   } = useApp();
 
@@ -1531,6 +1639,8 @@ export default function Nutrition({ onMacroDetail, initialTab = 'meals' }) {
       {activeTab === 'meals' ? (
         <>
           <MacrosOverview logged={logged} />
+
+          <CatchUpCard meals={meals} onRedistribute={redistributeToMeal} />
 
           {/* Section header */}
           <div className="px-5 mb-3 flex items-center justify-between">

@@ -210,6 +210,22 @@ export const MEAL_PLAN = [
   },
 ];
 
+// ── Planned-day totals ──
+// The meal plan IS the day's macro budget: the targets shown on the Nutrition
+// screen are the sum of the planned meals, so eating the plan as-is = 100%.
+export const PLAN_TOTALS = MEAL_PLAN.reduce(
+  (acc, meal) => {
+    meal.foods.forEach(f => {
+      acc.calories += f.calories;
+      acc.protein += f.protein;
+      acc.carbs += f.carbs;
+      acc.fat += f.fat;
+    });
+    return acc;
+  },
+  { calories: 0, protein: 0, carbs: 0, fat: 0 }
+);
+
 // ── Swap alternatives per meal ──
 export const SWAP_OPTIONS = {
   'meal-1': [

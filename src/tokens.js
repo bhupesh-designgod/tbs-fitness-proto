@@ -37,9 +37,9 @@ export const T = {
   goldEnd: '#F6B41C',
   goldGrad: '#F6B41C',          // flat solid
 
-  // MEAL / calorie family → persimmon (data)
-  meal: '#EF6240',
-  mealTint: 'rgba(239,98,64,0.14)',
+  // MEAL / calorie family → warm coral (data)
+  meal: '#F0794A',
+  mealTint: 'rgba(240,121,74,0.14)',
 
   // Functional
   success: '#F6B41C',           // achievement / confirmation → gold (action result)
@@ -49,16 +49,17 @@ export const T = {
   green: '#9CE910',             // live/online status — volt green
   danger: '#FF3B30',
 
-  // ── DATA palette — vivid solids, each on a neutral track. Never gold. ──
-  cal: '#EF6240',               // calories → persimmon
-  calTint: 'rgba(239,98,64,0.14)',
+  // ── DATA palette — warm, harmonious solids, each on a neutral track. ──
+  // Quartet reads as one family: coral (cal) · jade (P) · rose (F) · violet (C).
+  cal: '#F0794A',               // calories → warm coral (the hero ring)
+  calTint: 'rgba(240,121,74,0.14)',
   water: '#28A9F0',             // hydration → azure
   waterFill: '#28A9F0',
   waterTint: 'rgba(40,169,240,0.14)',
   waterBorder: 'rgba(40,169,240,0.40)',
   macroProtein: '#23A968',      // jade
-  macroFat: '#DC2F4E',          // crimson
-  macroCarbs: '#A24FC9',        // amethyst
+  macroFat: '#E0566E',          // rose-crimson (softened to match the family)
+  macroCarbs: '#9B7BD6',        // muted violet (calmer than amethyst)
 
   // Text — warm off-white ink
   text: '#F4F2EC',

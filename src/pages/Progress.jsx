@@ -11,6 +11,8 @@ import {
 import { CHECK_IN_HISTORY, NEXT_CHECKIN, PHOTOS } from '../data/mockData';
 import { T } from '../tokens';
 import { BottomSheet } from '../components/ui/Components';
+import ProgressPrompt from '../components/ui/ProgressPrompt';
+import { useApp } from '../context/AppContext';
 
 // ── Aliases from the token sheet — no local values ──
 const CARD_BG = T.surface;
@@ -591,12 +593,22 @@ export default function Progress({ onOpenCheckIn, onStartCheckIn }) {
   const [rightCompareId, setRightCompareId] = useState(latest.id);
   const [angle, setAngle] = useState('front');
 
+  const { coach, markReportSeen } = useApp();
+
   const openLatest = () => onOpenCheckIn?.(latest.id);
   const startCheckIn = () => onStartCheckIn?.();
+  const viewReport = () => { markReportSeen?.(); openLatest(); };
 
   return (
     <div className="min-h-screen pb-24" style={{ background: T.bg }}>
       <ReviewsHeader />
+
+      <ProgressPrompt
+        onAddPhoto={startCheckIn}
+        onViewReport={viewReport}
+        reportNew={!coach?.reportSeen}
+        photoDue
+      />
 
       <LatestReviewCard checkIn={latest} onView={openLatest} />
 

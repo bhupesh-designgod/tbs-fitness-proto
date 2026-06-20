@@ -11,6 +11,7 @@ import {
   sumMealMacros, computeRemaining, deriveState,
   weekAdherence, calcAdherence,
 } from '../data/stateEngine';
+import { deriveCoachState } from '../lib/coachState';
 
 // Sum the macros of one meal's foods
 const sumFoods = (foods) => foods.reduce(
@@ -55,7 +56,9 @@ function createInitialState() {
     sessionComplete: false,
     dayIndex: todayIndex,
     stateOverride: null,
-    coach: null, // cadence + Muskaan check-in state (see deriveCoachState)
+    // Floating-coach state: Muskaan check-in history + whether the latest
+    // health report has been seen. Drives cadence + the feedback loop.
+    coach: { muskaan: [], reportSeen: false },
   };
 }
 
@@ -91,6 +94,7 @@ export function AppProvider({ children }) {
       loggedMeals,
       totalSets,
       doneSets,
+      coachState: deriveCoachState(state.coach),
     };
   }, [state]);
 
@@ -212,6 +216,28 @@ export function AppProvider({ children }) {
     });
   }, [setState]);
 
+  // Save a Muskaan check-in (mood + energy). Most recent first.
+  const submitMuskaan = useCallback(({ mood, energy }) => {
+    setState(prev => {
+      const coach = prev.coach || { muskaan: [], reportSeen: false };
+      return {
+        ...prev,
+        coach: {
+          ...coach,
+          muskaan: [{ date: new Date().toISOString(), mood, energy }, ...(coach.muskaan || [])].slice(0, 30),
+        },
+      };
+    });
+  }, [setState]);
+
+  // The health report has been opened — stop announcing it.
+  const markReportSeen = useCallback(() => {
+    setState(prev => ({
+      ...prev,
+      coach: { ...(prev.coach || { muskaan: [] }), reportSeen: true },
+    }));
+  }, [setState]);
+
   // Mark a supplement taken / not taken for today (no quantity).
   const toggleSupplement = useCallback((name) => {
     setState(prev => {
@@ -258,10 +284,12 @@ export function AppProvider({ children }) {
     setWaterDefault,
     removeWaterEntry,
     toggleSupplement,
+    submitMuskaan,
+    markReportSeen,
     toggleSet,
     setStateOverride,
     resetData,
-  }), [state, computed, logMeal, adjustMeal, redistributeToMeal, swapMealFood, updateMealFoods, addMeal, logWater, setWaterDefault, removeWaterEntry, toggleSupplement, toggleSet, setStateOverride, resetData]);
+  }), [state, computed, logMeal, adjustMeal, redistributeToMeal, swapMealFood, updateMealFoods, addMeal, logWater, setWaterDefault, removeWaterEntry, toggleSupplement, submitMuskaan, markReportSeen, toggleSet, setStateOverride, resetData]);
 
   return (
     <AppContext.Provider value={value}>

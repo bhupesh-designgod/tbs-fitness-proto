@@ -48,6 +48,15 @@ export const COACH_QUOTES = [
   { short: 'No half reps.', text: "Half effort gets half results. Give me everything or give me nothing." },
 ];
 
+// ── Latest health report — announced by the floating coach ──
+export const HEALTH_REPORT = {
+  id: 'rpt-jun18',
+  title: 'Blood-work review',
+  date: '2026-06-18',
+  dateLabel: 'Jun 18',
+  change: "Vitamin D is back in range and your lipid panel improved. The protein is doing its job.",
+};
+
 // ── Daily targets ──
 export const DAILY_TARGETS = {
   calories: 2400,

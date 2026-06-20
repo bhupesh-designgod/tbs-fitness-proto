@@ -169,7 +169,7 @@ export default function PlanNudge({ mode = 'home', onNavigate, delay = 0.1 }) {
           className="btn-primary !w-auto shrink-0"
         >
           <Sparkles size={15} strokeWidth={2} />
-          Fix Plan
+         Adjust Meal
         </motion.button>
       </div>
     </motion.div>

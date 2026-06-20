@@ -48,12 +48,14 @@ function createInitialState() {
     hydration: 0,
     waterLog: [], // [{ ml, t: ISOString }]
     waterDefaultMl: 300, // user-configurable default for the Drink button
+    supplementsTaken: {}, // { [supplementName]: true } — taken today, no quantity
     history,
     training: session,
     trainingSetsCompleted: 0,
     sessionComplete: false,
     dayIndex: todayIndex,
     stateOverride: null,
+    coach: null, // cadence + Muskaan check-in state (see deriveCoachState)
   };
 }
 
@@ -210,6 +212,16 @@ export function AppProvider({ children }) {
     });
   }, [setState]);
 
+  // Mark a supplement taken / not taken for today (no quantity).
+  const toggleSupplement = useCallback((name) => {
+    setState(prev => {
+      const taken = { ...(prev.supplementsTaken || {}) };
+      if (taken[name]) delete taken[name];
+      else taken[name] = true;
+      return { ...prev, supplementsTaken: taken };
+    });
+  }, [setState]);
+
   const toggleSet = useCallback((exerciseIndex, setIndex) => {
     setState(prev => {
       const training = clone(prev.training);
@@ -245,10 +257,11 @@ export function AppProvider({ children }) {
     logWater,
     setWaterDefault,
     removeWaterEntry,
+    toggleSupplement,
     toggleSet,
     setStateOverride,
     resetData,
-  }), [state, computed, logMeal, adjustMeal, redistributeToMeal, swapMealFood, updateMealFoods, addMeal, logWater, setWaterDefault, removeWaterEntry, toggleSet, setStateOverride, resetData]);
+  }), [state, computed, logMeal, adjustMeal, redistributeToMeal, swapMealFood, updateMealFoods, addMeal, logWater, setWaterDefault, removeWaterEntry, toggleSupplement, toggleSet, setStateOverride, resetData]);
 
   return (
     <AppContext.Provider value={value}>

@@ -75,34 +75,39 @@ const DAY_ABBR = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
 // ═════════════════════════════════════════════
 // ── Tab Toggle (Meals / Hydration) ──
 // ═════════════════════════════════════════════
+const MealIcon = (props) => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" {...props}>
+    <path d="M11 2a2 2 0 0 0-2 2v5H7a2 2 0 0 0-2 2v1c0 2.8 2.2 5 5 5v5h4v-5c2.8 0 5-2.2 5-5v-1a2 2 0 0 0-2-2h-2V4a2 2 0 0 0-2-2h-2z"/>
+  </svg>
+);
+
+const NUTRITION_TABS = [
+  { key: 'meals', label: 'Meals', Icon: MealIcon },
+  { key: 'hydration', label: 'Water', Icon: (p) => <Droplets size={14} strokeWidth={T.stroke} {...p} /> },
+  { key: 'supplements', label: 'Supps', Icon: (p) => <Pill size={14} strokeWidth={T.stroke} {...p} /> },
+];
+
 function TabToggle({ active, onChange }) {
   return (
     <div
       className="mx-5 mb-4 flex rounded-full p-1"
       style={{ background: CARD_BG, border: `1px solid ${CARD_BORDER}` }}
     >
-      {['Meals', 'Hydration'].map(tab => {
-        const key = tab.toLowerCase();
+      {NUTRITION_TABS.map(({ key, label, Icon }) => {
         const isActive = active === key;
         return (
           <motion.button
-            key={tab}
+            key={key}
             onClick={() => onChange(key)}
             whileTap={{ scale: 0.97 }}
-            className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-full font-body text-[12px] font-extrabold uppercase tracking-wider"
+            className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-full font-body text-[12px] font-extrabold uppercase tracking-wider"
             style={{
               background: isActive ? T.goldGradCss : 'transparent',
               color: isActive ? T.goldInk : T.textLow,
             }}
           >
-            {tab === 'Meals'
-              ? (
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
-                  <path d="M11 2a2 2 0 0 0-2 2v5H7a2 2 0 0 0-2 2v1c0 2.8 2.2 5 5 5v5h4v-5c2.8 0 5-2.2 5-5v-1a2 2 0 0 0-2-2h-2V4a2 2 0 0 0-2-2h-2z"/>
-                </svg>
-              )
-              : <Droplets size={14} strokeWidth={T.stroke} />}
-            {tab}
+            <Icon />
+            {label}
           </motion.button>
         );
       })}
@@ -1010,53 +1015,87 @@ function AddMealSheet({ isOpen, onClose, addMeal }) {
 }
 
 // ═════════════════════════════════════════════
-// ── Supplements ── (coach-recommended, info only)
+// ── Supplements ── (its own tab — log each as taken / not taken, no quantity)
 // ═════════════════════════════════════════════
-function SupplementsSection() {
+function SupplementsView({ taken, onToggle }) {
+  const shouldReduce = useReducedMotion();
+  const takenCount = SUPPLEMENTS.filter(s => taken[s.name]).length;
+  const total = SUPPLEMENTS.length;
+  const pct = Math.round((takenCount / total) * 100);
+
   return (
-    <motion.div
-      className="px-5 mt-6"
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.55 }}
-    >
-      <div className="flex items-baseline justify-between mb-3">
-        <p className="kicker">Supplements</p>
-        <span className="font-body text-[10px] font-medium" style={{ color: T.textFaint }}>
-          Coach recommended · no logging needed
-        </span>
+    <div className="pb-2">
+      {/* Hero summary */}
+      <motion.div
+        className="mx-5 mb-5 rounded-xl p-5 flex items-center gap-5"
+        style={{ background: CARD_BG, border: `1px solid ${CARD_BORDER}` }}
+        initial={shouldReduce ? {} : { opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+      >
+        <div className="shrink-0">
+          <RingCounter percentage={pct} size={96} strokeWidth={8} color={GOLD} delay={0.1}>
+            <div className="flex flex-col items-center">
+              <span className="font-display text-[30px] text-[#F4F2EC] leading-none tabular-nums">{takenCount}</span>
+              <span className="font-body text-[10px] font-bold uppercase tracking-wider mt-0.5" style={{ color: T.textFaint }}>of {total}</span>
+            </div>
+          </RingCounter>
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="kicker mb-1">Today's stack</p>
+          <p className="display-sm text-[#F4F2EC] mb-1.5">{takenCount === total ? 'ALL DONE' : `${total - takenCount} TO GO`}</p>
+          <p className="font-body text-[12px] font-medium leading-snug" style={{ color: T.textLow }}>
+            {takenCount === total ? 'Full stack logged. Consistency compounds.' : 'Tap a supplement to mark it taken.'}
+          </p>
+        </div>
+      </motion.div>
+
+      {/* List */}
+      <div className="px-5 space-y-2.5">
+        {SUPPLEMENTS.map((sup, i) => {
+          const isTaken = !!taken[sup.name];
+          return (
+            <motion.button
+              key={sup.name}
+              onClick={() => onToggle(sup.name)}
+              whileTap={{ scale: 0.985 }}
+              className="w-full flex items-center gap-3 rounded-xl px-4 py-3.5 text-left"
+              style={{ background: CARD_BG, border: `1px solid ${isTaken ? T.goldBorder : CARD_BORDER}` }}
+              initial={shouldReduce ? {} : { opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.15 + i * 0.05 }}
+            >
+              <div
+                className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
+                style={{ background: isTaken ? T.goldTint : T.surface2, border: `1px solid ${isTaken ? T.goldBorder : T.hairline}` }}
+              >
+                <Pill size={16} strokeWidth={T.stroke} style={{ color: isTaken ? GOLD : T.textMid }} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="font-body text-[14px] font-bold leading-tight" style={{ color: isTaken ? '#F4F2EC' : T.textSub }}>
+                  {sup.name}
+                  <span className="font-medium ml-1.5" style={{ color: T.textFaint }}>{sup.dose}</span>
+                </p>
+                <span className="flex items-center gap-1 mt-1 font-body text-[11px] font-medium" style={{ color: T.textLow }}>
+                  <Clock size={10} strokeWidth={T.stroke} /> {sup.timing}
+                </span>
+              </div>
+              {isTaken ? (
+                <div className="w-7 h-7 rounded-full flex items-center justify-center shrink-0" style={{ background: T.goldTint, border: `1.5px solid ${GOLD}` }}>
+                  <Check size={14} strokeWidth={2.5} style={{ color: GOLD }} />
+                </div>
+              ) : (
+                <div className="w-7 h-7 rounded-full shrink-0" style={{ background: T.bg, border: '1.5px dashed rgba(255,255,255,0.22)' }} />
+              )}
+            </motion.button>
+          );
+        })}
       </div>
 
-      <div className="card overflow-hidden">
-        {SUPPLEMENTS.map((sup, i) => (
-          <div
-            key={sup.name}
-            className="flex items-center gap-3 px-4 py-3"
-            style={{ borderTop: i === 0 ? 'none' : `1px solid ${T.hairline}` }}
-          >
-            <div
-              className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
-              style={{ background: T.surface2, border: `1px solid ${T.hairline}` }}
-            >
-              <Pill size={15} strokeWidth={T.stroke} style={{ color: T.textMid }} />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="font-body text-[13px] font-bold text-[#F4F2EC] leading-tight">
-                {sup.name}
-                <span className="font-medium ml-1.5" style={{ color: T.textFaint }}>{sup.dose}</span>
-              </p>
-            </div>
-            <span
-              className="flex items-center gap-1.5 px-2.5 py-1 rounded-full shrink-0 font-body text-[10px] font-bold"
-              style={{ background: T.surface2, color: T.textLow, border: `1px solid ${T.hairline}` }}
-            >
-              <Clock size={10} strokeWidth={T.stroke} />
-              {sup.timing}
-            </span>
-          </div>
-        ))}
-      </div>
-    </motion.div>
+      <p className="text-center font-body text-[11px] font-medium mt-5 px-5" style={{ color: T.textFaint }}>
+        Coach recommended · no quantity needed
+      </p>
+    </div>
   );
 }
 
@@ -1599,8 +1638,6 @@ function DayNutritionView({ day, hist, onBack }) {
             ))}
           </div>
         </div>
-
-        <SupplementsSection />
       </motion.div>
     );
   }
@@ -1711,6 +1748,7 @@ export default function Nutrition({ onMacroDetail, initialTab = 'meals' }) {
     meals, logged, hydration, history, waterLog, waterDefaultMl,
     logMeal, adjustMeal, updateMealFoods, addMeal,
     logWater, removeWaterEntry, setWaterDefault,
+    supplementsTaken, toggleSupplement,
   } = useApp();
 
   const shouldReduce = useReducedMotion();
@@ -1869,9 +1907,8 @@ export default function Nutrition({ onMacroDetail, initialTab = 'meals' }) {
             </motion.button>
           </motion.div>
 
-          <SupplementsSection />
         </>
-      ) : (
+      ) : activeTab === 'hydration' ? (
         <HydrationView
           hydration={hydration}
           logWater={logWater}
@@ -1881,6 +1918,8 @@ export default function Nutrition({ onMacroDetail, initialTab = 'meals' }) {
           waterDefaultMl={waterDefaultMl ?? 300}
           setWaterDefault={setWaterDefault}
         />
+      ) : (
+        <SupplementsView taken={supplementsTaken || {}} onToggle={toggleSupplement} />
       )}
       </>
       )}

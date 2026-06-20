@@ -742,6 +742,21 @@ function BloodworkScreen({ answers, update, next, skipField }) {
         )}
       </motion.button>
 
+      {/* Kidney function test */}
+      <p className="kicker mb-2.5">Recent kidney function test?</p>
+      <div className="grid grid-cols-3 gap-2 mb-5">
+        {[{ v: 'yes', label: 'Yes' }, { v: 'no', label: 'No' }, { v: 'unsure', label: 'Not sure' }].map(o => {
+          const on = answers.kidneyTest === o.v;
+          return (
+            <motion.button key={o.v} whileTap={T.tap} onClick={() => update({ kidneyTest: o.v })}
+              className="py-3 rounded-xl font-body text-[13px] font-bold"
+              style={{ background: on ? T.goldTint : T.surface, border: `1.5px solid ${on ? T.gold : T.hairline}`, color: on ? T.gold : T.textMid }}>
+              {o.label}
+            </motion.button>
+          );
+        })}
+      </div>
+
       {/* Add later option */}
       <button
         onClick={() => { update({ bloodworkSkipped: true }); skipField(); }}
@@ -751,6 +766,276 @@ function BloodworkScreen({ answers, update, next, skipField }) {
         <span className="font-body text-[12px]" style={{ color: T.textLow }}>Don't have it handy? No stress.</span>
         <span className="font-body text-[12px] font-bold shrink-0 ml-3" style={{ color: T.gold }}>I'll add it later</span>
       </button>
+    </Scaffold>
+  );
+}
+
+// ═════════════════════════════════════════════
+// Training availability (reworked "hours per week")
+// ═════════════════════════════════════════════
+const SESSION_LENGTHS = [
+  { v: '30', label: '~30 min' },
+  { v: '45', label: '~45 min' },
+  { v: '60', label: '~60 min' },
+  { v: '90', label: '90+ min' },
+];
+const WEEKDAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+function TrainingAvailabilityScreen({ answers, update, next }) {
+  const days = answers.trainingDays;
+  const toggleDay = (d) => {
+    const has = answers.preferredDays.includes(d);
+    update({ preferredDays: has ? answers.preferredDays.filter(x => x !== d) : [...answers.preferredDays, d] });
+  };
+  return (
+    <Scaffold onNext={next} ctaDisabled={!answers.sessionLength}>
+      <Question>HOW OFTEN CAN<br />YOU TRAIN?</Question>
+      <p className="font-body text-[14px] mb-5" style={{ color: T.textLow }}>
+        Be honest about a normal week, not your best one. Biki builds around what's real.
+      </p>
+
+      <p className="kicker mb-2.5">Days per week</p>
+      <div className="grid grid-cols-7 gap-1.5 mb-6">
+        {[1, 2, 3, 4, 5, 6, 7].map(n => {
+          const on = days === n;
+          return (
+            <motion.button key={n} whileTap={T.tap} onClick={() => update({ trainingDays: n })}
+              className="aspect-square rounded-xl flex items-center justify-center font-display text-[20px]"
+              style={{ background: on ? T.goldTint : T.surface, border: `1.5px solid ${on ? T.gold : T.hairline}`, color: on ? T.gold : T.textMid }}>
+              {n}
+            </motion.button>
+          );
+        })}
+      </div>
+
+      <p className="kicker mb-2.5">Typical session length</p>
+      <div className="grid grid-cols-4 gap-2 mb-6">
+        {SESSION_LENGTHS.map(s => {
+          const on = answers.sessionLength === s.v;
+          return (
+            <motion.button key={s.v} whileTap={T.tap} onClick={() => update({ sessionLength: s.v })}
+              className="py-3 rounded-xl font-body text-[12px] font-bold"
+              style={{ background: on ? T.goldTint : T.surface, border: `1.5px solid ${on ? T.gold : T.hairline}`, color: on ? T.gold : T.textMid }}>
+              {s.label}
+            </motion.button>
+          );
+        })}
+      </div>
+
+      {days < 5 && (
+        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
+          <p className="kicker mb-2.5">Which days work best?</p>
+          <div className="flex flex-wrap gap-2">
+            {WEEKDAYS.map(d => {
+              const on = answers.preferredDays.includes(d);
+              return (
+                <motion.button key={d} whileTap={T.tap} onClick={() => toggleDay(d)}
+                  className="px-3.5 py-2.5 rounded-full font-body text-[13px] font-semibold"
+                  style={{ background: on ? T.goldTint : T.surface, border: `1px solid ${on ? T.goldBorder : T.hairline}`, color: on ? T.gold : T.textMid }}>
+                  {d}
+                </motion.button>
+              );
+            })}
+          </div>
+        </motion.div>
+      )}
+    </Scaffold>
+  );
+}
+
+// ═════════════════════════════════════════════
+// Medical — injuries / conditions
+// ═════════════════════════════════════════════
+function MedicalScreen({ answers, update, next }) {
+  return (
+    <Scaffold onNext={next}>
+      <Question>YOUR BODY</Question>
+      <p className="font-body text-[14px] mb-6" style={{ color: T.textLow }}>
+        Anything Biki should program around? Leave blank if there's nothing.
+      </p>
+
+      <p className="kicker mb-2.5">Injuries, pain, or limitations</p>
+      <textarea value={answers.injuries} onChange={e => update({ injuries: e.target.value })}
+        rows={2} placeholder="e.g. left shoulder impingement, lower-back caution"
+        className="w-full rounded-xl px-3.5 py-3 mb-6 font-body text-[14px] outline-none resize-none placeholder:text-white/20"
+        style={{ background: T.surface, border: `1px solid ${T.hairline}`, color: T.text }} />
+
+      <p className="kicker mb-2.5">Diagnosed conditions or ongoing issues</p>
+      <textarea value={answers.conditions} onChange={e => update({ conditions: e.target.value })}
+        rows={2} placeholder="e.g. hypertension, PCOS, thyroid — or leave blank"
+        className="w-full rounded-xl px-3.5 py-3 font-body text-[14px] outline-none resize-none placeholder:text-white/20"
+        style={{ background: T.surface, border: `1px solid ${T.hairline}`, color: T.text }} />
+    </Scaffold>
+  );
+}
+
+// ═════════════════════════════════════════════
+// Sleep — sleep time, wake time, duration
+// ═════════════════════════════════════════════
+const SLEEP_DURATIONS = [
+  { v: '<5', label: 'Under 5h' },
+  { v: '5-6', label: '5–6h' },
+  { v: '6-7', label: '6–7h' },
+  { v: '7-8', label: '7–8h' },
+  { v: '8+', label: '8h+' },
+];
+function SleepScreen({ answers, update, next }) {
+  return (
+    <Scaffold onNext={next}>
+      <Question>SLEEP</Question>
+      <p className="font-body text-[14px] mb-6" style={{ color: T.textLow }}>
+        Recovery is built here. Roughly when do you sleep and wake?
+      </p>
+
+      <div className="flex gap-3 mb-6">
+        <div className="flex-1">
+          <p className="kicker mb-2">Sleep at</p>
+          <input type="time" value={answers.sleepTime} onChange={e => update({ sleepTime: e.target.value })}
+            className="w-full rounded-xl px-3.5 py-3 font-body text-[15px] outline-none"
+            style={{ background: T.surface, border: `1px solid ${T.hairline}`, color: T.text, colorScheme: 'dark' }} />
+        </div>
+        <div className="flex-1">
+          <p className="kicker mb-2">Wake at</p>
+          <input type="time" value={answers.wakeTime} onChange={e => update({ wakeTime: e.target.value })}
+            className="w-full rounded-xl px-3.5 py-3 font-body text-[15px] outline-none"
+            style={{ background: T.surface, border: `1px solid ${T.hairline}`, color: T.text, colorScheme: 'dark' }} />
+        </div>
+      </div>
+
+      <p className="kicker mb-2.5">Average sleep</p>
+      <div className="grid grid-cols-5 gap-2">
+        {SLEEP_DURATIONS.map(s => {
+          const on = answers.sleepDuration === s.v;
+          return (
+            <motion.button key={s.v} whileTap={T.tap} onClick={() => update({ sleepDuration: s.v })}
+              className="py-2.5 rounded-xl font-body text-[11px] font-bold"
+              style={{ background: on ? T.goldTint : T.surface, border: `1.5px solid ${on ? T.gold : T.hairline}`, color: on ? T.gold : T.textMid }}>
+              {s.label}
+            </motion.button>
+          );
+        })}
+      </div>
+    </Scaffold>
+  );
+}
+
+// ═════════════════════════════════════════════
+// Appetite & hydration — hunger + water
+// ═════════════════════════════════════════════
+const HUNGER = [
+  { v: 'very_low', label: 'Very low' }, { v: 'low', label: 'Low' },
+  { v: 'average', label: 'Average' }, { v: 'high', label: 'High' }, { v: 'very_high', label: 'Very high' },
+];
+const WATER = [
+  { v: '<1', label: 'Under 1L' }, { v: '1-2', label: '1–2L' },
+  { v: '2-3', label: '2–3L' }, { v: '3+', label: '3L+' },
+];
+function WellnessScreen({ answers, update, next }) {
+  return (
+    <Scaffold onNext={next}>
+      <Question>APPETITE &<br />HYDRATION</Question>
+      <p className="kicker mb-2.5">Usual hunger level</p>
+      <div className="flex flex-wrap gap-2 mb-7">
+        {HUNGER.map(h => {
+          const on = answers.hunger === h.v;
+          return (
+            <motion.button key={h.v} whileTap={T.tap} onClick={() => update({ hunger: h.v })}
+              className="px-3.5 py-2.5 rounded-full font-body text-[13px] font-semibold"
+              style={{ background: on ? T.goldTint : T.surface, border: `1px solid ${on ? T.goldBorder : T.hairline}`, color: on ? T.gold : T.textMid }}>
+              {h.label}
+            </motion.button>
+          );
+        })}
+      </div>
+      <p className="kicker mb-2.5">Water per day</p>
+      <div className="grid grid-cols-4 gap-2">
+        {WATER.map(w => {
+          const on = answers.water === w.v;
+          return (
+            <motion.button key={w.v} whileTap={T.tap} onClick={() => update({ water: w.v })}
+              className="py-3 rounded-xl font-body text-[12px] font-bold"
+              style={{ background: on ? T.goldTint : T.surface, border: `1.5px solid ${on ? T.gold : T.hairline}`, color: on ? T.gold : T.textMid }}>
+              {w.label}
+            </motion.button>
+          );
+        })}
+      </div>
+    </Scaffold>
+  );
+}
+
+// ═════════════════════════════════════════════
+// Digestion — rating, acidity, issues
+// ═════════════════════════════════════════════
+const DIGESTION = [{ v: 'good', label: 'Good' }, { v: 'average', label: 'Average' }, { v: 'poor', label: 'Poor' }];
+const ACIDITY = [{ v: 'never', label: 'Never' }, { v: 'occasionally', label: 'Occasionally' }, { v: 'frequently', label: 'Frequently' }, { v: 'daily', label: 'Daily' }];
+const DIGESTIVE_ISSUES = ['Bloating', 'Constipation', 'Gas', 'Stomach pain', 'Loose motions', 'None'];
+function DigestionScreen({ answers, update, next }) {
+  const toggleIssue = (x) => {
+    if (x === 'None') { update({ digestiveIssues: answers.digestiveIssues.includes('None') ? [] : ['None'] }); return; }
+    const base = answers.digestiveIssues.filter(i => i !== 'None');
+    const has = base.includes(x);
+    update({ digestiveIssues: has ? base.filter(i => i !== x) : [...base, x] });
+  };
+  return (
+    <Scaffold onNext={next}>
+      <Question>DIGESTION</Question>
+      <p className="kicker mb-2.5">How's your digestion?</p>
+      <div className="grid grid-cols-3 gap-2 mb-6">
+        {DIGESTION.map(d => {
+          const on = answers.digestion === d.v;
+          return (
+            <motion.button key={d.v} whileTap={T.tap} onClick={() => update({ digestion: d.v })}
+              className="py-3 rounded-xl font-body text-[13px] font-bold"
+              style={{ background: on ? T.goldTint : T.surface, border: `1.5px solid ${on ? T.gold : T.hairline}`, color: on ? T.gold : T.textMid }}>
+              {d.label}
+            </motion.button>
+          );
+        })}
+      </div>
+      <p className="kicker mb-2.5">Acidity or acid reflux</p>
+      <div className="grid grid-cols-2 gap-2 mb-6">
+        {ACIDITY.map(a => {
+          const on = answers.acidity === a.v;
+          return (
+            <motion.button key={a.v} whileTap={T.tap} onClick={() => update({ acidity: a.v })}
+              className="py-3 rounded-xl font-body text-[13px] font-bold"
+              style={{ background: on ? T.goldTint : T.surface, border: `1.5px solid ${on ? T.gold : T.hairline}`, color: on ? T.gold : T.textMid }}>
+              {a.label}
+            </motion.button>
+          );
+        })}
+      </div>
+      <p className="kicker mb-2.5">Any of these? (optional)</p>
+      <div className="flex flex-wrap gap-2">
+        {DIGESTIVE_ISSUES.map(x => {
+          const on = answers.digestiveIssues.includes(x);
+          return (
+            <motion.button key={x} whileTap={T.tap} onClick={() => toggleIssue(x)}
+              className="px-3.5 py-2.5 rounded-full font-body text-[13px] font-semibold"
+              style={{ background: on ? T.goldTint : T.surface, border: `1px solid ${on ? T.goldBorder : T.hairline}`, color: on ? T.gold : T.textMid }}>
+              {x}
+            </motion.button>
+          );
+        })}
+      </div>
+    </Scaffold>
+  );
+}
+
+// ═════════════════════════════════════════════
+// Notes — anything else
+// ═════════════════════════════════════════════
+function NotesScreen({ answers, update, next }) {
+  return (
+    <Scaffold onNext={next} ctaLabel="Finish">
+      <Question>ANYTHING<br />ELSE?</Question>
+      <p className="font-body text-[14px] mb-5" style={{ color: T.textLow }}>
+        Health, food habits, lifestyle, goals — anything you want Biki to know.
+      </p>
+      <textarea value={answers.notes} onChange={e => update({ notes: e.target.value })}
+        rows={5} placeholder="Optional. Write as much or as little as you like."
+        className="w-full rounded-xl px-3.5 py-3 font-body text-[14px] outline-none resize-none placeholder:text-white/20"
+        style={{ background: T.surface, border: `1px solid ${T.hairline}`, color: T.text }} />
     </Scaffold>
   );
 }
@@ -993,13 +1278,19 @@ export const STEPS = [
   { id: 'goal', Comp: GoalScreen, kind: 'auto' },
   { id: 'motivation', Comp: MotivationScreen, kind: 'input' },
   { id: 'experience', Comp: ExperienceScreen, kind: 'input' },
+  { id: 'availability', Comp: TrainingAvailabilityScreen, kind: 'input' },
   { id: 'routine', Comp: RoutineScreen, kind: 'auto' },
   { id: 'diet', Comp: DietScreen, kind: 'auto' },
   { id: 'dayBuilder', Comp: DayBuilder, kind: 'input' },
   { id: 'supplements', Comp: SupplementsScreen, kind: 'input' },
+  { id: 'medical', Comp: MedicalScreen, kind: 'input' },
+  { id: 'sleep', Comp: SleepScreen, kind: 'input' },
+  { id: 'wellness', Comp: WellnessScreen, kind: 'input' },
+  { id: 'digestion', Comp: DigestionScreen, kind: 'input' },
   { id: 'allergies', Comp: AllergiesScreen, kind: 'input' },
   { id: 'photos', Comp: PhotosScreen, kind: 'input' },
   { id: 'bloodwork', Comp: BloodworkScreen, kind: 'input' },
+  { id: 'notes', Comp: NotesScreen, kind: 'input' },
   { id: 'reveal', Comp: RevealScreen, kind: 'input' },
   { id: 'pledge', Comp: PledgeScreen, kind: 'pledge' },
 ];

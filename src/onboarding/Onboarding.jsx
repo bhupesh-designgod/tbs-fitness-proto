@@ -24,7 +24,14 @@ const DEFAULT_ANSWERS = {
   supplements: [], anabolics: 'none', anabolicsNote: '',
   allergies: [],
   photos: { front: false, back: false, side: false },
-  bloodwork: null, bloodworkSkipped: false,
+  bloodwork: null, bloodworkSkipped: false, kidneyTest: null,
+  // Health intake
+  trainingDays: 4, sessionLength: null, preferredDays: [],
+  injuries: '', conditions: '',
+  sleepTime: '', wakeTime: '', sleepDuration: null,
+  hunger: null, water: null,
+  digestion: null, acidity: null, digestiveIssues: [],
+  notes: '',
 };
 
 const slide = {

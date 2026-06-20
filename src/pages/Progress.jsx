@@ -169,12 +169,14 @@ function LatestReviewCard({ checkIn, onView }) {
 // ─────────────────────────────────────────────
 function NextCheckInCard({ next, onStart }) {
   const [detailOpen, setDetailOpen] = useState(false);
-  const days = daysUntil(next.date);
+  // Proto: the weekly check-in is always surfaced as due today, regardless of date.
+  const days = 0;
+  const todayLabel = new Date().toLocaleDateString('en', { month: 'short', day: 'numeric' });
   if (days < 0 || days > 3) return null;
 
   const dueDayName = DAY_NAMES[new Date(next.date + 'T00:00:00Z').getUTCDay()];
   const headline = (days === 0
-    ? `Due today, ${next.dateLabel}`
+    ? `Due today, ${todayLabel}`
     : `Due ${dueDayName}, ${next.dateLabel}`).toUpperCase();
   const sub = days === 0
     ? 'Due today'

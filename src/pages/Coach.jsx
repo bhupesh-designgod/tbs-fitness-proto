@@ -7,12 +7,13 @@ import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import {
   MoreHorizontal,
   Play, Pause, Plus, Mic, Send, ChevronDown,
-  BadgeCheck, CalendarDays,
+  BadgeCheck, CalendarDays, Activity, FileText,
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import {
-  BIKI, NEXT_CALL, PHOTOS, BIKI_MESSAGES,
+  BIKI, NEXT_CALL, PHOTOS, BIKI_MESSAGES, HEALTH_REPORT,
 } from '../data/mockData';
+import AvatarMark from '../components/ui/AvatarMark';
 import { T } from '../tokens';
 
 // ── Aliases from the token sheet — no local values ──
@@ -481,8 +482,50 @@ function InputBar({ value, onChange, onSend, topic, onTopicChange }) {
 // ─────────────────────────────────────────────
 // Main
 // ─────────────────────────────────────────────
+// ── Coach record — info logged through the avatar, distinct from chat bubbles ──
+const cap = (s) => (s ? s.charAt(0).toUpperCase() + s.slice(1) : s);
+function CoachRecord({ record, delay = 0 }) {
+  const Icon = record.kind === 'report' ? FileText : Activity;
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: delay * 0.05 }}
+      className="flex items-center gap-3 rounded-xl px-3.5 py-3"
+      style={{ background: T.goldTint, border: `1px solid ${T.goldBorder}` }}
+    >
+      <AvatarMark size={34} ring />
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-1.5">
+          <Icon size={11} strokeWidth={2.5} style={{ color: GOLD }} />
+          <p className="font-body text-[9px] font-extrabold uppercase tracking-wider" style={{ color: GOLD }}>
+            Logged · {record.when}
+          </p>
+        </div>
+        <p className="font-body text-[13px] font-bold leading-tight mt-0.5" style={{ color: T.text }}>{record.title}</p>
+        <p className="font-body text-[11px] mt-0.5" style={{ color: T.textLow }}>{record.detail}</p>
+      </div>
+    </motion.div>
+  );
+}
+
 export default function Coach({ onCheckIn }) {
-  const { behaviorState } = useApp();
+  const { behaviorState, coach } = useApp();
+
+  const records = useMemo(() => {
+    const out = [];
+    (coach?.muskaan || []).forEach((m, i) => {
+      out.push({
+        id: `mk-${i}`,
+        kind: 'muskaan',
+        title: 'Muskaan check-in',
+        detail: `Mood ${cap(m.mood)} · Energy ${m.energy}/5`,
+        when: new Date(m.date).toLocaleDateString('en', { weekday: 'short' }),
+      });
+    });
+    if (coach?.reportSeen) {
+      out.push({ id: 'rpt', kind: 'report', title: 'Health report reviewed', detail: HEALTH_REPORT.title, when: HEALTH_REPORT.dateLabel });
+    }
+    return out;
+  }, [coach]);
   const shouldReduce = useReducedMotion();
   const [messages, setMessages] = useState(INITIAL_MESSAGES);
   const [input, setInput] = useState('');
@@ -530,6 +573,16 @@ export default function Coach({ onCheckIn }) {
       <div aria-hidden style={{ height: 84 }} />
 
       <DaySeparator label="Today" />
+
+      {/* Logged records — what the avatar captured, kept clearly apart from chat */}
+      {records.length > 0 && (
+        <div className="px-5 mb-5">
+          <p className="kicker mb-2.5">Logged with Biki</p>
+          <div className="space-y-2">
+            {records.map((r, i) => <CoachRecord key={r.id} record={r} delay={i} />)}
+          </div>
+        </div>
+      )}
 
       {/* Messages */}
       <div className="flex flex-col">

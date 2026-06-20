@@ -29,7 +29,7 @@ const DEFAULT_ANSWERS = {
   trainingDays: 4, sessionLength: null, preferredDays: [],
   injuries: '', conditions: '',
   sleepTime: '', wakeTime: '', sleepDuration: null,
-  hunger: null, water: null,
+  favoriteFoods: [], water: null,
   digestion: null, acidity: null, digestiveIssues: [],
   notes: '',
 };

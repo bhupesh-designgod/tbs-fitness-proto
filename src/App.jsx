@@ -6,6 +6,7 @@ import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { Home as HomeIcon, Utensils, Dumbbell, MessageCircle, ClipboardCheck } from 'lucide-react';
 import { Agentation } from 'agentation';
 import { TabBar } from './components/ui/Components';
+import FloatingCoach from './components/ui/FloatingCoach';
 import { AppProvider } from './context/AppContext';
 import { useLocalStorage } from './hooks/useLocalStorage';
 import Onboarding from './onboarding/Onboarding';
@@ -131,6 +132,12 @@ function AppContent() {
           tabs={TABS}
         />
       )}
+
+      {/* Floating coach — present on every screen except chat (and overlays) */}
+      <FloatingCoach
+        onNavigate={handleTabChange}
+        hidden={activeTab === 'coach' || !!overlay}
+      />
       {/* The first-run product tour now lives contextually inside Nutrition (Coach Biki). */}
     </div>
   );

@@ -823,19 +823,38 @@ function TrainingAvailabilityScreen({ answers, update, next }) {
 
       {days < 5 && (
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
-          <p className="kicker mb-2.5">Which days work best?</p>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex items-baseline justify-between mb-2.5">
+            <p className="kicker mb-0">Which days work best?</p>
+            <span className="font-body text-[11px] font-bold tabular-nums" style={{ color: answers.preferredDays.length ? T.gold : T.textFaint }}>
+              {answers.preferredDays.length} / {days}
+            </span>
+          </div>
+          <div className="flex justify-between gap-1.5">
             {WEEKDAYS.map(d => {
               const on = answers.preferredDays.includes(d);
               return (
-                <motion.button key={d} whileTap={T.tap} onClick={() => toggleDay(d)}
-                  className="px-3.5 py-2.5 rounded-full font-body text-[13px] font-semibold"
-                  style={{ background: on ? T.goldTint : T.surface, border: `1px solid ${on ? T.goldBorder : T.hairline}`, color: on ? T.gold : T.textMid }}>
-                  {d}
+                <motion.button
+                  key={d}
+                  whileTap={{ scale: 0.82 }}
+                  onClick={() => toggleDay(d)}
+                  animate={on ? { scale: [1, 1.15, 1] } : { scale: 1 }}
+                  transition={{ duration: 0.28, ease: T.easeOut }}
+                  className="flex-1 aspect-square rounded-full flex items-center justify-center font-body text-[14px] font-extrabold"
+                  style={{
+                    background: on ? T.gold : T.surface,
+                    color: on ? T.goldInk : T.textMid,
+                    border: `1.5px solid ${on ? T.gold : T.hairline}`,
+                    boxShadow: on ? `0 4px 14px ${T.goldTint}` : 'none',
+                  }}
+                >
+                  {d[0]}
                 </motion.button>
               );
             })}
           </div>
+          <p className="font-body text-[11px] mt-2.5" style={{ color: T.textFaint }}>
+            Tap the days you can realistically show up.
+          </p>
         </motion.div>
       )}
     </Scaffold>
@@ -919,32 +938,24 @@ function SleepScreen({ answers, update, next }) {
 }
 
 // ═════════════════════════════════════════════
-// Appetite & hydration — hunger + water
+// Food preferences — favorite foods + water
 // ═════════════════════════════════════════════
-const HUNGER = [
-  { v: 'very_low', label: 'Very low' }, { v: 'low', label: 'Low' },
-  { v: 'average', label: 'Average' }, { v: 'high', label: 'High' }, { v: 'very_high', label: 'Very high' },
-];
 const WATER = [
   { v: '<1', label: 'Under 1L' }, { v: '1-2', label: '1–2L' },
   { v: '2-3', label: '2–3L' }, { v: '3+', label: '3L+' },
 ];
-function WellnessScreen({ answers, update, next }) {
+function FoodPrefsScreen({ answers, update, next }) {
   return (
     <Scaffold onNext={next}>
-      <Question>APPETITE &<br />HYDRATION</Question>
-      <p className="kicker mb-2.5">Usual hunger level</p>
-      <div className="flex flex-wrap gap-2 mb-7">
-        {HUNGER.map(h => {
-          const on = answers.hunger === h.v;
-          return (
-            <motion.button key={h.v} whileTap={T.tap} onClick={() => update({ hunger: h.v })}
-              className="px-3.5 py-2.5 rounded-full font-body text-[13px] font-semibold"
-              style={{ background: on ? T.goldTint : T.surface, border: `1px solid ${on ? T.goldBorder : T.hairline}`, color: on ? T.gold : T.textMid }}>
-              {h.label}
-            </motion.button>
-          );
-        })}
+      <Question>FOOD YOU<br />LOVE</Question>
+      <p className="font-body text-[14px] mb-5" style={{ color: T.textLow }}>
+        Meals you actually enjoy. Biki builds the plan around these so it sticks.
+      </p>
+      <p className="kicker mb-2.5">Favorite foods</p>
+      <div className="mb-7">
+        <ChipAdder tags={answers.favoriteFoods} placeholder="e.g. paneer, oats, chicken biryani…"
+          onAdd={t => update({ favoriteFoods: [...answers.favoriteFoods, t] })}
+          onRemove={t => update({ favoriteFoods: answers.favoriteFoods.filter(x => x !== t) })} />
       </div>
       <p className="kicker mb-2.5">Water per day</p>
       <div className="grid grid-cols-4 gap-2">
@@ -1285,7 +1296,7 @@ export const STEPS = [
   { id: 'supplements', Comp: SupplementsScreen, kind: 'input' },
   { id: 'medical', Comp: MedicalScreen, kind: 'input' },
   { id: 'sleep', Comp: SleepScreen, kind: 'input' },
-  { id: 'wellness', Comp: WellnessScreen, kind: 'input' },
+  { id: 'foodPrefs', Comp: FoodPrefsScreen, kind: 'input' },
   { id: 'digestion', Comp: DigestionScreen, kind: 'input' },
   { id: 'allergies', Comp: AllergiesScreen, kind: 'input' },
   { id: 'photos', Comp: PhotosScreen, kind: 'input' },

@@ -3,26 +3,22 @@
 // task queue, workout card, sleep note.
 
 import { useMemo, useState, useCallback, useEffect } from 'react';
-import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import {
   Utensils, Droplets, Dumbbell, Clock, ChevronRight, ChevronLeft,
-  Bell, MoonStar, Moon, Check, CalendarDays, Sparkles, X, Quote, Activity, FileText,
+  Bell, MoonStar, Moon, Check, CalendarDays,
 } from 'lucide-react';
 
 import { WeekStrip, MonthSheet } from '../components/ui/Calendar';
-import { BottomSheet } from '../components/ui/Components';
 import PlanNudge from '../components/ui/PlanNudge';
-import MuskaanCheckIn from '../components/ui/MuskaanCheckIn';
-import AvatarMark from '../components/ui/AvatarMark';
 import { useApp } from '../context/AppContext';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import CoachTip from '../onboarding/CoachTip';
 import { track } from '../lib/analytics';
-import { coachTeaser } from '../lib/coachState';
 import { T, enter } from '../tokens';
 import {
   USER_PROFILE, PHOTOS, DAILY_TARGETS,
-  PLAN_PROGRESS, COACH_QUOTES, HEALTH_REPORT,
+  PLAN_PROGRESS,
 } from '../data/mockData';
 
 // ── Greeting by time of day ──
@@ -418,147 +414,13 @@ function DayRecap({ day, onBack }) {
   );
 }
 
-// ── Coach daily-quote modal ──
-// Coach portrait in the background, the day's line up top, a commitment below.
-function CoachQuoteModal({ quote, committed, onCommit, onClose, onMessage }) {
-  const shouldReduce = useReducedMotion();
-  return (
-    <motion.div
-      className="fixed inset-0 z-50 flex items-end justify-center p-4"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.22 }}
-      style={{ background: 'rgba(0,0,0,0.62)', backdropFilter: 'blur(6px)' }}
-      onClick={onClose}
-    >
-      <motion.div
-        className="relative w-full max-w-[400px] rounded-3xl overflow-hidden"
-        style={{ border: `1px solid ${T.hairlineStrong}` }}
-        initial={shouldReduce ? {} : { opacity: 0, y: 32, scale: 0.97 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        exit={shouldReduce ? { opacity: 0 } : { opacity: 0, y: 32, scale: 0.97 }}
-        transition={{ type: 'spring', stiffness: 280, damping: 26 }}
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* Coach image background */}
-        <img
-          src={PHOTOS.bikiPortrait}
-          alt=""
-          className="absolute inset-0 w-full h-full object-cover"
-          style={{ filter: 'grayscale(30%) contrast(1.05) brightness(0.5)' }}
-        />
-        <div
-          className="absolute inset-0"
-          style={{ background: 'linear-gradient(to top, rgba(11,11,12,0.97) 6%, rgba(11,11,12,0.72) 46%, rgba(11,11,12,0.30) 100%)' }}
-        />
-
-        {/* Close */}
-        <motion.button
-          whileTap={T.tapSmall}
-          onClick={onClose}
-          aria-label="Close"
-          className="absolute top-4 right-4 z-10 w-9 h-9 rounded-full flex items-center justify-center"
-          style={{ background: 'rgba(0,0,0,0.4)', border: `1px solid ${T.hairlineStrong}` }}
-        >
-          <X size={16} strokeWidth={2} style={{ color: T.text }} />
-        </motion.button>
-
-        {/* Content */}
-        <div className="relative pt-32 px-6 pb-6">
-          <div className="flex items-center gap-2 mb-3">
-            <Quote size={16} strokeWidth={2} style={{ color: T.gold }} />
-            <p className="font-body text-[10px] font-extrabold uppercase tracking-[0.16em]" style={{ color: T.gold }}>
-              Today's mindset
-            </p>
-          </div>
-
-          <p className="font-body text-[20px] font-semibold leading-[1.4] text-[#F4F2EC] mb-5">
-            {quote.text}
-          </p>
-
-          <div className="flex items-center gap-2.5 mb-6">
-            <div className="w-8 h-8 rounded-full overflow-hidden shrink-0" style={{ border: `1.5px solid ${T.gold}` }}>
-              <img src={PHOTOS.bikiPortrait} alt="" className="w-full h-full object-cover" />
-            </div>
-            <div className="leading-tight">
-              <p className="font-body text-[12px] font-bold" style={{ color: T.text }}>Biki Singh</p>
-              <p className="font-body text-[10px] font-medium uppercase tracking-wider" style={{ color: T.textLow }}>
-                IFBB Pro · Head Coach
-              </p>
-            </div>
-          </div>
-
-          {committed ? (
-            <div
-              className="btn-primary"
-              style={{ background: 'transparent', border: `1px solid ${T.goldBorder}`, color: T.gold }}
-            >
-              <Check size={16} strokeWidth={2.5} /> Committed for today
-            </div>
-          ) : (
-            <motion.button whileTap={T.tap} onClick={onCommit} className="btn-primary btn-shine-wrap">
-              <Sparkles size={15} strokeWidth={2} /> I'm committed
-            </motion.button>
-          )}
-
-          <button
-            onClick={onMessage}
-            className="btn-ghost mt-3.5 mx-auto"
-            style={{ color: T.textMid }}
-          >
-            Message Biki <ChevronRight size={13} strokeWidth={T.stroke} />
-          </button>
-        </div>
-      </motion.div>
-    </motion.div>
-  );
-}
-
 export default function Home({ onProfileClick, onNavigate, onNotifications }) {
-  const { training, meals, hydration, isRestDay, coachState, submitMuskaan, markReportSeen } = useApp();
+  const { training, meals, hydration, isRestDay } = useApp();
   const [selectedDay, setSelectedDay] = useState(null);
   const viewingDay = selectedDay && !selectedDay.isToday;
 
   const today = new Date();
   const [monthOpen, setMonthOpen] = useState(false);
-
-  // ── Floating coach — cadence-driven (report › Muskaan › daily thought) ──
-  const [quoteOpen, setQuoteOpen] = useState(false);
-  const [muskaanOpen, setMuskaanOpen] = useState(false);
-  const [reportOpen, setReportOpen] = useState(false);
-  const [bubbleShown, setBubbleShown] = useState(false);
-  const [commit, setCommit] = useLocalStorage('tbs-commit', { date: null });
-  const todayKey = today.toDateString();
-  const committed = commit.date === todayKey;
-  const quote = useMemo(() => {
-    const start = new Date(today.getFullYear(), 0, 0);
-    const doy = Math.floor((today - start) / 86_400_000);
-    return COACH_QUOTES[doy % COACH_QUOTES.length];
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const coachMode = coachState?.mode || 'thought';
-  const teaser = coachTeaser(coachMode, { thoughtShort: quote.short });
-  const anyCoachOpen = quoteOpen || muskaanOpen || reportOpen;
-
-  // Bubble drifts in shortly after the screen settles.
-  useEffect(() => {
-    const t = setTimeout(() => setBubbleShown(true), 1400);
-    return () => clearTimeout(t);
-  }, []);
-
-  const handleCommit = useCallback(() => {
-    setCommit({ date: todayKey });
-    track('coach_quote_committed');
-  }, [setCommit, todayKey]);
-
-  // Tapping the floating coach opens whatever it's currently surfacing.
-  const openCoach = useCallback(() => {
-    if (coachMode === 'muskaan') { setMuskaanOpen(true); track('coach_open', { mode: 'muskaan' }); }
-    else if (coachMode === 'report') { setReportOpen(true); track('coach_open', { mode: 'report' }); }
-    else { setQuoteOpen(true); track('coach_open', { mode: 'thought' }); }
-  }, [coachMode]);
 
   const score = useMemo(
     () => calcDailyScore(meals, hydration, DAILY_TARGETS),
@@ -747,99 +609,6 @@ export default function Home({ onProfileClick, onNavigate, onNotifications }) {
       )}
 
       {/* Month overlay */}
-
-      {/* ═══ FLOATING COACH — Messenger-style, cadence-driven ═══ */}
-      <div className="fixed z-40 flex items-end gap-2" style={{ bottom: 90, right: 20 }}>
-        {/* Speech bubble — whatever the coach is surfacing right now */}
-        <AnimatePresence>
-          {bubbleShown && !anyCoachOpen && (
-            <motion.button
-              key={`bubble-${coachMode}`}
-              onClick={openCoach}
-              initial={{ opacity: 0, x: 12, scale: 0.9 }}
-              animate={{ opacity: 1, x: 0, scale: 1 }}
-              exit={{ opacity: 0, x: 12, scale: 0.9 }}
-              transition={{ type: 'spring', stiffness: 320, damping: 24 }}
-              className="relative mb-1 max-w-[200px] text-left rounded-2xl rounded-br-md px-3.5 py-2.5"
-              style={{ background: T.surface, border: `1px solid ${T.hairlineStrong}`, boxShadow: '0 10px 30px rgba(0,0,0,0.45)' }}
-            >
-              <p className="font-body text-[9px] font-extrabold uppercase tracking-wider mb-0.5" style={{ color: T.gold }}>
-                {coachMode === 'thought' && committed ? 'Locked in' : teaser.kicker}
-              </p>
-              <p className="font-body text-[12px] font-semibold leading-snug" style={{ color: T.text }}>
-                {coachMode === 'thought' && committed ? "That's the standard. Keep it." : teaser.text}
-              </p>
-            </motion.button>
-          )}
-        </AnimatePresence>
-
-        {/* Avatar — opens whatever the coach is surfacing */}
-        <motion.button
-          whileTap={T.tapSmall}
-          onClick={openCoach}
-          aria-label="Coach Biki"
-          className="relative shrink-0"
-          initial={{ scale: 0, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ delay: 0.5, type: 'spring', stiffness: 300, damping: 20 }}
-        >
-          <AvatarMark
-            size={56}
-            pulse
-            status
-            badge={
-              coachMode === 'muskaan'
-                ? <Activity size={10} strokeWidth={2.5} style={{ color: T.goldInk }} />
-                : coachMode === 'report'
-                  ? <FileText size={10} strokeWidth={2.5} style={{ color: T.goldInk }} />
-                  : <Sparkles size={10} strokeWidth={2.5} style={{ color: T.goldInk }} />
-            }
-          />
-        </motion.button>
-      </div>
-
-      {/* Coach surfaces — one at a time, by priority */}
-      <AnimatePresence>
-        {quoteOpen && (
-          <CoachQuoteModal
-            quote={quote}
-            committed={committed}
-            onCommit={handleCommit}
-            onClose={() => setQuoteOpen(false)}
-            onMessage={() => { setQuoteOpen(false); onNavigate && onNavigate('coach'); }}
-          />
-        )}
-      </AnimatePresence>
-
-      <MuskaanCheckIn
-        isOpen={muskaanOpen}
-        onClose={() => setMuskaanOpen(false)}
-        onSubmit={(r) => { submitMuskaan(r); track('muskaan_submit', r); }}
-        variant={today.getDay() === 0 ? 'close' : 'mid'}
-      />
-
-      <BottomSheet isOpen={reportOpen} onClose={() => setReportOpen(false)}>
-        <div className="flex items-center gap-3 mb-4">
-          <AvatarMark size={42} ring />
-          <div className="min-w-0">
-            <p className="font-body text-[10px] font-extrabold uppercase tracking-wider" style={{ color: T.gold }}>New report</p>
-            <h2 className="display-sm text-[#F4F2EC] uppercase leading-none mt-0.5">{HEALTH_REPORT.title}</h2>
-          </div>
-        </div>
-        <p className="font-body text-[14px] leading-relaxed mb-1.5" style={{ color: T.text }}>
-          {HEALTH_REPORT.change}
-        </p>
-        <p className="font-body text-[11px] font-medium uppercase tracking-wider mb-5" style={{ color: T.textFaint }}>
-          Reviewed {HEALTH_REPORT.dateLabel}
-        </p>
-        <motion.button
-          whileTap={T.tap}
-          onClick={() => { markReportSeen(); setReportOpen(false); onNavigate && onNavigate('progress'); }}
-          className="btn-primary"
-        >
-          View full report <ChevronRight size={15} strokeWidth={2} />
-        </motion.button>
-      </BottomSheet>
 
       <MonthSheet isOpen={monthOpen} onClose={() => setMonthOpen(false)} mode="score" />
 

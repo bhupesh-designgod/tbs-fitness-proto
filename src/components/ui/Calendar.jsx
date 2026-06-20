@@ -189,21 +189,37 @@ function DayCircle({ day, mode, size = 42, markToday = true, selected = false })
 // ═════════════════════════════════════════════
 // WeekStrip
 // ═════════════════════════════════════════════
-export function WeekStrip({ mode = 'score', showPoints = true, className = '', onSelectDay, selectedIso }) {
-  const { days, completedDays } = useWeekDays();
+export function WeekStrip({ mode = 'score', className = '', onSelectDay, selectedIso, todayScore, todayTotal, planDay, planTotalDays }) {
+  const { days } = useWeekDays();
   const interactive = typeof onSelectDay === 'function';
   const Cell = interactive ? motion.button : motion.div;
+  const hasScoreInfo = todayScore !== undefined && todayTotal !== undefined;
 
   return (
     <div className={`px-5 ${className}`}>
-      <p className="kicker mb-3">This week</p>
+      <div className="flex items-start justify-between mb-3">
+        <div>
+          <p className="kicker mb-0">This week</p>
+          {planDay !== undefined && (
+            <p className="font-body text-[10px] font-extrabold uppercase tracking-wider mt-1" style={{ color: T.textLow }}>
+              Day {planDay}{planTotalDays ? ` / ${planTotalDays}` : ''}
+            </p>
+          )}
+        </div>
+        {hasScoreInfo && (
+          <span className="font-body text-[11px] font-extrabold tracking-wider uppercase" style={{ color: T.text }}>
+            Today · {todayScore}/{todayTotal} PTS
+          </span>
+        )}
+      </div>
       <div className="grid grid-cols-7 gap-1.5">
         {days.map((day, i) => {
           const isSelected = interactive && selectedIso === day.iso && !day.isToday;
           return (
             <Cell
               key={i}
-              className="flex flex-col items-center gap-1"
+              className="flex flex-col items-center gap-1 rounded-2xl py-2"
+              style={{ background: isSelected ? 'rgba(255,255,255,0.06)' : 'transparent' }}
               {...(interactive
                 ? { onClick: () => onSelectDay(day), whileTap: { scale: 0.9 }, type: 'button' }
                 : {})}
@@ -241,15 +257,6 @@ export function WeekStrip({ mode = 'score', showPoints = true, className = '', o
           );
         })}
       </div>
-
-      {mode === 'score' && showPoints && (
-        <p className="font-body text-[12px] font-medium mt-3" style={{ color: T.textLow }}>
-          <span className="font-display text-[18px] mr-1" style={{ color: T.gold }}>
-            {completedDays}
-          </span>
-          of 7 days on the board
-        </p>
-      )}
     </div>
   );
 }

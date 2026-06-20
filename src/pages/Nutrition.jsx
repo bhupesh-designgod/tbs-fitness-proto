@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { BottomSheet, NumericCounter, RingCounter } from '../components/ui/Components';
 import { WeekStrip, MonthSheet } from '../components/ui/Calendar';
+import PlanNudge from '../components/ui/PlanNudge';
 import { useApp } from '../context/AppContext';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import CoachTip from '../onboarding/CoachTip';
@@ -214,127 +215,6 @@ function MacrosOverview({ logged }) {
             );
           })}
         </div>
-      </div>
-    </motion.div>
-  );
-}
-
-// ═════════════════════════════════════════════
-// ── Catch-up Card ──
-// Appears when logged/adjusted meals push the projected day off the plan.
-// Shows the difference and lets the user pour it into a chosen upcoming meal.
-// ═════════════════════════════════════════════
-function CatchUpCard({ meals, onRedistribute }) {
-  const shouldReduce = useReducedMotion();
-
-  const projected = meals.reduce(
-    (acc, m) => {
-      const s = sumFoods(m.foods);
-      return {
-        calories: acc.calories + s.calories,
-        protein: acc.protein + s.protein,
-        carbs: acc.carbs + s.carbs,
-        fat: acc.fat + s.fat,
-      };
-    },
-    { calories: 0, protein: 0, carbs: 0, fat: 0 }
-  );
-
-  const gap = {
-    calories: PLAN_TOTALS.calories - projected.calories,
-    protein: PLAN_TOTALS.protein - projected.protein,
-    carbs: PLAN_TOTALS.carbs - projected.carbs,
-    fat: PLAN_TOTALS.fat - projected.fat,
-  };
-
-  const loggedCount = meals.filter(m => m.logged).length;
-  const upcoming = meals.map((m, i) => ({ m, i })).filter(({ m }) => !m.logged);
-
-  // Only nudge once something's been logged off-plan and there's room to fix it.
-  if (loggedCount === 0 || upcoming.length === 0 || Math.abs(gap.calories) < 25) {
-    return null;
-  }
-
-  const short = gap.calories > 0;
-  const accent = short ? T.cal : T.textMid;
-  const macroBits = [
-    { v: gap.protein, suffix: 'P', color: PROTEIN },
-    { v: gap.fat,     suffix: 'F', color: FAT_GREY },
-    { v: gap.carbs,   suffix: 'C', color: CARB_BRONZE },
-  ].filter(b => Math.abs(b.v) >= 2);
-
-  return (
-    <motion.div
-      className="mx-5 mb-5 rounded-xl p-4"
-      style={{ background: CARD_BG, border: `1px solid ${short ? T.calTint.replace('0.14', '0.34') : CARD_BORDER}` }}
-      initial={shouldReduce ? {} : { opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
-    >
-      <div className="flex items-start gap-3 mb-3.5">
-        <div
-          className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
-          style={{ background: short ? T.calTint : T.surface2, border: `1px solid ${short ? T.calTint.replace('0.14', '0.34') : T.hairline}` }}
-        >
-          <RefreshCw size={15} strokeWidth={T.stroke} style={{ color: accent }} />
-        </div>
-        <div className="min-w-0 flex-1">
-          <p className="font-body text-[13px] font-bold leading-tight" style={{ color: T.text }}>
-            {short ? 'Off plan — more to go' : 'Over plan today'}
-          </p>
-          <p className="font-body text-[11px] mt-0.5 leading-snug" style={{ color: T.textMid }}>
-            <span className="font-bold tabular-nums" style={{ color: accent }}>
-              {short ? '+' : ''}{Math.abs(gap.calories)} kcal
-            </span>{' '}
-            {short ? 'still needed' : 'above plan'}
-            {macroBits.length > 0 && (
-              <>
-                {'  ·  '}
-                {macroBits.map((b, j) => (
-                  <span key={b.suffix} className="tabular-nums" style={{ color: b.color }}>
-                    {j > 0 ? '  ' : ''}{b.v > 0 ? '+' : ''}{b.v}{b.suffix}
-                  </span>
-                ))}
-              </>
-            )}
-          </p>
-        </div>
-      </div>
-
-      <p className="font-body text-[10px] font-extrabold uppercase tracking-wider mb-2" style={{ color: T.textFaint }}>
-        {short ? 'Bump up one of these meals' : 'Ease back one of these meals'}
-      </p>
-      <div className="space-y-2">
-        {upcoming.map(({ m, i }) => {
-          const cur = sumFoods(m.foods).calories;
-          const next = Math.max(0, cur + gap.calories); // this meal absorbs the whole gap
-          return (
-            <motion.button
-              key={i}
-              whileTap={{ scale: 0.98 }}
-              onClick={() => onRedistribute(i)}
-              className="w-full flex items-center justify-between px-3.5 py-3 rounded-xl"
-              style={{ background: T.surface2, border: `1px solid ${T.hairline}` }}
-            >
-              <div className="min-w-0 text-left">
-                <p className="font-body text-[13px] font-bold leading-tight" style={{ color: T.text }}>
-                  {m.label}
-                </p>
-                <p className="font-body text-[11px] mt-0.5 tabular-nums" style={{ color: T.textMid }}>
-                  {cur} <span style={{ color: T.textFaint }}>→</span>{' '}
-                  <span className="font-bold" style={{ color: accent }}>{next}</span> cal
-                </p>
-              </div>
-              <span
-                className="flex items-center gap-1 px-3 py-1.5 rounded-full font-body text-[11px] font-extrabold uppercase tracking-wider shrink-0"
-                style={{ background: `${accent}1F`, color: accent }}
-              >
-                {short ? 'Add' : 'Trim'}
-                <ChevronRight size={13} strokeWidth={2.5} />
-              </span>
-            </motion.button>
-          );
-        })}
       </div>
     </motion.div>
   );
@@ -1829,7 +1709,7 @@ function DayNutritionView({ day, hist, onBack }) {
 export default function Nutrition({ onMacroDetail, initialTab = 'meals' }) {
   const {
     meals, logged, hydration, history, waterLog, waterDefaultMl,
-    logMeal, adjustMeal, redistributeToMeal, updateMealFoods, addMeal,
+    logMeal, adjustMeal, updateMealFoods, addMeal,
     logWater, removeWaterEntry, setWaterDefault,
   } = useApp();
 
@@ -1939,7 +1819,7 @@ export default function Nutrition({ onMacroDetail, initialTab = 'meals' }) {
         <>
           <MacrosOverview logged={logged} />
 
-          <CatchUpCard meals={meals} onRedistribute={redistributeToMeal} />
+          <PlanNudge mode="nutrition" />
 
           {/* Section header */}
           <div className="px-5 mb-3 flex items-center justify-between">

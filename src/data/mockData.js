@@ -33,6 +33,21 @@ export const BIKI = {
   avatar: PHOTOS.bikiPortrait,
 };
 
+// ── Daily coach quotes — Biki's voice: direct, tough-love, no fluff ──
+// One is surfaced per day (deterministic by day-of-year) on Home.
+export const COACH_QUOTES = [
+  { short: 'Show up today.', text: "Discipline is choosing what you want most over what you want now. Show up." },
+  { short: 'Build tomorrow.', text: "The work you put in today is the body you wear tomorrow. Earn it." },
+  { short: 'Nobody lifts it for you.', text: "Nobody is coming to lift it for you. That's the whole point. Get under the bar." },
+  { short: 'Consistency wins.', text: "Consistency beats intensity. Every single time. Just don't miss." },
+  { short: 'Make the time.', text: "You don't find time to train. You make it. One hour. No excuses." },
+  { short: 'Hard days count.', text: "The hard days are the ones that count. Anyone can do the easy ones." },
+  { short: 'Eat with intent.', text: "Eat for the body you're building, not the one you're leaving behind." },
+  { short: 'Stack the wins.', text: "Small wins, stacked every day, become a different man. Start now." },
+  { short: 'Trust the process.', text: "Trust the plan on the days you can't see the progress. It's working." },
+  { short: 'No half reps.', text: "Half effort gets half results. Give me everything or give me nothing." },
+];
+
 // ── Daily targets ──
 export const DAILY_TARGETS = {
   calories: 2400,

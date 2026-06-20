@@ -1,23 +1,24 @@
 // ── Home — "Scoreboard" ──
-// Greeting, week strip, coach quote, open-air score hero,
-// task queue, plan rings, workout card, sleep note.
+// Greeting, week strip, coach quote, macro + hydration summary,
+// task queue, workout card, sleep note.
 
 import { useMemo, useState, useCallback, useEffect } from 'react';
-import { motion, useReducedMotion } from 'framer-motion';
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import {
   Utensils, Droplets, Dumbbell, Clock, ChevronRight, ChevronLeft,
-  Bell, MoonStar, Moon, Check, CalendarDays,
+  Bell, MoonStar, Moon, Check, CalendarDays, Sparkles, X, Quote,
 } from 'lucide-react';
-import { NumericCounter } from '../components/ui/Components';
+
 import { WeekStrip, MonthSheet } from '../components/ui/Calendar';
+import PlanNudge from '../components/ui/PlanNudge';
 import { useApp } from '../context/AppContext';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import CoachTip from '../onboarding/CoachTip';
 import { track } from '../lib/analytics';
-import { T, enter, stagger } from '../tokens';
+import { T, enter } from '../tokens';
 import {
   USER_PROFILE, PHOTOS, DAILY_TARGETS,
-  PLAN_PROGRESS,
+  PLAN_PROGRESS, COACH_QUOTES,
 } from '../data/mockData';
 
 // ── Greeting by time of day ──
@@ -30,14 +31,7 @@ function getGreeting() {
 
 // ── Coach daily notes — written like a DM from Biki, not a poster ──
 // {name} is swapped for the athlete's first name at render time.
-const COACH_NOTES = [
-  "Morning, {name}. Yesterday's in the bank — let's stack a clean one on top.",
-  "Watching the small things this week: water, sleep, protein. Nail those, the rest follows.",
-  "Don't chase perfect today. Chase present. Log honest, show up, repeat.",
-  "One meal, one rep, one glass at a time. That's how we build you, {name}.",
-  "Tired is fine, skipping isn't. Give me the work — I'll handle the plan.",
-  "Every rep today is a vote for the guy you're becoming. Go cast a few.",
-];
+
 
 // ── Points system ──
 function calcDailyScore(meals, hydration, targets) {
@@ -77,6 +71,206 @@ function StatusRing({ percentage, size = 60, strokeWidth = 6, color, children })
         {children}
       </div>
     </div>
+  );
+}
+
+// ── Macro + Hydration summary — tri-segment ring ──
+function MacroHydrationSummary({ onNavigate }) {
+  const { meals, hydration, logged } = useApp();
+  const caloriesLogged = logged.calories;
+  const proteinLogged = logged.protein;
+  const carbsLogged = logged.carbs;
+  const fatLogged = logged.fat;
+
+  const calTarget = DAILY_TARGETS.calories;
+  const proTarget = DAILY_TARGETS.protein;
+  const carbTarget = DAILY_TARGETS.carbs;
+  const fatTarget = DAILY_TARGETS.fat;
+  const waterTarget = DAILY_TARGETS.water;
+
+  // Calculate each macro's caloric contribution for proportional ring sizing
+  const proCals = proTarget * 4;
+  const carbCals = carbTarget * 4;
+  const fatCals = fatTarget * 9;
+  const totalMacroCals = proCals + carbCals + fatCals;
+
+  // Each macro's fraction of the ring (proportional to calorie contribution)
+  const carbFrac = carbCals / totalMacroCals;
+  const proFrac = proCals / totalMacroCals;
+  const fatFrac = fatCals / totalMacroCals;
+
+  // Fill percentages per macro
+  const proPct = Math.min(proteinLogged / proTarget, 1);
+  const carbPct = Math.min(carbsLogged / carbTarget, 1);
+  const fatPct = Math.min(fatLogged / fatTarget, 1);
+  const hydPct = Math.min(Math.round((hydration / waterTarget) * 100), 100);
+
+  const shouldReduce = useReducedMotion();
+
+  // Ring geometry
+  const ringSize = 150;
+  const ringStroke = 10;
+  const ringRadius = (ringSize - ringStroke) / 2;
+  const ringCircumference = 2 * Math.PI * ringRadius;
+
+  // Gap between segments (in circumference units)
+  const gapSize = ringCircumference * 0.02;
+  const usableCircumference = ringCircumference - (gapSize * 3);
+
+  // Segment arc lengths (proportional to calorie contribution)
+  const carbArc = usableCircumference * carbFrac;
+  const proArc = usableCircumference * proFrac;
+  const fatArc = usableCircumference * fatFrac;
+
+  // Segment start offsets (cumulative, with gaps)
+  // Order: Carbs (top) → Protein (right) → Fats (bottom-left)
+  const carbStart = 0;
+  const proStart = carbArc + gapSize;
+  const fatStart = proStart + proArc + gapSize;
+
+  const segments = [
+    { key: 'carbs',   arc: carbArc,  offset: carbStart, fill: carbPct,  color: T.macroCarbs },
+    { key: 'protein', arc: proArc,   offset: proStart,  fill: proPct,   color: T.macroProtein },
+    { key: 'fats',    arc: fatArc,   offset: fatStart,  fill: fatPct,   color: T.macroFat },
+  ];
+
+  return (
+    <motion.div
+      className="card mx-5 mb-3 p-5"
+      {...enter(0.12)}
+    >
+      <div className="flex items-stretch gap-3.5">
+        {/* Tri-segment calorie ring */}
+        <div className="relative shrink-0" style={{ width: ringSize, height: ringSize }}>
+          <svg width={ringSize} height={ringSize} className="absolute inset-0 -rotate-90">
+            {segments.map((seg) => (
+              <g key={seg.key}>
+                {/* Track (dim) */}
+                <circle
+                  cx={ringSize / 2} cy={ringSize / 2} r={ringRadius}
+                  fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth={ringStroke}
+                  strokeLinecap="round"
+                  strokeDasharray={`${seg.arc} ${ringCircumference - seg.arc}`}
+                  strokeDashoffset={-seg.offset}
+                />
+                {/* Fill */}
+                {seg.fill > 0 && (
+                  <motion.circle
+                    cx={ringSize / 2} cy={ringSize / 2} r={ringRadius}
+                    fill="none" stroke={seg.color} strokeWidth={ringStroke}
+                    strokeLinecap="round"
+                    strokeDasharray={`${seg.arc * seg.fill} ${ringCircumference - seg.arc * seg.fill}`}
+                    strokeDashoffset={-seg.offset}
+                    initial={shouldReduce ? {} : { opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.2, duration: 0.4 }}
+                  />
+                )}
+              </g>
+            ))}
+          </svg>
+
+          {/* Center text */}
+          <div className="absolute inset-0 flex flex-col items-center justify-center">
+            <span
+              className="font-body text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-1 rounded-full mb-2"
+              style={{ background: T.surface2, border: `1px solid ${T.hairline}`, color: T.textMid }}
+            >
+              Day {PLAN_PROGRESS.currentDay}
+            </span>
+            <span className="font-display text-[36px] text-[#F4F2EC] leading-none">
+              {Math.round(caloriesLogged)}
+            </span>
+            <span className="font-body text-[10px] font-medium mt-1" style={{ color: T.textLow }}>
+              {calTarget} kcal
+            </span>
+          </div>
+        </div>
+
+        {/* Macro legend — right side */}
+        <div className="flex-1 flex flex-col justify-center gap-5">
+          {/* Carbs */}
+          <div className="flex items-center gap-3">
+            <div className="flex gap-[2px]">
+              {[0,1,2].map(i => (
+                <div key={i} className="w-[3px] h-[14px] rounded-full" style={{ background: i < Math.ceil(carbPct * 3) ? T.macroCarbs : 'rgba(255,255,255,0.1)' }} />
+              ))}
+            </div>
+            <div>
+              <p className="font-display text-[22px] text-[#F4F2EC] leading-none">
+                <span>{Math.round(carbsLogged)}</span>
+                <span style={{ color: T.textFaint }}>/{carbTarget}g</span>
+              </p>
+              <p className="font-body text-[11px] font-bold uppercase tracking-wider mt-0.5" style={{ color: T.macroCarbs }}>Carbs</p>
+            </div>
+          </div>
+
+          {/* Protein */}
+          <div className="flex items-center gap-3">
+            <div className="flex gap-[2px]">
+              {[0,1,2].map(i => (
+                <div key={i} className="w-[3px] h-[14px] rounded-full" style={{ background: i < Math.ceil(proPct * 3) ? T.macroProtein : 'rgba(255,255,255,0.1)' }} />
+              ))}
+            </div>
+            <div>
+              <p className="font-display text-[22px] text-[#F4F2EC] leading-none">
+                <span>{Math.round(proteinLogged)}</span>
+                <span style={{ color: T.textFaint }}>/{proTarget}g</span>
+              </p>
+              <p className="font-body text-[11px] font-bold uppercase tracking-wider mt-0.5" style={{ color: T.macroProtein }}>Proteins</p>
+            </div>
+          </div>
+
+          {/* Fats */}
+          <div className="flex items-center gap-3">
+            <div className="flex gap-[2px]">
+              {[0,1,2].map(i => (
+                <div key={i} className="w-[3px] h-[14px] rounded-full" style={{ background: i < Math.ceil(fatPct * 3) ? T.macroFat : 'rgba(255,255,255,0.1)' }} />
+              ))}
+            </div>
+            <div>
+              <p className="font-display text-[22px] text-[#F4F2EC] leading-none">
+                <span>{Math.round(fatLogged)}</span>
+                <span style={{ color: T.textFaint }}>/{fatTarget}g</span>
+              </p>
+              <p className="font-body text-[11px] font-bold uppercase tracking-wider mt-0.5" style={{ color: T.macroFat }}>Fats</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Hydration — vertical bar on the right */}
+        <div className="flex flex-col items-center shrink-0" style={{ width: 34 }}>
+          <Droplets size={13} strokeWidth={T.stroke} style={{ color: T.water }} />
+          <div className="relative flex-1 w-[7px] rounded-full overflow-hidden my-2" style={{ background: 'rgba(255,255,255,0.08)' }}>
+            <motion.div
+              className="absolute bottom-0 left-0 right-0 rounded-full"
+              style={{ background: T.water }}
+              initial={shouldReduce ? { height: `${hydPct}%` } : { height: 0 }}
+              animate={{ height: `${hydPct}%` }}
+              transition={{ type: 'spring', stiffness: 80, damping: 16, delay: 0.3 }}
+            />
+          </div>
+          <div className="flex flex-col items-center">
+            <span className="font-body text-[12px] font-bold tabular-nums leading-none" style={{ color: T.water }}>
+              {(hydration / 1000).toFixed(1)}
+            </span>
+            <span className="font-body text-[8px] font-semibold tabular-nums leading-none mt-0.5" style={{ color: T.textLow }}>
+              /{(waterTarget / 1000).toFixed(1)}L
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* View diet plan CTA */}
+      <motion.button
+        whileTap={T.tap}
+        onClick={() => onNavigate && onNavigate('nutrition')}
+        className="btn-primary mt-4 btn-shine-wrap"
+      >
+        <Utensils size={15} strokeWidth={2} />
+        View diet plan
+      </motion.button>
+    </motion.div>
   );
 }
 
@@ -220,14 +414,134 @@ function DayRecap({ day, onBack }) {
   );
 }
 
+// ── Coach daily-quote modal ──
+// Coach portrait in the background, the day's line up top, a commitment below.
+function CoachQuoteModal({ quote, committed, onCommit, onClose, onMessage }) {
+  const shouldReduce = useReducedMotion();
+  return (
+    <motion.div
+      className="fixed inset-0 z-50 flex items-end justify-center p-4"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.22 }}
+      style={{ background: 'rgba(0,0,0,0.62)', backdropFilter: 'blur(6px)' }}
+      onClick={onClose}
+    >
+      <motion.div
+        className="relative w-full max-w-[400px] rounded-3xl overflow-hidden"
+        style={{ border: `1px solid ${T.hairlineStrong}` }}
+        initial={shouldReduce ? {} : { opacity: 0, y: 32, scale: 0.97 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        exit={shouldReduce ? { opacity: 0 } : { opacity: 0, y: 32, scale: 0.97 }}
+        transition={{ type: 'spring', stiffness: 280, damping: 26 }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Coach image background */}
+        <img
+          src={PHOTOS.bikiPortrait}
+          alt=""
+          className="absolute inset-0 w-full h-full object-cover"
+          style={{ filter: 'grayscale(30%) contrast(1.05) brightness(0.5)' }}
+        />
+        <div
+          className="absolute inset-0"
+          style={{ background: 'linear-gradient(to top, rgba(11,11,12,0.97) 6%, rgba(11,11,12,0.72) 46%, rgba(11,11,12,0.30) 100%)' }}
+        />
+
+        {/* Close */}
+        <motion.button
+          whileTap={T.tapSmall}
+          onClick={onClose}
+          aria-label="Close"
+          className="absolute top-4 right-4 z-10 w-9 h-9 rounded-full flex items-center justify-center"
+          style={{ background: 'rgba(0,0,0,0.4)', border: `1px solid ${T.hairlineStrong}` }}
+        >
+          <X size={16} strokeWidth={2} style={{ color: T.text }} />
+        </motion.button>
+
+        {/* Content */}
+        <div className="relative pt-32 px-6 pb-6">
+          <div className="flex items-center gap-2 mb-3">
+            <Quote size={16} strokeWidth={2} style={{ color: T.gold }} />
+            <p className="font-body text-[10px] font-extrabold uppercase tracking-[0.16em]" style={{ color: T.gold }}>
+              Today's mindset
+            </p>
+          </div>
+
+          <p className="font-body text-[20px] font-semibold leading-[1.4] text-[#F4F2EC] mb-5">
+            {quote.text}
+          </p>
+
+          <div className="flex items-center gap-2.5 mb-6">
+            <div className="w-8 h-8 rounded-full overflow-hidden shrink-0" style={{ border: `1.5px solid ${T.gold}` }}>
+              <img src={PHOTOS.bikiPortrait} alt="" className="w-full h-full object-cover" />
+            </div>
+            <div className="leading-tight">
+              <p className="font-body text-[12px] font-bold" style={{ color: T.text }}>Biki Singh</p>
+              <p className="font-body text-[10px] font-medium uppercase tracking-wider" style={{ color: T.textLow }}>
+                IFBB Pro · Head Coach
+              </p>
+            </div>
+          </div>
+
+          {committed ? (
+            <div
+              className="btn-primary"
+              style={{ background: 'transparent', border: `1px solid ${T.goldBorder}`, color: T.gold }}
+            >
+              <Check size={16} strokeWidth={2.5} /> Committed for today
+            </div>
+          ) : (
+            <motion.button whileTap={T.tap} onClick={onCommit} className="btn-primary btn-shine-wrap">
+              <Sparkles size={15} strokeWidth={2} /> I'm committed
+            </motion.button>
+          )}
+
+          <button
+            onClick={onMessage}
+            className="btn-ghost mt-3.5 mx-auto"
+            style={{ color: T.textMid }}
+          >
+            Message Biki <ChevronRight size={13} strokeWidth={T.stroke} />
+          </button>
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+}
+
 export default function Home({ onProfileClick, onNavigate, onNotifications }) {
   const { training, meals, hydration, isRestDay } = useApp();
   const [selectedDay, setSelectedDay] = useState(null);
   const viewingDay = selectedDay && !selectedDay.isToday;
 
-  const shouldReduce = useReducedMotion();
   const today = new Date();
   const [monthOpen, setMonthOpen] = useState(false);
+
+  // ── Daily coach quote (deterministic per calendar day) ──
+  const [quoteOpen, setQuoteOpen] = useState(false);
+  const [bubbleShown, setBubbleShown] = useState(false);
+  const [commit, setCommit] = useLocalStorage('tbs-commit', { date: null });
+  const todayKey = today.toDateString();
+  const committed = commit.date === todayKey;
+  const quote = useMemo(() => {
+    const start = new Date(today.getFullYear(), 0, 0);
+    const doy = Math.floor((today - start) / 86_400_000);
+    return COACH_QUOTES[doy % COACH_QUOTES.length];
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Bubble drifts in shortly after the screen settles.
+  useEffect(() => {
+    const t = setTimeout(() => setBubbleShown(true), 1400);
+    return () => clearTimeout(t);
+  }, []);
+
+  const handleCommit = useCallback(() => {
+    setCommit({ date: todayKey });
+    track('coach_quote_committed');
+  }, [setCommit, todayKey]);
 
   const score = useMemo(
     () => calcDailyScore(meals, hydration, DAILY_TARGETS),
@@ -256,57 +570,11 @@ export default function Home({ onProfileClick, onNavigate, onNotifications }) {
   };
   const activeTip = tourStep > 0 ? HOME_TOUR[tourStep] : null;
 
-  const hydrationPct = Math.min(Math.round((hydration / DAILY_TARGETS.water) * 100), 100);
-  const mealsLogged = meals.filter(m => m.logged).length;
-  const totalMeals = meals.length;
-  const nutritionPct = Math.round((mealsLogged / totalMeals) * 100);
-
-  // Up-next task queue
-  const tasks = useMemo(() => {
-    const queue = [];
-    const nextMealIdx = meals.findIndex(m => !m.logged);
-    if (nextMealIdx !== -1) {
-      const meal = meals[nextMealIdx];
-      const totalCal = meal.foods.reduce((s, f) => s + (f.calories || 0), 0);
-      const totalProtein = meal.foods.reduce((s, f) => s + (f.protein || 0), 0);
-      queue.push({
-        key: `meal-${nextMealIdx}`,
-        icon: Utensils,
-        title: `Log ${meal.label}`,
-        subtitle: `${Math.round(totalCal)} cal · ${Math.round(totalProtein)}g protein`,
-        points: 5,
-        target: 'nutrition',
-      });
-    }
-    if (hydration < DAILY_TARGETS.water) {
-      const pct = Math.round((hydration / DAILY_TARGETS.water) * 100);
-      queue.push({
-        key: 'hydration',
-        icon: Droplets,
-        title: 'Drink water',
-        subtitle: `${pct}% of today's goal`,
-        points: 5,
-        target: 'nutrition',
-      });
-    }
-    return queue.slice(0, 2);
-  }, [meals, hydration]);
-
   const exerciseCount = training.exercises?.length || 0;
   const muscleList = training.muscles?.join(' · ') || '';
 
-  const coachQuote = useMemo(() => {
-    const dayOfYear = Math.floor(
-      (today - new Date(today.getFullYear(), 0, 0)) / (1000 * 60 * 60 * 24),
-    );
-    const note = COACH_NOTES[dayOfYear % COACH_NOTES.length];
-    return note.replace('{name}', USER_PROFILE.name);
-  }, []);
-
-  const totalDots = 6;
-  const filledDots = Math.floor(score.earned / 5);
   const greeting = getGreeting();
-  const ptsToGo = score.total - score.earned;
+
 
   return (
     <div className="min-h-screen bg-[#0B0B0C] pb-24">
@@ -360,6 +628,10 @@ export default function Home({ onProfileClick, onNavigate, onNotifications }) {
           mode="score"
           selectedIso={selectedDay?.iso}
           onSelectDay={(day) => setSelectedDay(day.isToday ? null : day)}
+          todayScore={score.earned}
+          todayTotal={score.total}
+          planDay={PLAN_PROGRESS.currentDay}
+          planTotalDays={PLAN_PROGRESS.totalDays}
         />
       </motion.div>
 
@@ -370,187 +642,13 @@ export default function Home({ onProfileClick, onNavigate, onNotifications }) {
 
       {!viewingDay && (
       <>
-      {/* ═══ 3. COACH NOTE — a message from Biki ═══ */}
-      <motion.div className="mx-5 mb-4" {...enter(0.08)}>
-        <div className="coach-quote-card p-4 pl-5">
-          <div className="flex items-start gap-3">
-            <div className="shrink-0 relative">
-              <div
-                className="w-10 h-10 rounded-full overflow-hidden"
-                style={{ border: `2px solid ${T.goldBorder}` }}
-              >
-                <img
-                  src={PHOTOS.bikiPortrait}
-                  alt="Coach Biki"
-                  className="w-full h-full object-cover"
-                  style={{ filter: 'grayscale(40%) contrast(1.1)' }}
-                />
-              </div>
-              <div
-                className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full"
-                style={{ background: T.green, border: `2px solid ${T.surface}` }}
-              />
-            </div>
 
-            <div className="flex-1 min-w-0">
-              <p className="kicker kicker-gold mb-1.5">Coach Biki</p>
-              <p className="font-body text-[14px] font-medium leading-relaxed" style={{ color: T.text }}>
-                {coachQuote}
-              </p>
-            </div>
-          </div>
-        </div>
-      </motion.div>
+      {/* ═══ MEAL-ADJUSTMENT NUDGE — surfaces only when the day is off-plan; routes to Nutrition ═══ */}
+      <PlanNudge mode="home" onNavigate={onNavigate} />
 
-      {/* ═══ 4. SCORE HERO — open air, number bleeds right ═══ */}
-      <motion.div data-tour="score" className="pl-5 pt-2 pb-2 relative overflow-hidden" {...enter(0.12)}>
-        <div className="flex items-center gap-2">
-          <span className="kicker">Today's score</span>
-          <motion.span
-            className="font-body text-[10px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-md inline-block"
-            style={{
-              color: T.textLow,
-              border: `1px solid ${T.hairlineStrong}`,
-              rotate: '-2.5deg',
-            }}
-            {...enter(0.2)}
-          >
-            Day {PLAN_PROGRESS.currentDay} of {PLAN_PROGRESS.totalDays}
-          </motion.span>
-        </div>
+      {/* ═══ 4. MACRO + HYDRATION SUMMARY ═══ */}
+      <MacroHydrationSummary onNavigate={onNavigate} />
 
-        <div className="flex items-end gap-3 mt-1 -mb-2">
-          <NumericCounter
-            value={score.earned}
-            className="display-2xl"
-            duration={0.6}
-          />
-          <div className="flex items-baseline gap-1 pb-4">
-            <span className="display-md" style={{ color: T.textFaint }}>/{score.total}</span>
-            <span className="display-xs" style={{ color: T.textFaint }}>PTS</span>
-          </div>
-        </div>
-
-        <p className="font-body text-[13px] font-medium mt-2 mb-4" style={{ color: T.textLow }}>
-          {score.earned >= score.total
-            ? 'Goal hit. Take a bow.'
-            : `${ptsToGo} pts to go. Keep moving.`}
-        </p>
-
-        {/* Progress dots */}
-        <div className="flex gap-1.5 pr-5">
-          {Array.from({ length: totalDots }).map((_, i) => (
-            <motion.div
-              key={i}
-              className="flex-1 h-[5px] rounded-full"
-              initial={shouldReduce ? {} : { scaleX: 0 }}
-              animate={{ scaleX: 1 }}
-              transition={{ delay: 0.25 + i * 0.04, duration: 0.2, ease: T.easeOut }}
-              style={{
-                transformOrigin: 'left',
-                background: i < filledDots ? T.goldGrad : 'rgba(255,255,255,0.07)',
-              }}
-            />
-          ))}
-        </div>
-      </motion.div>
-
-      {/* ═══ 5. UP NEXT ═══ */}
-      {tasks.length > 0 && (
-        <motion.div data-tour="up-next" className="mx-5 mt-6 mb-3" {...enter(0.16)}>
-          <p className="kicker mb-3">Up next</p>
-          <div className="flex flex-col gap-2">
-            {tasks.map((t, i) => {
-              const Icon = t.icon;
-              return (
-                <motion.button
-                  key={t.key}
-                  {...stagger(i, 0.2)}
-                  whileTap={T.tap}
-                  onClick={() => onNavigate && onNavigate(t.target)}
-                  className="card w-full flex items-center gap-3 p-3 text-left"
-                >
-                  <div
-                    className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0"
-                    style={{ background: T.surface2, border: `1px solid ${T.hairline}` }}
-                  >
-                    <Icon size={20} strokeWidth={T.stroke} style={{ color: T.textMid }} />
-                  </div>
-
-                  <div className="flex-1 min-w-0">
-                    <p className="display-xs text-[#F4F2EC] leading-tight">
-                      {t.title}
-                    </p>
-                    <p className="font-body text-[12px] font-medium mt-0.5 truncate" style={{ color: T.textLow }}>
-                      {t.subtitle}
-                    </p>
-                  </div>
-
-                  <div className="flex items-center gap-2 flex-shrink-0">
-                    <span
-                      className="font-body text-[11px] font-extrabold uppercase tracking-wider px-2 py-1 rounded-md inline-block"
-                      style={{
-                        color: T.gold,
-                        border: `1px solid ${T.goldBorder}`,
-                        rotate: '-2deg',
-                      }}
-                    >
-                      +{t.points} pts
-                    </span>
-                    <ChevronRight size={16} strokeWidth={T.stroke} style={{ color: T.textFaint }} />
-                  </div>
-                </motion.button>
-              );
-            })}
-          </div>
-        </motion.div>
-      )}
-
-      {/* ═══ 6. TODAY'S PLAN — 2-col rings ═══ */}
-      <motion.div className="mx-5 mb-3" {...enter(0.2)}>
-        <p className="kicker mb-3">Today's plan</p>
-        <div className="grid grid-cols-2 gap-3">
-          <motion.button
-            whileTap={T.tapSmall}
-            onClick={() => onNavigate && onNavigate('nutrition', 'meals')}
-            className="card flex flex-col items-center gap-2.5 py-5 px-4 text-left"
-          >
-            <StatusRing percentage={nutritionPct} color={T.cal} size={60} strokeWidth={6}>
-              {nutritionPct >= 100 ? (
-                <Check size={22} strokeWidth={2.5} style={{ color: T.cal }} />
-              ) : (
-                <Utensils size={20} strokeWidth={T.stroke} style={{ color: T.textMid }} />
-              )}
-            </StatusRing>
-            <span className="font-body text-[12px] font-bold uppercase tracking-wider" style={{ color: T.textMid }}>
-              Nutrition
-            </span>
-            <span className="display-xs" style={{ color: nutritionPct >= 100 ? T.cal : T.text }}>
-              {nutritionPct >= 100 ? 'Fuelled' : `${mealsLogged} of ${totalMeals}`}
-            </span>
-          </motion.button>
-
-          <motion.button
-            whileTap={T.tapSmall}
-            onClick={() => onNavigate && onNavigate('nutrition', 'hydration')}
-            className="card flex flex-col items-center gap-2.5 py-5 px-4 text-left"
-          >
-            <StatusRing percentage={hydrationPct} color={T.water} size={60} strokeWidth={6}>
-              {hydrationPct >= 100 ? (
-                <Check size={22} strokeWidth={2.5} style={{ color: T.water }} />
-              ) : (
-                <Droplets size={20} strokeWidth={T.stroke} style={{ color: T.textMid }} />
-              )}
-            </StatusRing>
-            <span className="font-body text-[12px] font-bold uppercase tracking-wider" style={{ color: T.textMid }}>
-              Hydration
-            </span>
-            <span className="display-xs" style={{ color: hydrationPct >= 100 ? T.water : '#F4F2EC' }}>
-              {hydrationPct >= 100 ? 'Hydrated' : `${hydrationPct}%`}
-            </span>
-          </motion.button>
-        </div>
-      </motion.div>
 
       {/* ═══ 7. WORKOUT CARD ═══ */}
       <motion.div className="card mx-5 mb-3 overflow-hidden relative" {...enter(0.24)}>
@@ -632,6 +730,90 @@ export default function Home({ onProfileClick, onNavigate, onNotifications }) {
       )}
 
       {/* Month overlay */}
+
+      {/* ═══ FLOATING COACH — daily-quote bubble + avatar ═══ */}
+      <div className="fixed z-40 flex items-end gap-2" style={{ bottom: 90, right: 20 }}>
+        {/* Speech bubble — Biki "says" the day's line */}
+        <AnimatePresence>
+          {bubbleShown && !quoteOpen && (
+            <motion.button
+              key="bubble"
+              onClick={() => { setQuoteOpen(true); track('coach_quote_open', { from: 'bubble' }); }}
+              initial={{ opacity: 0, x: 12, scale: 0.9 }}
+              animate={{ opacity: 1, x: 0, scale: 1 }}
+              exit={{ opacity: 0, x: 12, scale: 0.9 }}
+              transition={{ type: 'spring', stiffness: 320, damping: 24 }}
+              className="relative mb-1 max-w-[190px] text-left rounded-2xl rounded-br-md px-3.5 py-2.5"
+              style={{ background: T.surface, border: `1px solid ${T.hairlineStrong}`, boxShadow: '0 10px 30px rgba(0,0,0,0.45)' }}
+            >
+              <p className="font-body text-[9px] font-extrabold uppercase tracking-wider mb-0.5" style={{ color: T.gold }}>
+                {committed ? 'Locked in' : 'Biki says'}
+              </p>
+              <p className="font-body text-[12px] font-semibold leading-snug" style={{ color: T.text }}>
+                {committed ? "That's the standard. Keep it." : quote.short}
+              </p>
+            </motion.button>
+          )}
+        </AnimatePresence>
+
+        {/* Avatar — opens the mindset modal */}
+        <motion.button
+          whileTap={T.tapSmall}
+          onClick={() => { setQuoteOpen(true); track('coach_quote_open', { from: 'avatar' }); }}
+          aria-label="Today's mindset from Coach Biki"
+          className="relative shrink-0 flex items-center justify-center"
+          initial={{ scale: 0, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ delay: 0.5, type: 'spring', stiffness: 300, damping: 20 }}
+        >
+          {/* Pulse ring */}
+          <div
+            className="absolute -inset-1 rounded-full"
+            style={{
+              background: `radial-gradient(circle, ${T.goldTint} 0%, transparent 70%)`,
+              animation: 'pulse-glow 2.5s ease-in-out infinite',
+            }}
+          />
+          {/* Avatar */}
+          <div
+            className="w-14 h-14 rounded-full overflow-hidden relative"
+            style={{ border: `2.5px solid ${T.gold}`, boxShadow: `0 4px 20px rgba(246,180,28,0.25)` }}
+          >
+            <img
+              src={PHOTOS.bikiPortrait}
+              alt="Coach Biki"
+              className="w-full h-full object-cover"
+              style={{ filter: 'grayscale(30%) contrast(1.1)' }}
+            />
+          </div>
+          {/* Online indicator */}
+          <div
+            className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full"
+            style={{ background: T.green, border: `2.5px solid ${T.bg}` }}
+          />
+          {/* Mindset badge */}
+          <div
+            className="absolute -top-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center"
+            style={{ background: T.gold }}
+          >
+            <Sparkles size={10} strokeWidth={2.5} style={{ color: T.goldInk }} />
+          </div>
+        </motion.button>
+      </div>
+
+      {/* Daily-quote modal */}
+      <AnimatePresence>
+        {quoteOpen && (
+          <CoachQuoteModal
+            quote={quote}
+            committed={committed}
+            onCommit={handleCommit}
+            onClose={() => setQuoteOpen(false)}
+            onMessage={() => { setQuoteOpen(false); onNavigate && onNavigate('coach'); }}
+          />
+        )}
+      </AnimatePresence>
+
       <MonthSheet isOpen={monthOpen} onClose={() => setMonthOpen(false)} mode="score" />
 
       {/* Contextual coach intro (points + tasks) */}

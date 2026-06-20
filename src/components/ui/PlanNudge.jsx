@@ -7,7 +7,8 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Sparkles, Flame } from 'lucide-react';
+import { Sparkles, Flame, ChevronRight, Plus } from 'lucide-react';
+import { BottomSheet } from './Components';
 import { useApp } from '../../context/AppContext';
 import { T, enter } from '../../tokens';
 import { PLAN_TOTALS, PHOTOS } from '../../data/mockData';
@@ -49,7 +50,8 @@ function BikiAvatar({ size = 42 }) {
 }
 
 export default function PlanNudge({ mode = 'home', onNavigate, delay = 0.1 }) {
-  const { meals, redistributeToMeal } = useApp();
+  const { meals, redistributeToMeal, addMeal } = useApp();
+  const [pickerOpen, setPickerOpen] = useState(false);
 
   const projected = meals.reduce((acc, m) => {
     const s = sumFoods(m.foods);
@@ -89,14 +91,38 @@ export default function PlanNudge({ mode = 'home', onNavigate, delay = 0.1 }) {
   const handleFix = (e) => {
     if (e) e.stopPropagation();
     if (mode === 'home') { onNavigate && onNavigate('nutrition'); return; }
-    redistributeToMeal(rec.i);
+    setPickerOpen(true);
+  };
+
+  const pickMeal = (i) => {
+    redistributeToMeal(i);
+    setPickerOpen(false);
+  };
+
+  const addAsNewMeal = () => {
+    addMeal({
+      id: `meal-topup-${Date.now()}`,
+      time: '',
+      label: 'Coach top-up',
+      foods: [{
+        name: 'Top-up to hit plan',
+        portion: 'custom',
+        protein: Math.max(0, gap.protein),
+        carbs: Math.max(0, gap.carbs),
+        fat: Math.max(0, gap.fat),
+        calories: Math.max(0, gap.calories),
+      }],
+      logged: true,
+    });
+    setPickerOpen(false);
   };
 
   return (
+    <>
     <motion.div
       className="card mx-5 mb-3 p-4 relative overflow-hidden"
-      style={{ border: `1px solid ${T.goldBorder}`, cursor: mode === 'home' ? 'pointer' : 'default' }}
-      onClick={mode === 'home' ? () => onNavigate && onNavigate('nutrition') : undefined}
+      style={{ border: `1px solid ${T.goldBorder}`, cursor: 'pointer' }}
+      onClick={mode === 'home' ? () => onNavigate && onNavigate('nutrition') : () => setPickerOpen(true)}
       {...enter(delay)}
     >
       {/* Faint gold glow — marks this as the action card */}
@@ -173,5 +199,73 @@ export default function PlanNudge({ mode = 'home', onNavigate, delay = 0.1 }) {
         </motion.button>
       </div>
     </motion.div>
+
+    {/* Meal-picker — choose where the surplus / deficit goes */}
+    <BottomSheet isOpen={pickerOpen} onClose={() => setPickerOpen(false)}>
+      <div className="flex items-center gap-3 mb-1.5">
+        <BikiAvatar size={38} />
+        <div className="min-w-0">
+          <p className="font-body text-[10px] font-extrabold uppercase tracking-wider" style={{ color: T.gold }}>From Biki</p>
+          <h2 className="display-sm text-[#F4F2EC] uppercase leading-none mt-0.5">
+            {short ? 'Where should it go?' : 'Ease back where?'}
+          </h2>
+        </div>
+      </div>
+      <p className="font-body text-[13px] font-medium mb-4 leading-snug" style={{ color: T.textLow }}>
+        {short
+          ? `You're ${Math.abs(gap.calories).toLocaleString()} kcal short. Add it to a meal, or log it as a new one.`
+          : `You're ${Math.abs(gap.calories).toLocaleString()} kcal over. Pick a meal to ease back.`}
+      </p>
+
+      <div className="space-y-2.5">
+        {upcoming.map(({ m, i }) => {
+          const cur = sumFoods(m.foods).calories;
+          const next = Math.max(0, Math.round(cur + gap.calories));
+          return (
+            <motion.button
+              key={i}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => pickMeal(i)}
+              className="w-full flex items-center justify-between gap-3 px-4 py-3.5 rounded-xl"
+              style={{ background: T.surface2, border: `1px solid ${T.hairline}` }}
+            >
+              <div className="text-left min-w-0">
+                <p className="font-body text-[14px] font-bold leading-tight" style={{ color: T.text }}>{m.label}</p>
+                <p className="font-body text-[12px] tabular-nums mt-0.5" style={{ color: T.textMid }}>
+                  {cur} <span style={{ color: T.textFaint }}>→</span> <span className="font-bold" style={{ color: accent }}>{next}</span> kcal
+                </p>
+              </div>
+              <span
+                className="flex items-center gap-1 px-3 py-1.5 rounded-full font-body text-[11px] font-extrabold uppercase tracking-wider shrink-0"
+                style={{ background: `${accent}1F`, color: accent }}
+              >
+                {short ? 'Add' : 'Trim'}
+                <ChevronRight size={13} strokeWidth={2.5} />
+              </span>
+            </motion.button>
+          );
+        })}
+
+        {short && (
+          <motion.button
+            whileTap={{ scale: 0.98 }}
+            onClick={addAsNewMeal}
+            className="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl"
+            style={{ border: `1px dashed ${T.hairlineStrong}` }}
+          >
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style={{ background: T.surface2, border: `1px solid ${T.hairline}` }}>
+              <Plus size={16} strokeWidth={2.5} style={{ color: T.gold }} />
+            </div>
+            <div className="text-left min-w-0">
+              <p className="font-body text-[14px] font-bold leading-tight" style={{ color: T.text }}>Log as a new meal</p>
+              <p className="font-body text-[12px] mt-0.5" style={{ color: T.textMid }}>
+                Add {Math.abs(gap.calories).toLocaleString()} kcal as a separate entry
+              </p>
+            </div>
+          </motion.button>
+        )}
+      </div>
+    </BottomSheet>
+    </>
   );
 }

@@ -631,10 +631,12 @@ function BloodworkUploadCard() {
             whileTap={T.tap}
             onClick={() => add(files.length === 0 ? 'Blood panel · Jun 2026.pdf' : `Report ${files.length + 1}.pdf`)}
             className="w-full rounded-xl flex items-center justify-center gap-2 py-3"
-            style={{ background: files.length ? 'transparent' : T.surface2, border: `1px dashed ${T.hairlineStrong}` }}
+            style={files.length
+              ? { background: 'transparent', border: `1px dashed ${T.hairlineStrong}` }
+              : { background: T.goldGradCss }}
           >
-            {files.length ? <Plus size={15} strokeWidth={2.5} style={{ color: T.gold }} /> : <Upload size={16} strokeWidth={2} style={{ color: T.textMid }} />}
-            <span className="font-body text-[13px] font-bold" style={{ color: files.length ? T.gold : T.textMid }}>
+            {files.length ? <Plus size={15} strokeWidth={2.5} style={{ color: T.gold }} /> : <Upload size={16} strokeWidth={2} style={{ color: T.goldInk }} />}
+            <span className="font-body text-[14px] font-bold" style={{ color: files.length ? T.gold : T.goldInk }}>
               {files.length ? 'Add another report' : 'Choose a report to upload'}
             </span>
           </motion.button>

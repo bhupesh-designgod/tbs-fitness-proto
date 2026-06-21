@@ -6,7 +6,7 @@ import { useMemo, useState, useCallback, useEffect } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 import {
   Utensils, Droplets, Dumbbell, Clock, ChevronRight, ChevronLeft,
-  Bell, Moon, Check, CalendarDays, Pill,
+  Bell, Moon, CalendarDays, Pill, Plus,
 } from 'lucide-react';
 
 import { WeekStrip, MonthSheet } from '../components/ui/Calendar';
@@ -413,6 +413,67 @@ function DayRecap({ day, onBack }) {
   );
 }
 
+// ── Quick water logger — one tap = +250ml, pips show progress to target ──
+const GLASS_ML = 250;
+function WaterQuickLog() {
+  const { hydration, logWater } = useApp();
+  const total = Math.round(DAILY_TARGETS.water / GLASS_ML); // glasses to hit target
+  const filled = Math.min(total, Math.floor(hydration / GLASS_ML));
+  const liters = (hydration / 1000).toFixed(2);
+
+  return (
+    <motion.div className="card mx-5 mb-3 p-4" {...enter(0.18)}>
+      <div className="flex items-center gap-3.5">
+        {/* Icon */}
+        <div
+          className="w-11 h-11 rounded-full flex items-center justify-center shrink-0"
+          style={{ background: 'rgba(58,130,247,0.12)', border: `1px solid rgba(58,130,247,0.30)` }}
+        >
+          <Droplets size={20} strokeWidth={T.stroke} style={{ color: T.water }} />
+        </div>
+
+        {/* Label + count */}
+        <div className="min-w-0">
+          <p className="font-body text-[15px] font-bold leading-tight" style={{ color: T.text }}>Water</p>
+          <p className="font-body text-[12px] tabular-nums mt-0.5" style={{ color: T.textLow }}>
+            {filled} <span style={{ color: T.textFaint }}>/ {total}</span>
+            <span style={{ color: T.textFaint }}> · {liters}L</span>
+          </p>
+        </div>
+
+        {/* Pips */}
+        <div className="flex-1 flex items-center gap-[3px] px-1">
+          {Array.from({ length: total }).map((_, i) => (
+            <div
+              key={i}
+              className="flex-1 rounded-full"
+              style={{
+                height: 20,
+                background: i < filled ? T.gold : 'rgba(255,255,255,0.10)',
+                boxShadow: i < filled ? `0 0 8px ${T.goldTint}` : 'none',
+              }}
+            />
+          ))}
+        </div>
+
+        {/* Add 250ml */}
+        <motion.button
+          whileTap={T.tap}
+          onClick={() => logWater(GLASS_ML)}
+          aria-label="Log 250 ml of water"
+          className="w-11 h-11 rounded-full flex items-center justify-center shrink-0"
+          style={{ background: T.goldGradCss }}
+        >
+          <Plus size={20} strokeWidth={2.5} style={{ color: T.goldInk }} />
+        </motion.button>
+      </div>
+      <p className="font-body text-[10px] font-extrabold uppercase tracking-wider mt-2.5 text-right" style={{ color: T.textFaint }}>
+        +250 ml per tap
+      </p>
+    </motion.div>
+  );
+}
+
 // ── Supplement reflection — next dose + today's count against the plan ──
 function SupplementCard({ supplementsTaken = {}, onNavigate }) {
   const total = SUPPLEMENTS.length;
@@ -582,6 +643,9 @@ export default function Home({ onProfileClick, onNavigate, onNotifications }) {
 
       {/* ═══ 4. MACRO + HYDRATION SUMMARY ═══ */}
       <MacroHydrationSummary onNavigate={onNavigate} />
+
+      {/* ═══ 5. QUICK WATER LOG ═══ */}
+      <WaterQuickLog />
 
 
       {/* ═══ 7. WORKOUT CARD ═══ */}

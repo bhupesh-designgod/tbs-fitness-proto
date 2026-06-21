@@ -22,7 +22,8 @@ import { BottomSheet } from './Components';
 import AvatarMark from './AvatarMark';
 import MuskaanCheckIn from './MuskaanCheckIn';
 
-const NEXT_DELAY_MS = 30000; // next action surfaces 30s after the current is done
+const HIDE_AFTER_MS = 5000;   // avatar hides itself 5s after an action is done
+const NEXT_DELAY_MS = 30000;  // next action surfaces 30s after the current is done
 
 const sumFoods = (foods) => foods.reduce(
   (a, f) => ({
@@ -194,13 +195,16 @@ function MealAdjustSheet({ isOpen, onClose, gap, meals, onPick, onAddNew }) {
 export default function FloatingCoach({ onNavigate, hidden = false }) {
   const { submitMuskaan, logBloodwork, meals, redistributeToMeal, addMeal } = useApp();
   const frameRef = useRef(null);
-  const gateTimer = useRef();
+  const hideTimer = useRef();
+  const nextTimer = useRef();
 
   // Actions the user has already cleared this session (so they don't re-surface).
   const [completed, setCompleted] = useState(() => new Set());
   const [bubbleShown, setBubbleShown] = useState(false);
-  // After an action is completed we hold the next bubble back for ~30s.
-  const [revealGate, setRevealGate] = useState(true);
+  // Whole avatar visible? It hides 5s after an action, reappears with the next.
+  const [coachVisible, setCoachVisible] = useState(true);
+  // True from completing an action until the next one is due (~30s).
+  const [cooldown, setCooldown] = useState(false);
 
   const [quoteOpen, setQuoteOpen] = useState(false);
   const [muskaanOpen, setMuskaanOpen] = useState(false);
@@ -242,10 +246,11 @@ export default function FloatingCoach({ onNavigate, hidden = false }) {
     return { gap: g, offPlan: isOff, pickMeals: upcoming.length ? upcoming : meals.map((m, i) => ({ m, i })) };
   }, [meals]);
 
-  // The queue of actions needing attention, in priority order.
+  // The queue of actions needing attention, in priority order:
+  // quote of the day → bloodwork → check-in → (off-plan surplus, when relevant).
   // A quote already committed today is treated as done so it never blocks.
   const queue = useMemo(() => {
-    const all = ['thought', 'checkin', 'bloodwork', ...(offPlan ? ['surplus'] : [])];
+    const all = ['thought', 'bloodwork', 'checkin', ...(offPlan ? ['surplus'] : [])];
     return all.filter(k => !completed.has(k) && !(k === 'thought' && committed));
   }, [offPlan, completed, committed]);
 
@@ -258,14 +263,17 @@ export default function FloatingCoach({ onNavigate, hidden = false }) {
     return () => clearTimeout(t);
   }, []);
 
-  useEffect(() => () => clearTimeout(gateTimer.current), []);
+  useEffect(() => () => { clearTimeout(hideTimer.current); clearTimeout(nextTimer.current); }, []);
 
-  // Mark the current action done; hold the next one back for ~30s.
+  // Mark the current action done. The avatar lingers 5s, hides itself, then the
+  // next action surfaces ~30s after completion.
   const completeAction = useCallback((key) => {
     setCompleted(prev => new Set(prev).add(key));
-    setRevealGate(false);
-    clearTimeout(gateTimer.current);
-    gateTimer.current = setTimeout(() => setRevealGate(true), NEXT_DELAY_MS);
+    setCooldown(true);
+    clearTimeout(hideTimer.current);
+    clearTimeout(nextTimer.current);
+    hideTimer.current = setTimeout(() => setCoachVisible(false), HIDE_AFTER_MS);
+    nextTimer.current = setTimeout(() => { setCoachVisible(true); setCooldown(false); }, NEXT_DELAY_MS);
   }, []);
 
   const teaser = useMemo(() => {
@@ -335,7 +343,9 @@ export default function FloatingCoach({ onNavigate, hidden = false }) {
     ? <span className="font-body text-[10px] font-extrabold leading-none tabular-nums" style={{ color: T.goldInk }}>{count}</span>
     : null;
 
-  const showBubble = bubbleShown && current && revealGate && !anyOpen;
+  // The avatar only exists on screen when there's a live action to show.
+  const showAvatar = !!current && coachVisible;
+  const showBubble = showAvatar && bubbleShown && !cooldown && !anyOpen;
 
   return (
     <>
@@ -346,8 +356,14 @@ export default function FloatingCoach({ onNavigate, hidden = false }) {
         style={{ maxWidth: 430 }}
       >
         {/* Chat head — anchored bottom-right; draggable but snaps back so it
-            never gets stranded mid-screen. */}
+            never gets stranded mid-screen. Hidden between actions. */}
+        <AnimatePresence>
+        {showAvatar && (
         <motion.div
+          initial={{ opacity: 0, scale: 0.6 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.6 }}
+          transition={{ type: 'spring', stiffness: 320, damping: 26 }}
           className="absolute flex items-end gap-2 pointer-events-auto"
           style={{ bottom: 90, right: 20, touchAction: 'none' }}
           drag
@@ -386,9 +402,11 @@ export default function FloatingCoach({ onNavigate, hidden = false }) {
             aria-label="Coach Biki"
             className="relative shrink-0"
           >
-            <AvatarMark size={56} pulse={count > 0} status badge={badge} />
+            <AvatarMark size={56} pulse={!cooldown} status badge={badge} />
           </motion.button>
         </motion.div>
+        )}
+        </AnimatePresence>
       </div>
 
       {/* Surfaces — one at a time */}

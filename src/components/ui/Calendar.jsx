@@ -214,7 +214,8 @@ export function WeekStrip({ mode = 'score', className = '', onSelectDay, selecte
       </div>
       <div className="grid grid-cols-7 gap-1.5">
         {days.map((day, i) => {
-          const isSelected = interactive && selectedIso === day.iso;
+          // Today reads as selected by default; an explicit pick overrides it.
+          const isSelected = selectedIso ? selectedIso === day.iso : day.isToday;
           return (
             <Cell
               key={i}

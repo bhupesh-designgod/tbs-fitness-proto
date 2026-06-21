@@ -106,7 +106,7 @@ export function NumericCounter({ value, suffix = '', className = '', duration = 
 }
 
 // ── Ring Counter (SVG concentric ring) ──
-export function RingCounter({ percentage, size = 120, strokeWidth = 5, color = T.text, delay = 0, children }) {
+export function RingCounter({ percentage, size = 120, strokeWidth = 5, color = T.text, trackColor = 'rgba(255,255,255,0.06)', delay = 0, children }) {
   const shouldReduce = useReducedMotion();
   const radius = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
@@ -121,7 +121,7 @@ export function RingCounter({ percentage, size = 120, strokeWidth = 5, color = T
           cy={size / 2}
           r={radius}
           fill="none"
-          stroke="rgba(255,255,255,0.06)"
+          stroke={trackColor}
           strokeWidth={strokeWidth}
         />
         {/* Animated arc */}

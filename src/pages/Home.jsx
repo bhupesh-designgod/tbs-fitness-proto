@@ -144,10 +144,10 @@ function MacroHydrationSummary({ onNavigate }) {
           <svg width={ringSize} height={ringSize} className="absolute inset-0 -rotate-90">
             {segments.map((seg) => (
               <g key={seg.key}>
-                {/* Track (dim) */}
+                {/* Track — 20% of the segment's macro colour, so each is distinct */}
                 <circle
                   cx={ringSize / 2} cy={ringSize / 2} r={ringRadius}
-                  fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth={ringStroke}
+                  fill="none" stroke={`${seg.color}33`} strokeWidth={ringStroke}
                   strokeLinecap="round"
                   strokeDasharray={`${seg.arc} ${ringCircumference - seg.arc}`}
                   strokeDashoffset={-seg.offset}

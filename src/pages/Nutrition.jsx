@@ -167,7 +167,7 @@ function MacrosOverview({ logged }) {
       <div className="flex items-center gap-5">
         {/* Big calorie ring — the hero number */}
         <div className="shrink-0">
-          <RingCounter percentage={calPct} size={118} strokeWidth={9} color={T.cal} delay={0.1}>
+          <RingCounter percentage={calPct} size={118} strokeWidth={9} color={T.cal} trackColor={`${T.cal}33`} delay={0.1}>
             <div className="flex flex-col items-center">
               <NumericCounter
                 value={logged.calories}
@@ -200,7 +200,7 @@ function MacrosOverview({ logged }) {
                   </span>
                   <span className="font-body text-[10px] text-white/25">/{m.target}g</span>
                 </div>
-                <div className="w-full h-[3px] rounded-full mb-1" style={{ background: 'rgba(255,255,255,0.06)' }}>
+                <div className="w-full h-[3px] rounded-full mb-1" style={{ background: `${m.color}33` }}>
                   <motion.div
                     className="h-full rounded-full"
                     style={{ background: m.color }}

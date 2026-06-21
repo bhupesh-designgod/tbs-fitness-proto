@@ -7,7 +7,7 @@ import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import {
   Bell, ChevronRight, ArrowRight, ArrowUp, ArrowDown,
   CalendarDays, Quote, ChevronDown, User as UserIcon,
-  Upload, FileText, Check, Plus,
+  Upload, FileText, Check, Plus, X, Send,
 } from 'lucide-react';
 import { CHECK_IN_HISTORY, NEXT_CHECKIN, PHOTOS } from '../data/mockData';
 import { T } from '../tokens';
@@ -563,7 +563,9 @@ function HistoryRow({ item, delay, onOpen }) {
 // ─────────────────────────────────────────────
 function BloodworkUploadCard() {
   const [files, setFiles] = useState([]); // proto: just labels
+  const [submitted, setSubmitted] = useState(false);
   const add = (label) => setFiles(prev => [...prev, label]);
+  const remove = (idx) => setFiles(prev => prev.filter((_, i) => i !== idx));
 
   return (
     <motion.div
@@ -583,9 +585,12 @@ function BloodworkUploadCard() {
         </div>
       </div>
       <p className="font-body text-[13px] leading-snug mb-3.5" style={{ color: T.textLow }}>
-        Upload any blood panel, kidney/liver test, or specialist report. I use it to fine-tune your plan and flag anything worth watching.
+        {submitted
+          ? "Got it — your reports are with me now. I'll factor them into your next review."
+          : 'Upload any blood panel, kidney/liver test, or specialist report. I use it to fine-tune your plan and flag anything worth watching.'}
       </p>
 
+      {/* Uploaded files */}
       {files.length > 0 && (
         <div className="space-y-2 mb-3">
           {files.map((f, i) => (
@@ -595,30 +600,56 @@ function BloodworkUploadCard() {
                 <FileText size={14} strokeWidth={T.stroke} style={{ color: T.gold }} />
               </div>
               <span className="font-body text-[13px] font-semibold flex-1 truncate" style={{ color: T.text }}>{f}</span>
-              <Check size={15} strokeWidth={2.5} style={{ color: T.success }} />
+              {submitted ? (
+                <Check size={15} strokeWidth={2.5} style={{ color: T.success }} />
+              ) : (
+                <motion.button whileTap={T.tapSmall} onClick={() => remove(i)} aria-label="Remove" className="shrink-0 w-6 h-6 rounded-full flex items-center justify-center" style={{ border: `1px solid ${T.hairline}` }}>
+                  <X size={12} strokeWidth={2.5} style={{ color: T.textLow }} />
+                </motion.button>
+              )}
             </div>
           ))}
         </div>
       )}
 
-      <motion.button
-        whileTap={T.tap}
-        onClick={() => add(files.length === 0 ? 'Blood panel · Jun 2026.pdf' : `Report ${files.length + 1}.pdf`)}
-        className="w-full rounded-xl flex items-center justify-center gap-2 py-3"
-        style={{ background: files.length ? 'transparent' : T.goldGradCss, border: files.length ? `1px dashed ${T.hairlineStrong}` : 'none' }}
-      >
-        {files.length ? (
-          <>
-            <Plus size={15} strokeWidth={2.5} style={{ color: T.gold }} />
-            <span className="font-body text-[13px] font-bold" style={{ color: T.gold }}>Add another report</span>
-          </>
-        ) : (
-          <>
-            <Upload size={16} strokeWidth={2} style={{ color: T.goldInk }} />
-            <span className="font-body text-[14px] font-bold" style={{ color: T.goldInk }}>Upload report</span>
-          </>
-        )}
-      </motion.button>
+      {submitted ? (
+        /* Sent confirmation */
+        <div className="w-full rounded-xl flex items-center justify-center gap-2 py-3"
+          style={{ background: 'transparent', border: `1px solid ${T.goldBorder}` }}>
+          <Check size={15} strokeWidth={2.5} style={{ color: T.gold }} />
+          <span className="font-body text-[13px] font-bold" style={{ color: T.gold }}>Sent to Biki for review</span>
+        </div>
+      ) : (
+        <>
+          {/* Add file */}
+          <motion.button
+            whileTap={T.tap}
+            onClick={() => add(files.length === 0 ? 'Blood panel · Jun 2026.pdf' : `Report ${files.length + 1}.pdf`)}
+            className="w-full rounded-xl flex items-center justify-center gap-2 py-3"
+            style={{ background: files.length ? 'transparent' : T.surface2, border: `1px dashed ${T.hairlineStrong}` }}
+          >
+            {files.length ? <Plus size={15} strokeWidth={2.5} style={{ color: T.gold }} /> : <Upload size={16} strokeWidth={2} style={{ color: T.textMid }} />}
+            <span className="font-body text-[13px] font-bold" style={{ color: files.length ? T.gold : T.textMid }}>
+              {files.length ? 'Add another report' : 'Choose a report to upload'}
+            </span>
+          </motion.button>
+
+          {/* Final submission — only once at least one file is attached */}
+          {files.length > 0 && (
+            <motion.button
+              whileTap={T.tap}
+              onClick={() => setSubmitted(true)}
+              className="w-full rounded-xl flex items-center justify-center gap-2 py-3 mt-2.5"
+              style={{ background: T.goldGradCss }}
+            >
+              <Send size={15} strokeWidth={2} style={{ color: T.goldInk }} />
+              <span className="font-body text-[14px] font-bold" style={{ color: T.goldInk }}>
+                Submit {files.length} {files.length === 1 ? 'report' : 'reports'} for review
+              </span>
+            </motion.button>
+          )}
+        </>
+      )}
     </motion.div>
   );
 }

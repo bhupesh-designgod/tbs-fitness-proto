@@ -41,7 +41,7 @@ export default function MuskaanCheckIn({ isOpen, onClose, onSubmit, variant = 'm
         <AvatarMark size={40} ring status />
         <div className="min-w-0">
           <p className="font-body text-[10px] font-extrabold uppercase tracking-wider" style={{ color: T.gold }}>
-            Muskaan · {title}
+            Biki · {title}
           </p>
           <h2 className="display-sm text-[#F4F2EC] uppercase leading-none mt-0.5">
             {step === 'mood' ? 'How are you feeling?' : step === 'energy' ? "What's your energy?" : 'Got it.'}

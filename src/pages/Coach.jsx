@@ -512,7 +512,7 @@ export default function Coach({ onCheckIn }) {
       out.push({
         id: `mk-${i}`,
         kind: 'muskaan',
-        title: 'Muskaan check-in',
+        title: 'Check-in',
         detail: `Mood ${cap(m.mood)} · Energy ${m.energy}/5`,
         when: new Date(m.date).toLocaleDateString('en', { weekday: 'short' }),
       });
@@ -530,6 +530,7 @@ export default function Coach({ onCheckIn }) {
     return out;
   }, [coach]);
   const shouldReduce = useReducedMotion();
+  const [tab, setTab] = useState('actions');
   const [messages, setMessages] = useState(INITIAL_MESSAGES);
   const [input, setInput] = useState('');
   const [typing, setTyping] = useState(false);
@@ -569,63 +570,102 @@ export default function Coach({ onCheckIn }) {
   };
 
   return (
-    <div className="min-h-screen pb-44" style={{ background: T.bg }}>
+    <div className="min-h-screen" style={{ background: T.bg, paddingBottom: tab === 'chat' ? 176 : 96 }}>
       <CoachHeader />
 
       {/* Spacer offsets the fixed header so content starts below it */}
       <div aria-hidden style={{ height: 84 }} />
 
-      <DaySeparator label="Today" />
-
-      {/* Logged records — what the avatar captured, kept clearly apart from chat */}
-      {records.length > 0 && (
-        <div className="px-5 mb-5">
-          <p className="kicker mb-2.5">Logged with Biki</p>
-          <div className="space-y-2">
-            {records.map((r, i) => <CoachRecord key={r.id} record={r} delay={i} />)}
-          </div>
+      {/* Tabs — Actions (avatar interactions) vs Chat */}
+      <div className="px-5 mb-4">
+        <div className="flex rounded-full p-1" style={{ background: CARD_BG, border: `1px solid ${CARD_BORDER}` }}>
+          {[
+            { id: 'actions', label: 'Actions', count: records.length },
+            { id: 'chat', label: 'Chat' },
+          ].map(t => {
+            const on = tab === t.id;
+            return (
+              <button
+                key={t.id}
+                onClick={() => setTab(t.id)}
+                className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-full font-body text-[13px] font-extrabold uppercase tracking-wider"
+                style={{ background: on ? GOLD : 'transparent', color: on ? T.goldInk : T.textLow }}
+              >
+                {t.label}
+                {t.count > 0 && (
+                  <span
+                    className="flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full font-body text-[10px] font-extrabold tabular-nums"
+                    style={{ background: on ? 'rgba(0,0,0,0.25)' : T.goldTint, color: on ? T.goldInk : GOLD }}
+                  >
+                    {t.count}
+                  </span>
+                )}
+              </button>
+            );
+          })}
         </div>
-      )}
-
-      {/* Messages */}
-      <div className="flex flex-col">
-        {messages.map((msg, i) => (
-          <MessageRow key={msg.id} msg={msg} delay={i} />
-        ))}
-
-        {typing && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="px-5 mb-5 flex gap-3"
-          >
-            <CoachAvatar />
-            <div
-              className="rounded-xl rounded-tl-md px-4 py-3 flex gap-1.5 items-center"
-              style={{ background: CARD_BG, border: `1px solid ${CARD_BORDER}` }}
-            >
-              {[0, 1, 2].map(i => (
-                <motion.div
-                  key={i}
-                  className="w-1.5 h-1.5 rounded-full"
-                  style={{ background: GOLD }}
-                  animate={{ opacity: [0.3, 1, 0.3] }}
-                  transition={{ duration: 1, repeat: Infinity, delay: i * 0.2 }}
-                />
-              ))}
-            </div>
-          </motion.div>
-        )}
-
       </div>
 
-      <InputBar
-        value={input}
-        onChange={setInput}
-        onSend={handleSend}
-        topic={inputTopic}
-        onTopicChange={setInputTopic}
-      />
+      {/* ── Actions tab — what the avatar captured ── */}
+      {tab === 'actions' && (
+        records.length > 0 ? (
+          <div className="px-5 space-y-2">
+            {records.map((r, i) => <CoachRecord key={r.id} record={r} delay={i} />)}
+          </div>
+        ) : (
+          <div className="px-5 pt-10 flex flex-col items-center text-center">
+            <AvatarMark size={56} ring />
+            <p className="display-xs text-[#F4F2EC] uppercase mt-4">Nothing yet</p>
+            <p className="font-body text-[13px] mt-1.5 max-w-[260px]" style={{ color: T.textLow }}>
+              Check-ins, reports, and nudges from Biki will collect here as you go.
+            </p>
+          </div>
+        )
+      )}
+
+      {/* ── Chat tab ── */}
+      {tab === 'chat' && (
+        <>
+          <DaySeparator label="Today" />
+          <div className="flex flex-col">
+            {messages.map((msg, i) => (
+              <MessageRow key={msg.id} msg={msg} delay={i} />
+            ))}
+
+            {typing && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="px-5 mb-5 flex gap-3"
+              >
+                <CoachAvatar />
+                <div
+                  className="rounded-xl rounded-tl-md px-4 py-3 flex gap-1.5 items-center"
+                  style={{ background: CARD_BG, border: `1px solid ${CARD_BORDER}` }}
+                >
+                  {[0, 1, 2].map(i => (
+                    <motion.div
+                      key={i}
+                      className="w-1.5 h-1.5 rounded-full"
+                      style={{ background: GOLD }}
+                      animate={{ opacity: [0.3, 1, 0.3] }}
+                      transition={{ duration: 1, repeat: Infinity, delay: i * 0.2 }}
+                    />
+                  ))}
+                </div>
+              </motion.div>
+            )}
+          </div>
+
+          <InputBar
+            value={input}
+            onChange={setInput}
+            onSend={handleSend}
+            topic={inputTopic}
+            onTopicChange={setInputTopic}
+          />
+        </>
+      )}
     </div>
   );
 }

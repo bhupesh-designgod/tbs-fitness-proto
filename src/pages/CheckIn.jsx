@@ -1,24 +1,25 @@
 // ── Check-In Screen ──
+// Bi-weekly check-in. Only photos + weight are required; body measurements are
+// optional. Everything else (energy, sleep, notes) is intentionally dropped to
+// keep it fast.
 import { useState } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 import { Camera, ChevronRight } from 'lucide-react';
-import { BigNumStepper, FivePointSelector } from '../components/ui/Components';
+import { BigNumStepper } from '../components/ui/Components';
 import { LAST_CHECK_IN } from '../data/mockData';
 import { T } from '../tokens';
 
-const STEPS = ['Photos', 'Measurements', 'How you feel'];
+const STEPS = ['Photos', 'Weight'];
 
 export default function CheckIn({ onDone }) {
   const shouldReduce = useReducedMotion();
   const [step, setStep] = useState(0);
   const [measurements, setMeasurements] = useState({ ...LAST_CHECK_IN.measurements });
   const [weight, setWeight] = useState(LAST_CHECK_IN.weight * 10); // stored as 10x for decimal
-  const [feel, setFeel] = useState({ energy: 0, hunger: 0, sleep: 0, stress: 0 });
-  const [note, setNote] = useState('');
   const [done, setDone] = useState(false);
 
   const next = () => {
-    if (step < 2) setStep(step + 1);
+    if (step < STEPS.length - 1) setStep(step + 1);
     else {
       setDone(true);
       setTimeout(() => onDone?.(), 3000);
@@ -71,11 +72,11 @@ export default function CheckIn({ onDone }) {
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.2 }}
       >
-        {/* Step 0: Photos */}
+        {/* Step 0: Photos (required) */}
         {step === 0 && (
           <div className="space-y-4">
             <h2 className="display-md text-[#F4F2EC]">PROGRESS PHOTOS</h2>
-            <p className="font-body text-[14px] text-white/50">Front, side, and back. Same lighting as last week.</p>
+            <p className="font-body text-[14px] text-white/50">Front, side, and back. Same lighting as last week — this is what Biki tracks against.</p>
             <div className="grid grid-cols-3 gap-3 mt-4">
               {['Front', 'Side', 'Back'].map((label) => (
                 <label key={label} className="cursor-pointer">
@@ -86,7 +87,6 @@ export default function CheckIn({ onDone }) {
                   >
                     <Camera size={20} strokeWidth={T.stroke} className="text-white/30" />
                     <span className="font-body text-[11px] text-white/30">{label}</span>
-                    {/* Ghost of prior week */}
                     <span className="font-body text-[9px] text-white/15">Last week</span>
                   </div>
                 </label>
@@ -95,63 +95,50 @@ export default function CheckIn({ onDone }) {
           </div>
         )}
 
-        {/* Step 1: Measurements */}
+        {/* Step 1: Weight (required) + measurements (optional) */}
         {step === 1 && (
           <div className="space-y-6">
-            <h2 className="display-md text-[#F4F2EC]">MEASUREMENTS</h2>
-            <div className="space-y-5">
-              <div>
-                <p className="kicker mb-2">Weight</p>
-                <BigNumStepper
-                  value={weight / 10}
-                  onChange={(v) => setWeight(Math.round(v * 10))}
-                  unit="kg"
-                  min={40}
-                  max={200}
-                  step={0.1}
-                />
-              </div>
-              {Object.entries(measurements).map(([key, val]) => (
-                <div key={key}>
-                  <p className="kicker mb-2">{key}</p>
-                  <BigNumStepper
-                    value={val}
-                    onChange={(v) => setMeasurements(prev => ({ ...prev, [key]: v }))}
-                    unit="cm"
-                    min={20}
-                    max={200}
-                    step={0.5}
-                  />
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Step 2: Feel */}
-        {step === 2 && (
-          <div className="space-y-5">
-            <h2 className="display-md text-[#F4F2EC]">HOW DO YOU FEEL</h2>
-            {['energy', 'hunger', 'sleep', 'stress'].map((metric) => (
-              <div key={metric}>
-                <p className="kicker mb-2">{metric}</p>
-                <FivePointSelector
-                  value={feel[metric]}
-                  onChange={(v) => setFeel(prev => ({ ...prev, [metric]: v }))}
-                  labels={metric === 'stress' ? ['Low', '', 'Mid', '', 'High'] : ['Low', '', 'Good', '', 'Great']}
-                />
-              </div>
-            ))}
+            <h2 className="display-md text-[#F4F2EC]">WEIGHT</h2>
             <div>
-              <p className="kicker mb-2">Note to Biki</p>
-              <textarea
-                value={note}
-                onChange={(e) => setNote(e.target.value)}
-                placeholder="Anything to share this week..."
-                rows={3}
-                className="w-full rounded-xl px-4 py-3 font-body text-[14px] text-[#F4F2EC] placeholder:text-white/25 outline-none resize-none"
-                style={{ background: T.surface, border: `1px solid ${T.hairlineStrong}` }}
+              <p className="kicker mb-2">Body weight</p>
+              <BigNumStepper
+                value={weight / 10}
+                onChange={(v) => setWeight(Math.round(v * 10))}
+                unit="kg"
+                min={40}
+                max={200}
+                step={0.1}
               />
+            </div>
+
+            <div>
+              <div className="flex items-center gap-2 mb-3">
+                <p className="kicker mb-0">Measurements</p>
+                <span
+                  className="font-body text-[9px] font-extrabold uppercase tracking-wider px-2 py-0.5 rounded-md"
+                  style={{ color: T.textFaint, border: `1px solid ${T.hairline}` }}
+                >
+                  Optional
+                </span>
+              </div>
+              <p className="font-body text-[12px] mb-4" style={{ color: T.textFaint }}>
+                Helpful for tracking, but skip any you don't have.
+              </p>
+              <div className="space-y-5">
+                {Object.entries(measurements).map(([key, val]) => (
+                  <div key={key}>
+                    <p className="kicker mb-2">{key}</p>
+                    <BigNumStepper
+                      value={val}
+                      onChange={(v) => setMeasurements(prev => ({ ...prev, [key]: v }))}
+                      unit="cm"
+                      min={20}
+                      max={200}
+                      step={0.5}
+                    />
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         )}
@@ -164,7 +151,7 @@ export default function CheckIn({ onDone }) {
           onClick={next}
           className="btn-primary"
         >
-          {step < 2 ? 'Continue' : 'Submit check-in'}
+          {step < STEPS.length - 1 ? 'Continue' : 'Submit check-in'}
         </motion.button>
       </div>
     </div>

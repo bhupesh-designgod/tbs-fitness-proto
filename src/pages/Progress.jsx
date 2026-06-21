@@ -236,10 +236,15 @@ function NextCheckInCard({ next, onStart }) {
         <p className="kicker kicker-gold mb-1">Next check-in</p>
         <h2 className="display-sm text-[#F4F2EC] uppercase mb-4">What you'll submit</h2>
         <div className="grid grid-cols-2 gap-x-4 gap-y-2.5 mb-4">
-          {['Progress photos', 'Body weight', 'Waist & measures', 'Energy & adherence'].map(item => (
-            <span key={item} className="flex items-center gap-2 font-body text-[12px]" style={{ color: T.textLow }}>
+          {[
+            { label: 'Progress photos', opt: false },
+            { label: 'Body weight', opt: false },
+            { label: 'Measurements', opt: true },
+          ].map(item => (
+            <span key={item.label} className="flex items-center gap-2 font-body text-[12px]" style={{ color: T.textLow }}>
               <span className="w-1 h-1 rounded-full shrink-0" style={{ background: T.gold }} />
-              {item}
+              {item.label}
+              {item.opt && <span className="font-body text-[10px]" style={{ color: T.textFaint }}>· optional</span>}
             </span>
           ))}
         </div>

@@ -637,37 +637,8 @@ function SupplementsScreen({ answers, update, next }) {
   );
 }
 
-// ═════════════════════════════════════════════
-// 13 · Allergies / avoids (multi-add)
-// ═════════════════════════════════════════════
+// ── Common allergens (used in the Fuel & Hydration screen) ──
 const ALLERGENS = ['Peanut', 'Dairy', 'Gluten', 'Shellfish', 'Soy', 'Eggs'];
-function AllergiesScreen({ answers, update, next }) {
-  const toggle = (a) => {
-    const has = answers.allergies.includes(a);
-    update({ allergies: has ? answers.allergies.filter(x => x !== a) : [...answers.allergies, a] });
-  };
-  return (
-    <Scaffold onNext={next}>
-      <Question>ANYTHING YOU<br />CAN'T EAT?</Question>
-      <div className="flex flex-wrap gap-2 mb-6">
-        {ALLERGENS.map(a => {
-          const on = answers.allergies.includes(a);
-          return (
-            <motion.button key={a} whileTap={T.tap} onClick={() => toggle(a)} className="px-4 py-2.5 rounded-full font-body text-[14px] font-semibold"
-              style={{ background: on ? T.goldTint : T.surface, border: `1px solid ${on ? T.goldBorder : T.hairline}`, color: on ? T.gold : T.textMid }}>{a}</motion.button>
-          );
-        })}
-      </div>
-      <p className="kicker mb-2.5">Anything else? Add your own</p>
-      <ChipAdder
-        tags={answers.allergies.filter(a => !ALLERGENS.includes(a))}
-        placeholder="e.g. no red meat"
-        onAdd={t => update({ allergies: [...answers.allergies, t] })}
-        onRemove={t => update({ allergies: answers.allergies.filter(x => x !== t) })}
-      />
-    </Scaffold>
-  );
-}
 
 // ═════════════════════════════════════════════
 // 14 · Starting photos
@@ -988,7 +959,7 @@ function FoodPrefsScreen({ answers, update, next }) {
       <p className="kicker mb-2.5 flex items-center gap-1.5">
         <Droplets size={13} strokeWidth={T.stroke} style={{ color: T.water }} /> Water per day
       </p>
-      <div className="grid grid-cols-4 gap-2">
+      <div className="grid grid-cols-4 gap-2 mb-7">
         {WATER.map(w => {
           const on = answers.water === w.v;
           return (
@@ -1000,6 +971,27 @@ function FoodPrefsScreen({ answers, update, next }) {
           );
         })}
       </div>
+
+      <p className="kicker mb-2.5 flex items-center gap-1.5">
+        <X size={13} strokeWidth={T.stroke} style={{ color: T.macroFat }} /> Allergies or foods to avoid
+      </p>
+      <div className="flex flex-wrap gap-2 mb-3">
+        {ALLERGENS.map(a => {
+          const on = answers.allergies.includes(a);
+          return (
+            <motion.button key={a} whileTap={T.tap}
+              onClick={() => update({ allergies: on ? answers.allergies.filter(x => x !== a) : [...answers.allergies, a] })}
+              className="px-4 py-2.5 rounded-full font-body text-[14px] font-semibold"
+              style={{ background: on ? T.goldTint : T.surface, border: `1px solid ${on ? T.goldBorder : T.hairline}`, color: on ? T.gold : T.textMid }}>{a}</motion.button>
+          );
+        })}
+      </div>
+      <ChipAdder
+        tags={answers.allergies.filter(a => !ALLERGENS.includes(a))}
+        placeholder="Anything else — e.g. no red meat"
+        onAdd={t => update({ allergies: [...answers.allergies, t] })}
+        onRemove={t => update({ allergies: answers.allergies.filter(x => x !== t) })}
+      />
     </Scaffold>
   );
 }
@@ -1337,7 +1329,6 @@ export const STEPS = [
   { id: 'sleep', Comp: SleepScreen, kind: 'input' },
   { id: 'foodPrefs', Comp: FoodPrefsScreen, kind: 'input' },
   { id: 'digestion', Comp: DigestionScreen, kind: 'input' },
-  { id: 'allergies', Comp: AllergiesScreen, kind: 'input' },
   { id: 'photos', Comp: PhotosScreen, kind: 'input' },
   { id: 'bloodwork', Comp: BloodworkScreen, kind: 'input' },
   { id: 'notes', Comp: NotesScreen, kind: 'input' },

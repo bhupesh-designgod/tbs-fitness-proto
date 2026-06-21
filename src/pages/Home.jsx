@@ -75,7 +75,7 @@ function StatusRing({ percentage, size = 60, strokeWidth = 6, color, children })
 
 // ── Macro + Hydration summary — tri-segment ring ──
 function MacroHydrationSummary({ onNavigate }) {
-  const { meals, hydration, logged } = useApp();
+  const { logged } = useApp();
   const caloriesLogged = logged.calories;
   const proteinLogged = logged.protein;
   const carbsLogged = logged.carbs;
@@ -85,7 +85,6 @@ function MacroHydrationSummary({ onNavigate }) {
   const proTarget = DAILY_TARGETS.protein;
   const carbTarget = DAILY_TARGETS.carbs;
   const fatTarget = DAILY_TARGETS.fat;
-  const waterTarget = DAILY_TARGETS.water;
 
   // Calculate each macro's caloric contribution for proportional ring sizing
   const proCals = proTarget * 4;
@@ -102,7 +101,6 @@ function MacroHydrationSummary({ onNavigate }) {
   const proPct = Math.min(proteinLogged / proTarget, 1);
   const carbPct = Math.min(carbsLogged / carbTarget, 1);
   const fatPct = Math.min(fatLogged / fatTarget, 1);
-  const hydPct = Math.min(Math.round((hydration / waterTarget) * 100), 100);
 
   const shouldReduce = useReducedMotion();
 
@@ -234,28 +232,6 @@ function MacroHydrationSummary({ onNavigate }) {
               </p>
               <p className="font-body text-[11px] font-bold uppercase tracking-wider mt-0.5" style={{ color: T.macroFat }}>Fats</p>
             </div>
-          </div>
-        </div>
-
-        {/* Hydration — vertical bar on the right */}
-        <div className="flex flex-col items-center shrink-0" style={{ width: 34 }}>
-          <Droplets size={13} strokeWidth={T.stroke} style={{ color: T.water }} />
-          <div className="relative flex-1 w-[7px] rounded-full overflow-hidden my-2" style={{ background: 'rgba(255,255,255,0.08)' }}>
-            <motion.div
-              className="absolute bottom-0 left-0 right-0 rounded-full"
-              style={{ background: T.water }}
-              initial={shouldReduce ? { height: `${hydPct}%` } : { height: 0 }}
-              animate={{ height: `${hydPct}%` }}
-              transition={{ type: 'spring', stiffness: 80, damping: 16, delay: 0.3 }}
-            />
-          </div>
-          <div className="flex flex-col items-center">
-            <span className="font-body text-[12px] font-bold tabular-nums leading-none" style={{ color: T.water }}>
-              {(hydration / 1000).toFixed(1)}
-            </span>
-            <span className="font-body text-[8px] font-semibold tabular-nums leading-none mt-0.5" style={{ color: T.textLow }}>
-              /{(waterTarget / 1000).toFixed(1)}L
-            </span>
           </div>
         </div>
       </div>

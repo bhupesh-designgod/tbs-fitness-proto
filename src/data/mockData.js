@@ -457,7 +457,7 @@ export const CHECK_IN_HISTORY = [
   {
     id: 'wk-12',
     week: 12,
-    label: 'Week 12–13',
+    label: 'Week 9–10',
     date: '2026-06-09',
     dateLabel: 'Jun 9',
     reviewedOn: 'Jun 10',
@@ -506,7 +506,7 @@ export const CHECK_IN_HISTORY = [
     ],
   },
   {
-    id: 'wk-11', week: 11, label: 'Week 10–11',
+    id: 'wk-11', week: 11, label: 'Week 7–8',
     date: '2026-06-02', dateLabel: 'Jun 2', reviewedOn: 'Jun 3', status: 'reviewed',
     thumbnail: PHOTOS.pullHero,
     photos: { front: PHOTOS.pullHero, back: PHOTOS.restHero, left: PHOTOS.legsHero, right: PHOTOS.pushHero },
@@ -514,7 +514,7 @@ export const CHECK_IN_HISTORY = [
     preview: { label: 'Protein', value: '92%', delta: '10%', deltaDir: 'up', deltaTone: 'good' },
   },
   {
-    id: 'wk-10', week: 10, label: 'Week 8–9',
+    id: 'wk-10', week: 10, label: 'Week 5–6',
     date: '2026-05-26', dateLabel: 'May 26', reviewedOn: 'May 27', status: 'reviewed',
     thumbnail: PHOTOS.legsHero,
     photos: { front: PHOTOS.legsHero, back: PHOTOS.pullHero, left: PHOTOS.pushHero, right: PHOTOS.sessionComplete },
@@ -522,9 +522,9 @@ export const CHECK_IN_HISTORY = [
     preview: { label: 'Waist', value: '86 cm', delta: '2 cm', deltaDir: 'down', deltaTone: 'good' },
   },
   {
-    id: 'wk-9', week: 9, label: 'Week 5–7',
+    id: 'wk-9', week: 9, label: 'Week 3–4 +1',
     special: true,
-    note: 'Plan held an extra week to get back on track.',
+    note: 'Off-track at Week 3–4, so Biki repeated the block one more week before moving to Week 5.',
     date: '2026-05-19', dateLabel: 'May 19', reviewedOn: 'May 20', status: 'reviewed',
     thumbnail: PHOTOS.restHero,
     photos: { front: PHOTOS.restHero, back: PHOTOS.legsHero, left: PHOTOS.sessionComplete, right: PHOTOS.bikiPortrait },

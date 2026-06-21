@@ -21,7 +21,7 @@ const GOALS = {
   cut: { label: 'Cut', desc: 'Strip fat while holding onto muscle.' },
   build: { label: 'Build', desc: 'Add size and raw strength.' },
   recomp: { label: 'Recomp', desc: 'Lose fat and build muscle at once.' },
-  maintain: { label: 'Maintain', desc: 'Hold your shape and sharpen it.' },
+  maintain: { label: 'General fitness', desc: 'Stay healthy, fit, and consistent.' },
 };
 const DIET = {
   vegetarian: 'Vegetarian', 'non-vegetarian': 'Non-vegetarian',

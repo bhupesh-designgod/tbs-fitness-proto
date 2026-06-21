@@ -7,12 +7,12 @@ import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import {
   Bell, ChevronRight, ArrowRight, ArrowUp, ArrowDown,
   CalendarDays, Quote, ChevronDown, User as UserIcon,
+  Upload, FileText, Check, Plus,
 } from 'lucide-react';
 import { CHECK_IN_HISTORY, NEXT_CHECKIN, PHOTOS } from '../data/mockData';
 import { T } from '../tokens';
 import { BottomSheet } from '../components/ui/Components';
-import ProgressPrompt from '../components/ui/ProgressPrompt';
-import { useApp } from '../context/AppContext';
+import AvatarMark from '../components/ui/AvatarMark';
 
 // ── Aliases from the token sheet — no local values ──
 const CARD_BG = T.surface;
@@ -185,12 +185,6 @@ function NextCheckInCard({ next, onStart }) {
     : days === 1
       ? '1 day left to submit'
       : `${days} days left to submit`;
-  const pct = 100 - (days / 3) * 100;
-  const size = 56;
-  const stroke = 4;
-  const r = (size - stroke) / 2;
-  const c = 2 * Math.PI * r;
-  const off = c - (pct / 100) * c;
 
   return (
     <motion.div
@@ -214,26 +208,7 @@ function NextCheckInCard({ next, onStart }) {
           </p>
           <p className="font-body text-[11px] text-white/40 mt-1">{sub}</p>
         </div>
-        {days === 0 ? (
-          <div className="relative shrink-0" style={{ width: size, height: size }}>
-            <svg width={size} height={size} className="-rotate-90">
-              <circle cx={size/2} cy={size/2} r={r} fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth={stroke} />
-              <circle
-                cx={size/2} cy={size/2} r={r} fill="none"
-                stroke={GOLD} strokeWidth={stroke} strokeLinecap="butt"
-                strokeDasharray={c} strokeDashoffset={off}
-              />
-            </svg>
-            <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <span className="font-display text-[20px] text-[#F4F2EC] tabular-nums leading-none">
-                {days}
-              </span>
-              <span className="font-body text-[8px] font-extrabold text-white/45 uppercase tracking-wider">
-                days
-              </span>
-            </div>
-          </div>
-        ) : (
+        {days !== 0 && (
           <motion.button
             whileTap={T.tapSmall}
             onClick={() => setDetailOpen(true)}
@@ -527,6 +502,15 @@ function HistoryRow({ item, delay, onOpen }) {
           {item.dateLabel}
         </p>
 
+        {item.special && (
+          <span
+            className="inline-block mt-1.5 px-2 py-0.5 rounded-md font-body text-[9px] font-extrabold uppercase tracking-wider"
+            style={{ background: T.goldTint, border: `1px solid ${T.goldBorder}`, color: GOLD }}
+          >
+            Plan extended
+          </span>
+        )}
+
         {reviewed && (
           <div className="flex items-center gap-1 mt-1.5">
             <span
@@ -575,6 +559,71 @@ function HistoryRow({ item, delay, onOpen }) {
 }
 
 // ─────────────────────────────────────────────
+// Bloodwork / health-report upload — Biki asks for it here
+// ─────────────────────────────────────────────
+function BloodworkUploadCard() {
+  const [files, setFiles] = useState([]); // proto: just labels
+  const add = (label) => setFiles(prev => [...prev, label]);
+
+  return (
+    <motion.div
+      className="mx-5 mb-4 rounded-xl p-4"
+      style={{ background: CARD_BG, border: `1px solid ${T.goldBorder}` }}
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.04 }}
+    >
+      <div className="flex items-center gap-3 mb-3">
+        <AvatarMark size={38} ring />
+        <div className="min-w-0">
+          <p className="kicker kicker-gold">From Biki</p>
+          <p className="font-body text-[14px] font-bold leading-tight" style={{ color: T.text }}>
+            Got recent bloodwork or a health report?
+          </p>
+        </div>
+      </div>
+      <p className="font-body text-[13px] leading-snug mb-3.5" style={{ color: T.textLow }}>
+        Upload any blood panel, kidney/liver test, or specialist report. I use it to fine-tune your plan and flag anything worth watching.
+      </p>
+
+      {files.length > 0 && (
+        <div className="space-y-2 mb-3">
+          {files.map((f, i) => (
+            <div key={i} className="flex items-center gap-2.5 rounded-lg px-3 py-2.5"
+              style={{ background: T.surface2, border: `1px solid ${T.hairline}` }}>
+              <div className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0" style={{ background: T.goldTint }}>
+                <FileText size={14} strokeWidth={T.stroke} style={{ color: T.gold }} />
+              </div>
+              <span className="font-body text-[13px] font-semibold flex-1 truncate" style={{ color: T.text }}>{f}</span>
+              <Check size={15} strokeWidth={2.5} style={{ color: T.success }} />
+            </div>
+          ))}
+        </div>
+      )}
+
+      <motion.button
+        whileTap={T.tap}
+        onClick={() => add(files.length === 0 ? 'Blood panel · Jun 2026.pdf' : `Report ${files.length + 1}.pdf`)}
+        className="w-full rounded-xl flex items-center justify-center gap-2 py-3"
+        style={{ background: files.length ? 'transparent' : T.goldGradCss, border: files.length ? `1px dashed ${T.hairlineStrong}` : 'none' }}
+      >
+        {files.length ? (
+          <>
+            <Plus size={15} strokeWidth={2.5} style={{ color: T.gold }} />
+            <span className="font-body text-[13px] font-bold" style={{ color: T.gold }}>Add another report</span>
+          </>
+        ) : (
+          <>
+            <Upload size={16} strokeWidth={2} style={{ color: T.goldInk }} />
+            <span className="font-body text-[14px] font-bold" style={{ color: T.goldInk }}>Upload report</span>
+          </>
+        )}
+      </motion.button>
+    </motion.div>
+  );
+}
+
+// ─────────────────────────────────────────────
 // Main
 // ─────────────────────────────────────────────
 export default function Progress({ onOpenCheckIn, onStartCheckIn }) {
@@ -593,22 +642,14 @@ export default function Progress({ onOpenCheckIn, onStartCheckIn }) {
   const [rightCompareId, setRightCompareId] = useState(latest.id);
   const [angle, setAngle] = useState('front');
 
-  const { coach, markReportSeen } = useApp();
-
   const openLatest = () => onOpenCheckIn?.(latest.id);
   const startCheckIn = () => onStartCheckIn?.();
-  const viewReport = () => { markReportSeen?.(); openLatest(); };
 
   return (
     <div className="min-h-screen pb-24" style={{ background: T.bg }}>
       <ReviewsHeader />
 
-      <ProgressPrompt
-        onAddPhoto={startCheckIn}
-        onViewReport={viewReport}
-        reportNew={!coach?.reportSeen}
-        photoDue
-      />
+      <BloodworkUploadCard />
 
       <LatestReviewCard checkIn={latest} onView={openLatest} />
 

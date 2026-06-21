@@ -214,12 +214,16 @@ export function WeekStrip({ mode = 'score', className = '', onSelectDay, selecte
       </div>
       <div className="grid grid-cols-7 gap-1.5">
         {days.map((day, i) => {
-          const isSelected = interactive && selectedIso === day.iso && !day.isToday;
+          const isSelected = interactive && selectedIso === day.iso;
           return (
             <Cell
               key={i}
               className="flex flex-col items-center gap-1 rounded-2xl py-2"
-              style={{ background: isSelected ? 'rgba(255,255,255,0.06)' : 'transparent' }}
+              style={{
+                background: isSelected ? 'rgba(255,255,255,0.06)' : 'transparent',
+                paddingLeft: isSelected ? 1 : 0,
+                paddingRight: isSelected ? 1 : 0,
+              }}
               {...(interactive
                 ? { onClick: () => onSelectDay(day), whileTap: { scale: 0.9 }, type: 'button' }
                 : {})}

@@ -8,7 +8,8 @@ import {
   ArrowRight, Check, Minus, Plus, Utensils, GlassWater, Nut,
   TrendingDown, TrendingUp, Dumbbell, Repeat, Trophy, Equal,
   Sunrise, Sun, Sunset, Moon, Camera, X, Upload, FileText,
-  Fingerprint,
+  Fingerprint, Clock, Zap, Flame, CalendarDays, HeartPulse, Droplets,
+  Bone, Activity,
 } from 'lucide-react';
 import { T } from '../tokens';
 import { PHOTOS } from '../data/mockData';
@@ -375,7 +376,7 @@ const GOALS = [
   { v: 'weight_gain', title: 'Weight gain', sub: 'Add healthy weight and size.', icon: c => <TrendingUp size={20} strokeWidth={T.stroke} style={{ color: c }} /> },
   { v: 'build', title: 'Build muscle', sub: 'Strength and lean mass.', icon: c => <Dumbbell size={20} strokeWidth={T.stroke} style={{ color: c }} /> },
   { v: 'recomp', title: 'Body recomposition', sub: 'Lose fat, build muscle at once.', icon: c => <Repeat size={20} strokeWidth={T.stroke} style={{ color: c }} /> },
-  { v: 'maintain', title: 'Maintain', sub: 'Hold your shape and sharpen.', icon: c => <Equal size={20} strokeWidth={T.stroke} style={{ color: c }} /> },
+  { v: 'maintain', title: 'General fitness', sub: 'Stay healthy, fit, and consistent.', icon: c => <Equal size={20} strokeWidth={T.stroke} style={{ color: c }} /> },
   { v: 'competition', title: 'Competition prep', sub: 'Stage-ready conditioning.', icon: c => <Trophy size={20} strokeWidth={T.stroke} style={{ color: c }} /> },
 ];
 function GoalScreen({ answers, selectNext }) {
@@ -774,89 +775,81 @@ function BloodworkScreen({ answers, update, next, skipField }) {
 // Training availability (reworked "hours per week")
 // ═════════════════════════════════════════════
 const SESSION_LENGTHS = [
-  { v: '30', label: '~30 min' },
-  { v: '45', label: '~45 min' },
-  { v: '60', label: '~60 min' },
-  { v: '90', label: '90+ min' },
+  { v: '30', label: '~30 min', icon: Clock },
+  { v: '45', label: '~45 min', icon: Activity },
+  { v: '60', label: '~60 min', icon: Zap },
+  { v: '90', label: '90+ min', icon: Flame },
 ];
 const WEEKDAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 function TrainingAvailabilityScreen({ answers, update, next }) {
-  const days = answers.trainingDays;
+  const count = answers.preferredDays.length;
+  // Days/week is derived from the days the user can actually show up.
   const toggleDay = (d) => {
     const has = answers.preferredDays.includes(d);
-    update({ preferredDays: has ? answers.preferredDays.filter(x => x !== d) : [...answers.preferredDays, d] });
+    const nextDays = has ? answers.preferredDays.filter(x => x !== d) : [...answers.preferredDays, d];
+    update({ preferredDays: nextDays, trainingDays: nextDays.length });
   };
   return (
-    <Scaffold onNext={next} ctaDisabled={!answers.sessionLength}>
-      <Question>HOW OFTEN CAN<br />YOU TRAIN?</Question>
-      <p className="font-body text-[14px] mb-5" style={{ color: T.textLow }}>
+    <Scaffold onNext={next} ctaDisabled={!answers.sessionLength || count === 0}>
+      <div className="flex items-center gap-2.5 mb-1">
+        <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
+          style={{ background: T.goldTint, border: `1px solid ${T.goldBorder}` }}>
+          <CalendarDays size={18} strokeWidth={T.stroke} style={{ color: T.gold }} />
+        </div>
+        <Question>WHEN CAN<br />YOU TRAIN?</Question>
+      </div>
+      <p className="font-body text-[14px] mb-6" style={{ color: T.textLow }}>
         Be honest about a normal week, not your best one. Biki builds around what's real.
       </p>
 
-      <p className="kicker mb-2.5">Days per week</p>
-      <div className="grid grid-cols-7 gap-1.5 mb-6">
-        {[1, 2, 3, 4, 5, 6, 7].map(n => {
-          const on = days === n;
+      <div className="flex items-baseline justify-between mb-2.5">
+        <p className="kicker mb-0">Which days work best?</p>
+        <span className="font-body text-[11px] font-bold tabular-nums" style={{ color: count ? T.gold : T.textFaint }}>
+          {count} {count === 1 ? 'day' : 'days'} / week
+        </span>
+      </div>
+      <div className="flex justify-between gap-1.5 mb-2.5">
+        {WEEKDAYS.map(d => {
+          const on = answers.preferredDays.includes(d);
           return (
-            <motion.button key={n} whileTap={T.tap} onClick={() => update({ trainingDays: n })}
-              className="aspect-square rounded-xl flex items-center justify-center font-display text-[20px]"
-              style={{ background: on ? T.goldTint : T.surface, border: `1.5px solid ${on ? T.gold : T.hairline}`, color: on ? T.gold : T.textMid }}>
-              {n}
+            <motion.button
+              key={d}
+              whileTap={{ scale: 0.82 }}
+              onClick={() => toggleDay(d)}
+              animate={on ? { scale: [1, 1.15, 1] } : { scale: 1 }}
+              transition={{ duration: 0.28, ease: T.easeOut }}
+              className="flex-1 aspect-square rounded-full flex items-center justify-center font-body text-[14px] font-extrabold"
+              style={{
+                background: on ? T.gold : T.surface,
+                color: on ? T.goldInk : T.textMid,
+                border: `1.5px solid ${on ? T.gold : T.hairline}`,
+                boxShadow: on ? `0 4px 14px ${T.goldTint}` : 'none',
+              }}
+            >
+              {d[0]}
             </motion.button>
           );
         })}
       </div>
+      <p className="font-body text-[11px] mb-6" style={{ color: T.textFaint }}>
+        Tap the days you can realistically show up.
+      </p>
 
       <p className="kicker mb-2.5">Typical session length</p>
-      <div className="grid grid-cols-4 gap-2 mb-6">
+      <div className="grid grid-cols-4 gap-2 mb-2">
         {SESSION_LENGTHS.map(s => {
           const on = answers.sessionLength === s.v;
+          const Icon = s.icon;
           return (
             <motion.button key={s.v} whileTap={T.tap} onClick={() => update({ sessionLength: s.v })}
-              className="py-3 rounded-xl font-body text-[12px] font-bold"
+              className="rounded-xl flex flex-col items-center justify-center gap-1.5 py-3 font-body text-[12px] font-bold"
               style={{ background: on ? T.goldTint : T.surface, border: `1.5px solid ${on ? T.gold : T.hairline}`, color: on ? T.gold : T.textMid }}>
+              <Icon size={18} strokeWidth={T.stroke} style={{ color: on ? T.gold : T.textMid }} />
               {s.label}
             </motion.button>
           );
         })}
       </div>
-
-      {days < 5 && (
-        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
-          <div className="flex items-baseline justify-between mb-2.5">
-            <p className="kicker mb-0">Which days work best?</p>
-            <span className="font-body text-[11px] font-bold tabular-nums" style={{ color: answers.preferredDays.length ? T.gold : T.textFaint }}>
-              {answers.preferredDays.length} / {days}
-            </span>
-          </div>
-          <div className="flex justify-between gap-1.5">
-            {WEEKDAYS.map(d => {
-              const on = answers.preferredDays.includes(d);
-              return (
-                <motion.button
-                  key={d}
-                  whileTap={{ scale: 0.82 }}
-                  onClick={() => toggleDay(d)}
-                  animate={on ? { scale: [1, 1.15, 1] } : { scale: 1 }}
-                  transition={{ duration: 0.28, ease: T.easeOut }}
-                  className="flex-1 aspect-square rounded-full flex items-center justify-center font-body text-[14px] font-extrabold"
-                  style={{
-                    background: on ? T.gold : T.surface,
-                    color: on ? T.goldInk : T.textMid,
-                    border: `1.5px solid ${on ? T.gold : T.hairline}`,
-                    boxShadow: on ? `0 4px 14px ${T.goldTint}` : 'none',
-                  }}
-                >
-                  {d[0]}
-                </motion.button>
-              );
-            })}
-          </div>
-          <p className="font-body text-[11px] mt-2.5" style={{ color: T.textFaint }}>
-            Tap the days you can realistically show up.
-          </p>
-        </motion.div>
-      )}
     </Scaffold>
   );
 }
@@ -864,17 +857,63 @@ function TrainingAvailabilityScreen({ answers, update, next }) {
 // ═════════════════════════════════════════════
 // Medical — injuries / conditions
 // ═════════════════════════════════════════════
+const COMMON_INJURIES = [
+  { label: 'Shoulder', icon: Activity },
+  { label: 'Lower back', icon: Bone },
+  { label: 'Knee', icon: Bone },
+  { label: 'Wrist / elbow', icon: Activity },
+  { label: 'Neck', icon: Bone },
+  { label: 'Hip', icon: Bone },
+];
+// Toggle a chip label inside a comma-separated string.
+function toggleToken(str, token) {
+  const parts = str.split(',').map(s => s.trim()).filter(Boolean);
+  const has = parts.some(p => p.toLowerCase() === token.toLowerCase());
+  const next = has ? parts.filter(p => p.toLowerCase() !== token.toLowerCase()) : [...parts, token];
+  return next.join(', ');
+}
 function MedicalScreen({ answers, update, next }) {
+  const injuries = answers.injuries || '';
+  const hasToken = (t) => injuries.split(',').some(p => p.trim().toLowerCase() === t.toLowerCase());
+  const allGood = injuries.trim() === '' && answers.injuriesNone;
   return (
     <Scaffold onNext={next}>
-      <Question>YOUR BODY</Question>
-      <p className="font-body text-[14px] mb-6" style={{ color: T.textLow }}>
-        Anything Biki should program around? Leave blank if there's nothing.
+      <div className="flex items-center gap-2.5 mb-1">
+        <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
+          style={{ background: T.goldTint, border: `1px solid ${T.goldBorder}` }}>
+          <HeartPulse size={18} strokeWidth={T.stroke} style={{ color: T.gold }} />
+        </div>
+        <Question>YOUR BODY</Question>
+      </div>
+      <p className="font-body text-[14px] mb-5" style={{ color: T.textLow }}>
+        Anything Biki should program around? Tap what applies — the more honest, the safer your plan.
       </p>
 
-      <p className="kicker mb-2.5">Injuries, pain, or limitations</p>
-      <textarea value={answers.injuries} onChange={e => update({ injuries: e.target.value })}
-        rows={2} placeholder="e.g. left shoulder impingement, lower-back caution"
+      <p className="kicker mb-2.5">Any niggles or past injuries?</p>
+      <div className="flex flex-wrap gap-2 mb-3">
+        {COMMON_INJURIES.map(c => {
+          const on = hasToken(c.label);
+          const Icon = c.icon;
+          return (
+            <motion.button key={c.label} whileTap={T.tap}
+              onClick={() => update({ injuries: toggleToken(injuries, c.label), injuriesNone: false })}
+              className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-full font-body text-[13px] font-semibold"
+              style={{ background: on ? T.goldTint : T.surface, border: `1px solid ${on ? T.goldBorder : T.hairline}`, color: on ? T.gold : T.textMid }}>
+              <Icon size={13} strokeWidth={T.stroke} style={{ color: on ? T.gold : T.textMid }} />
+              {c.label}
+            </motion.button>
+          );
+        })}
+        <motion.button whileTap={T.tap}
+          onClick={() => update({ injuries: '', injuriesNone: !allGood })}
+          className="flex items-center gap-1.5 px-3.5 py-2.5 rounded-full font-body text-[13px] font-semibold"
+          style={{ background: allGood ? T.goldTint : T.surface, border: `1px solid ${allGood ? T.goldBorder : T.hairline}`, color: allGood ? T.gold : T.textMid }}>
+          <Check size={13} strokeWidth={2.5} style={{ color: allGood ? T.gold : T.textMid }} />
+          All good
+        </motion.button>
+      </div>
+      <textarea value={injuries} onChange={e => update({ injuries: e.target.value, injuriesNone: false })}
+        rows={2} placeholder="Add detail — e.g. left shoulder impingement, flares on overhead press"
         className="w-full rounded-xl px-3.5 py-3 mb-6 font-body text-[14px] outline-none resize-none placeholder:text-white/20"
         style={{ background: T.surface, border: `1px solid ${T.hairline}`, color: T.text }} />
 
@@ -947,17 +986,21 @@ const WATER = [
 function FoodPrefsScreen({ answers, update, next }) {
   return (
     <Scaffold onNext={next}>
-      <Question>FOOD YOU<br />LOVE</Question>
+      <Question>FUEL &<br />HYDRATION</Question>
       <p className="font-body text-[14px] mb-5" style={{ color: T.textLow }}>
-        Meals you actually enjoy. Biki builds the plan around these so it sticks.
+        The food you actually enjoy and how much you drink. Biki builds the plan around these so it sticks.
       </p>
-      <p className="kicker mb-2.5">Favorite foods</p>
+      <p className="kicker mb-2.5 flex items-center gap-1.5">
+        <Utensils size={13} strokeWidth={T.stroke} style={{ color: T.gold }} /> Favorite foods
+      </p>
       <div className="mb-7">
         <ChipAdder tags={answers.favoriteFoods} placeholder="e.g. paneer, oats, chicken biryani…"
           onAdd={t => update({ favoriteFoods: [...answers.favoriteFoods, t] })}
           onRemove={t => update({ favoriteFoods: answers.favoriteFoods.filter(x => x !== t) })} />
       </div>
-      <p className="kicker mb-2.5">Water per day</p>
+      <p className="kicker mb-2.5 flex items-center gap-1.5">
+        <Droplets size={13} strokeWidth={T.stroke} style={{ color: T.water }} /> Water per day
+      </p>
       <div className="grid grid-cols-4 gap-2">
         {WATER.map(w => {
           const on = answers.water === w.v;
@@ -978,7 +1021,12 @@ function FoodPrefsScreen({ answers, update, next }) {
 // Digestion — rating, acidity, issues
 // ═════════════════════════════════════════════
 const DIGESTION = [{ v: 'good', label: 'Good' }, { v: 'average', label: 'Average' }, { v: 'poor', label: 'Poor' }];
-const ACIDITY = [{ v: 'never', label: 'Never' }, { v: 'occasionally', label: 'Occasionally' }, { v: 'frequently', label: 'Frequently' }, { v: 'daily', label: 'Daily' }];
+const ACIDITY = [
+  { v: 'never', label: 'Never', sub: 'No symptoms' },
+  { v: 'occasionally', label: 'Occasionally', sub: 'A few times a month' },
+  { v: 'frequently', label: 'Frequently', sub: 'Most weeks' },
+  { v: 'daily', label: 'Daily', sub: 'Almost every day' },
+];
 const DIGESTIVE_ISSUES = ['Bloating', 'Constipation', 'Gas', 'Stomach pain', 'Loose motions', 'None'];
 function DigestionScreen({ answers, update, next }) {
   const toggleIssue = (x) => {
@@ -1003,15 +1051,19 @@ function DigestionScreen({ answers, update, next }) {
           );
         })}
       </div>
-      <p className="kicker mb-2.5">Acidity or acid reflux</p>
+      <p className="kicker mb-1.5">Acidity or acid reflux</p>
+      <p className="font-body text-[12px] mb-2.5 leading-snug" style={{ color: T.textFaint }}>
+        Acid reflux is that burning or sour feeling when stomach acid rises into your chest or throat (heartburn). How often does it happen?
+      </p>
       <div className="grid grid-cols-2 gap-2 mb-6">
         {ACIDITY.map(a => {
           const on = answers.acidity === a.v;
           return (
             <motion.button key={a.v} whileTap={T.tap} onClick={() => update({ acidity: a.v })}
-              className="py-3 rounded-xl font-body text-[13px] font-bold"
-              style={{ background: on ? T.goldTint : T.surface, border: `1.5px solid ${on ? T.gold : T.hairline}`, color: on ? T.gold : T.textMid }}>
-              {a.label}
+              className="flex flex-col items-start text-left py-2.5 px-3 rounded-xl"
+              style={{ background: on ? T.goldTint : T.surface, border: `1.5px solid ${on ? T.gold : T.hairline}` }}>
+              <span className="font-body text-[13px] font-bold" style={{ color: on ? T.gold : T.textMid }}>{a.label}</span>
+              <span className="font-body text-[11px] mt-0.5" style={{ color: T.textFaint }}>{a.sub}</span>
             </motion.button>
           );
         })}
@@ -1054,7 +1106,7 @@ function NotesScreen({ answers, update, next }) {
 // ═════════════════════════════════════════════
 // 16 · The Reveal (file assembly + tap commit)
 // ═════════════════════════════════════════════
-const GOAL_LABEL = { weight_loss: 'Weight loss', weight_gain: 'Weight gain', build: 'Build muscle', recomp: 'Body recomp', maintain: 'Maintain', competition: 'Competition prep' };
+const GOAL_LABEL = { weight_loss: 'Weight loss', weight_gain: 'Weight gain', build: 'Build muscle', recomp: 'Body recomp', maintain: 'General fitness', competition: 'Competition prep' };
 const DIET_LABEL = { vegetarian: 'Vegetarian', 'non-vegetarian': 'Non-vegetarian', eggetarian: 'Eggetarian', vegan: 'Vegan' };
 const EXP_LABEL = { beginner: 'Beginner', intermediate: 'Intermediate', advanced: 'Advanced' };
 const ROUTINE_LABEL = { sedentary: 'Sedentary', lightly_active: 'Lightly active', moderately_active: 'Moderately active', very_active: 'Very active', physically_demanding: 'Physically demanding' };

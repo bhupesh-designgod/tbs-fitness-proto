@@ -27,7 +27,7 @@ const DEFAULT_ANSWERS = {
   bloodwork: null, bloodworkSkipped: false, kidneyTest: null,
   // Health intake
   trainingDays: 4, sessionLength: null, preferredDays: [],
-  injuries: '', conditions: '',
+  injuries: '', injuriesNone: false, conditions: '',
   sleepTime: '', wakeTime: '', sleepDuration: null,
   favoriteFoods: [], water: null,
   digestion: null, acidity: null, digestiveIssues: [],

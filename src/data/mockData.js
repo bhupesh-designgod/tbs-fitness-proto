@@ -437,7 +437,7 @@ export const CHECK_IN_HISTORY = [
   {
     id: 'wk-12',
     week: 12,
-    label: 'Week 12',
+    label: 'Week 12–13',
     date: '2026-06-09',
     dateLabel: 'Jun 9',
     reviewedOn: 'Jun 10',
@@ -452,7 +452,7 @@ export const CHECK_IN_HISTORY = [
       right: PHOTOS.sessionComplete,
     },
     weight: 78.4,
-    baselineLabel: 'Week 1',
+    baselineLabel: 'Week 1–2',
     baselineDateLabel: 'Mar 24',
     // 12-week deltas (used by Progress overview vs baseline)
     metrics: {
@@ -486,7 +486,7 @@ export const CHECK_IN_HISTORY = [
     ],
   },
   {
-    id: 'wk-11', week: 11, label: 'Week 11',
+    id: 'wk-11', week: 11, label: 'Week 10–11',
     date: '2026-06-02', dateLabel: 'Jun 2', reviewedOn: 'Jun 3', status: 'reviewed',
     thumbnail: PHOTOS.pullHero,
     photos: { front: PHOTOS.pullHero, back: PHOTOS.restHero, left: PHOTOS.legsHero, right: PHOTOS.pushHero },
@@ -494,7 +494,7 @@ export const CHECK_IN_HISTORY = [
     preview: { label: 'Protein', value: '92%', delta: '10%', deltaDir: 'up', deltaTone: 'good' },
   },
   {
-    id: 'wk-10', week: 10, label: 'Week 10',
+    id: 'wk-10', week: 10, label: 'Week 8–9',
     date: '2026-05-26', dateLabel: 'May 26', reviewedOn: 'May 27', status: 'reviewed',
     thumbnail: PHOTOS.legsHero,
     photos: { front: PHOTOS.legsHero, back: PHOTOS.pullHero, left: PHOTOS.pushHero, right: PHOTOS.sessionComplete },
@@ -502,7 +502,9 @@ export const CHECK_IN_HISTORY = [
     preview: { label: 'Waist', value: '86 cm', delta: '2 cm', deltaDir: 'down', deltaTone: 'good' },
   },
   {
-    id: 'wk-9', week: 9, label: 'Week 9',
+    id: 'wk-9', week: 9, label: 'Week 5–7',
+    special: true,
+    note: 'Plan held an extra week to get back on track.',
     date: '2026-05-19', dateLabel: 'May 19', reviewedOn: 'May 20', status: 'reviewed',
     thumbnail: PHOTOS.restHero,
     photos: { front: PHOTOS.restHero, back: PHOTOS.legsHero, left: PHOTOS.sessionComplete, right: PHOTOS.bikiPortrait },
@@ -510,16 +512,16 @@ export const CHECK_IN_HISTORY = [
     preview: { label: 'Steps', value: '10,280 avg', delta: '1,240', deltaDir: 'up', deltaTone: 'good' },
   },
   {
-    id: 'wk-8', week: 8, label: 'Week 8',
+    id: 'wk-8', week: 8, label: 'Week 3–4',
     date: '2026-05-12', dateLabel: 'May 12', reviewedOn: 'May 13', status: 'reviewed',
     thumbnail: PHOTOS.sessionComplete,
     photos: { front: PHOTOS.sessionComplete, back: PHOTOS.pushHero, left: PHOTOS.bikiPortrait, right: PHOTOS.legsHero },
     weight: 79.1,
     preview: { label: 'Weight', value: '79.1 kg', delta: '1.1 kg', deltaDir: 'down', deltaTone: 'good' },
   },
-  // Baseline reference — Week 1, used as the long-range comparison target
+  // Baseline reference — first review block, used as the long-range comparison target
   {
-    id: 'wk-1', week: 1, label: 'Week 1',
+    id: 'wk-1', week: 1, label: 'Week 1–2',
     date: '2026-03-24', dateLabel: 'Mar 24', reviewedOn: 'Mar 25', status: 'reviewed',
     thumbnail: PHOTOS.restHero,
     photos: { front: PHOTOS.restHero, back: PHOTOS.bikiPortrait, left: PHOTOS.sessionComplete, right: PHOTOS.pullHero },

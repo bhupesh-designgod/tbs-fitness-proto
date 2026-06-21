@@ -6,11 +6,10 @@ import { useMemo, useState, useCallback, useEffect } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 import {
   Utensils, Droplets, Dumbbell, Clock, ChevronRight, ChevronLeft,
-  Bell, MoonStar, Moon, Check, CalendarDays,
+  Bell, Moon, Check, CalendarDays, Pill,
 } from 'lucide-react';
 
 import { WeekStrip, MonthSheet } from '../components/ui/Calendar';
-import PlanNudge from '../components/ui/PlanNudge';
 import { useApp } from '../context/AppContext';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import CoachTip from '../onboarding/CoachTip';
@@ -18,7 +17,7 @@ import { track } from '../lib/analytics';
 import { T, enter } from '../tokens';
 import {
   USER_PROFILE, PHOTOS, DAILY_TARGETS,
-  PLAN_PROGRESS,
+  PLAN_PROGRESS, SUPPLEMENTS,
 } from '../data/mockData';
 
 // ── Greeting by time of day ──
@@ -414,8 +413,65 @@ function DayRecap({ day, onBack }) {
   );
 }
 
+// ── Supplement reflection — next dose + today's count against the plan ──
+function SupplementCard({ supplementsTaken = {}, onNavigate }) {
+  const total = SUPPLEMENTS.length;
+  const takenCount = SUPPLEMENTS.filter(s => supplementsTaken[s.name]).length;
+  const next = SUPPLEMENTS.find(s => !supplementsTaken[s.name]);
+  const allDone = !next;
+
+  return (
+    <motion.button
+      onClick={() => onNavigate && onNavigate('nutrition', 'supplements')}
+      whileTap={T.tap}
+      className="card mx-5 mb-4 p-4 pl-5 w-[calc(100%-2.5rem)] text-left"
+      {...enter(0.28)}
+    >
+      <div className="flex items-start gap-3.5">
+        <div
+          className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0 mt-0.5"
+          style={{ background: allDone ? T.goldTint : T.surface2, border: `1px solid ${allDone ? T.goldBorder : T.hairline}` }}
+        >
+          <Pill size={20} strokeWidth={T.stroke} style={{ color: T.gold }} />
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center justify-between gap-2">
+            <p className="kicker mb-0" style={{ color: T.gold, opacity: 0.9 }}>
+              {allDone ? 'Stack complete' : 'Next supplement'}
+            </p>
+            <span className="font-body text-[11px] font-extrabold tabular-nums" style={{ color: T.textMid }}>
+              {takenCount}/{total} taken
+            </span>
+          </div>
+          {allDone ? (
+            <p className="display-sm text-[#F4F2EC] mt-1">FULL STACK LOGGED</p>
+          ) : (
+            <>
+              <p className="display-sm text-[#F4F2EC] mt-1 uppercase truncate">{next.name}</p>
+              <p className="font-body text-[13px] font-medium leading-relaxed mt-0.5" style={{ color: T.textLow }}>
+                {next.dose} · {next.timing}
+              </p>
+            </>
+          )}
+          {/* Dose pips */}
+          <div className="flex gap-1 mt-2.5">
+            {SUPPLEMENTS.map((s) => (
+              <div
+                key={s.name}
+                className="h-1.5 flex-1 rounded-full"
+                style={{ background: supplementsTaken[s.name] ? T.gold : 'rgba(255,255,255,0.1)' }}
+              />
+            ))}
+          </div>
+        </div>
+        <ChevronRight size={16} strokeWidth={T.stroke} style={{ color: T.textLow }} className="shrink-0 mt-3.5" />
+      </div>
+    </motion.button>
+  );
+}
+
 export default function Home({ onProfileClick, onNavigate, onNotifications }) {
-  const { training, meals, hydration, isRestDay } = useApp();
+  const { training, meals, hydration, isRestDay, supplementsTaken } = useApp();
   const [selectedDay, setSelectedDay] = useState(null);
   const viewingDay = selectedDay && !selectedDay.isToday;
 
@@ -506,7 +562,7 @@ export default function Home({ onProfileClick, onNavigate, onNotifications }) {
         <WeekStrip
           mode="score"
           selectedIso={selectedDay?.iso}
-          onSelectDay={(day) => setSelectedDay(day.isToday ? null : day)}
+          onSelectDay={(day) => setSelectedDay(prev => (prev?.iso === day.iso ? null : day))}
           todayScore={score.earned}
           todayTotal={score.total}
           planDay={PLAN_PROGRESS.currentDay}
@@ -522,8 +578,7 @@ export default function Home({ onProfileClick, onNavigate, onNotifications }) {
       {!viewingDay && (
       <>
 
-      {/* ═══ MEAL-ADJUSTMENT NUDGE — surfaces only when the day is off-plan; routes to Nutrition ═══ */}
-      <PlanNudge mode="home" onNavigate={onNavigate} />
+      {/* Off-plan surplus/deficit now surfaces through the floating coach, not a card here. */}
 
       {/* ═══ 4. MACRO + HYDRATION SUMMARY ═══ */}
       <MacroHydrationSummary onNavigate={onNavigate} />
@@ -585,26 +640,8 @@ export default function Home({ onProfileClick, onNavigate, onNotifications }) {
         </div>
       </motion.div>
 
-      {/* ═══ 8. SLEEP NOTE — bare violet moon: the one off-palette accent ═══ */}
-      <motion.div className="card mx-5 mb-4 p-4 pl-5" {...enter(0.28)}>
-        <div className="flex items-start gap-3.5">
-          <MoonStar
-            size={28}
-            strokeWidth={1.5}
-            style={{ color: T.macroCarbs }}
-            className="shrink-0 mt-1"
-          />
-          <div className="flex-1 min-w-0">
-            <p className="kicker mb-1.5" style={{ color: T.macroCarbs, opacity: 0.85 }}>Wind down</p>
-            <p className="display-sm text-[#F4F2EC] mb-1.5">
-              7–8 HOURS TONIGHT
-            </p>
-            <p className="font-body text-[13px] font-medium leading-relaxed" style={{ color: T.textLow }}>
-              Muscle is built while you sleep. Lights low, screens down.
-            </p>
-          </div>
-        </div>
-      </motion.div>
+      {/* ═══ 8. SUPPLEMENT REFLECTION — what to take next + how many logged today ═══ */}
+      <SupplementCard supplementsTaken={supplementsTaken} onNavigate={onNavigate} />
       </>
       )}
 

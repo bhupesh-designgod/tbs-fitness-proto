@@ -58,7 +58,7 @@ function createInitialState() {
     stateOverride: null,
     // Floating-coach state: Muskaan check-in history + whether the latest
     // health report has been seen. Drives cadence + the feedback loop.
-    coach: { muskaan: [], reportSeen: false },
+    coach: { muskaan: [], reportSeen: false, bloodworkLogged: null },
   };
 }
 
@@ -238,6 +238,14 @@ export function AppProvider({ children }) {
     }));
   }, [setState]);
 
+  // Bloodwork / health report uploaded through the coach — logs into the chat.
+  const logBloodwork = useCallback(() => {
+    setState(prev => ({
+      ...prev,
+      coach: { ...(prev.coach || { muskaan: [] }), bloodworkLogged: new Date().toISOString() },
+    }));
+  }, [setState]);
+
   // Mark a supplement taken / not taken for today (no quantity).
   const toggleSupplement = useCallback((name) => {
     setState(prev => {
@@ -286,10 +294,11 @@ export function AppProvider({ children }) {
     toggleSupplement,
     submitMuskaan,
     markReportSeen,
+    logBloodwork,
     toggleSet,
     setStateOverride,
     resetData,
-  }), [state, computed, logMeal, adjustMeal, redistributeToMeal, swapMealFood, updateMealFoods, addMeal, logWater, setWaterDefault, removeWaterEntry, toggleSupplement, submitMuskaan, markReportSeen, toggleSet, setStateOverride, resetData]);
+  }), [state, computed, logMeal, adjustMeal, redistributeToMeal, swapMealFood, updateMealFoods, addMeal, logWater, setWaterDefault, removeWaterEntry, toggleSupplement, submitMuskaan, markReportSeen, logBloodwork, toggleSet, setStateOverride, resetData]);
 
   return (
     <AppContext.Provider value={value}>

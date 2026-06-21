@@ -5,7 +5,6 @@
 import { useState, useMemo, useRef, useEffect } from 'react';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import {
-  MoreHorizontal,
   Play, Pause, Plus, Mic, Send, ChevronDown,
   BadgeCheck, CalendarDays, Activity, FileText,
 } from 'lucide-react';
@@ -105,9 +104,6 @@ function CoachHeader() {
         style={{ border: `1px solid ${callOpen ? T.goldBorder : T.hairlineStrong}` }}
       >
         <CalendarDays size={17} strokeWidth={T.stroke} style={{ color: GOLD }} />
-      </button>
-      <button aria-label="More" className="w-9 h-9 rounded-full flex items-center justify-center shrink-0">
-        <MoreHorizontal size={18} strokeWidth={T.stroke} className="text-white/70" />
       </button>
     </div>
 
@@ -523,6 +519,13 @@ export default function Coach({ onCheckIn }) {
     });
     if (coach?.reportSeen) {
       out.push({ id: 'rpt', kind: 'report', title: 'Health report reviewed', detail: HEALTH_REPORT.title, when: HEALTH_REPORT.dateLabel });
+    }
+    if (coach?.bloodworkLogged) {
+      out.push({
+        id: 'bw', kind: 'report', title: 'Bloodwork uploaded',
+        detail: 'Sent to Biki for review',
+        when: new Date(coach.bloodworkLogged).toLocaleDateString('en', { weekday: 'short' }),
+      });
     }
     return out;
   }, [coach]);

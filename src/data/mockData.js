@@ -186,6 +186,26 @@ export const TRAINING_SESSIONS = {
   },
 };
 
+// ── Trainer notes per exercise (keyed by name) ──
+// Weight is intentionally left to the athlete — Biki coaches with reps + cues.
+export const EXERCISE_NOTES = {
+  'Flat Barbell Bench Press': 'Pick a weight that leaves 1–2 reps in the tank. Control the way down, drive through your chest.',
+  'Incline Dumbbell Press': 'Keep the dumbbells stacked over your elbows. Squeeze at the top, no clanking.',
+  'Cable Lateral Raise': 'Lead with the elbows, not the hands. Light weight, slow and clean — feel the side delt.',
+  'Overhead Tricep Extension': 'Keep your elbows tucked and pointed forward. Full stretch at the bottom.',
+  'Pec Deck Fly': 'Slow squeeze, pause in the contracted position. This is a finisher, chase the pump not the weight.',
+  'Barbell Row': 'Hinge ~45°, pull to your belly button. Brace your core and keep the back flat.',
+  'Lat Pulldown': 'Drive elbows down and back. Think about pulling with your back, not your arms.',
+  'Face Pull': 'High elbows, pull toward your forehead. Great for shoulder health — keep it strict.',
+  'Barbell Curl': 'No swinging. If you have to cheat the weight up, drop it down a notch.',
+  'Cable Row': 'Tall chest, pull to your stomach, control the return. Don\'t round the lower back.',
+  'Barbell Squat': 'Brace hard, sit between your hips, knees tracking over toes. Go to at least parallel.',
+  'Romanian Deadlift': 'Soft knees, push hips back, feel the hamstring stretch. Bar stays close to your legs.',
+  'Leg Press': 'Don\'t lock the knees at the top. Control the descent, full range without rounding the lower back.',
+  'Walking Lunges': 'Long steps, knee tracks over the foot. Stay tall through the torso.',
+  'Leg Curl': 'Slow and controlled, full squeeze at the top. No bouncing the weight.',
+};
+
 // ── Meal plan (Indian-friendly foods) ──
 export const MEAL_PLAN = [
   {

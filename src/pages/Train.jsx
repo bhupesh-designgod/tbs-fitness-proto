@@ -6,11 +6,12 @@ import { useState, useMemo } from 'react';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import {
   Check, Clock, Dumbbell, Moon, CalendarDays, ChevronDown, BarChart3,
+  MessageSquareText,
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { HeroPhoto, RingCounter } from '../components/ui/Components';
 import { WeekStrip, MonthSheet } from '../components/ui/Calendar';
-import { PLAN_PROGRESS, BIKI_MESSAGES, PHOTOS } from '../data/mockData';
+import { PLAN_PROGRESS, BIKI_MESSAGES, PHOTOS, EXERCISE_NOTES } from '../data/mockData';
 import { T } from '../tokens';
 
 // ── Aliases from the token sheet — no local values ──
@@ -236,7 +237,7 @@ function SetChip({ set, setIndex }) {
         {setIndex + 1}
       </span>
       <span className="font-body text-[12px] font-semibold tabular-nums whitespace-nowrap" style={{ color: 'rgba(244,242,236,0.6)' }}>
-        {set.reps} reps · {set.load}kg
+        {set.reps} reps
       </span>
     </div>
   );
@@ -249,6 +250,7 @@ function ExerciseRow({ exercise, exerciseIndex, shouldReduce, expanded, onToggle
   const muscle = primaryMuscleFor(exercise.name);
   const totalSets = exercise.sets?.length || 0;
   const reps = exercise.sets?.[0]?.reps || 0;
+  const note = exercise.note || EXERCISE_NOTES[exercise.name];
   const indexLabel = String(exerciseIndex + 1).padStart(2, '0');
 
   return (
@@ -327,6 +329,24 @@ function ExerciseRow({ exercise, exerciseIndex, shouldReduce, expanded, onToggle
                   <SetChip key={si} set={set} setIndex={si} />
                 ))}
               </div>
+
+              {/* Trainer note */}
+              {note && (
+                <div
+                  className="flex gap-2.5 mt-3 rounded-lg p-3"
+                  style={{ background: T.goldTint, border: `1px solid ${T.goldBorder}` }}
+                >
+                  <MessageSquareText size={14} strokeWidth={T.stroke} style={{ color: GOLD }} className="shrink-0 mt-0.5" />
+                  <div className="min-w-0">
+                    <p className="font-body text-[9px] font-extrabold uppercase tracking-wider mb-0.5" style={{ color: GOLD }}>
+                      Biki's note
+                    </p>
+                    <p className="font-body text-[12px] leading-snug" style={{ color: T.textMid }}>
+                      {note}
+                    </p>
+                  </div>
+                </div>
+              )}
             </div>
           </motion.div>
         )}

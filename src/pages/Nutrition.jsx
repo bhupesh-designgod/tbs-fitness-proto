@@ -11,7 +11,6 @@ import {
 } from 'lucide-react';
 import { BottomSheet, NumericCounter, RingCounter } from '../components/ui/Components';
 import { WeekStrip, MonthSheet } from '../components/ui/Calendar';
-import PlanNudge from '../components/ui/PlanNudge';
 import { useApp } from '../context/AppContext';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import CoachTip from '../onboarding/CoachTip';
@@ -1857,7 +1856,7 @@ export default function Nutrition({ onMacroDetail, initialTab = 'meals' }) {
         <>
           <MacrosOverview logged={logged} />
 
-          <PlanNudge mode="nutrition" />
+          {/* Off-plan surplus/deficit is surfaced through the floating coach, not a card here. */}
 
           {/* Section header */}
           <div className="px-5 mb-3 flex items-center justify-between">

@@ -8,8 +8,7 @@ import {
   ArrowRight, Check, Minus, Plus, Utensils, GlassWater, Nut,
   TrendingDown, TrendingUp, Dumbbell, Repeat, Trophy, Equal,
   Sunrise, Sun, Sunset, Moon, Camera, X, Upload, FileText,
-  Fingerprint, Clock, Zap, Flame, CalendarDays, HeartPulse, Droplets,
-  Bone, Activity,
+  Fingerprint, Clock, Zap, Flame, Droplets, Bone, Activity,
 } from 'lucide-react';
 import { T } from '../tokens';
 import { PHOTOS } from '../data/mockData';
@@ -791,13 +790,7 @@ function TrainingAvailabilityScreen({ answers, update, next }) {
   };
   return (
     <Scaffold onNext={next} ctaDisabled={!answers.sessionLength || count === 0}>
-      <div className="flex items-center gap-2.5 mb-1">
-        <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
-          style={{ background: T.goldTint, border: `1px solid ${T.goldBorder}` }}>
-          <CalendarDays size={18} strokeWidth={T.stroke} style={{ color: T.gold }} />
-        </div>
-        <Question>WHEN CAN<br />YOU TRAIN?</Question>
-      </div>
+      <Question>WHEN CAN<br />YOU TRAIN?</Question>
       <p className="font-body text-[14px] mb-6" style={{ color: T.textLow }}>
         Be honest about a normal week, not your best one. Biki builds around what's real.
       </p>
@@ -878,13 +871,7 @@ function MedicalScreen({ answers, update, next }) {
   const allGood = injuries.trim() === '' && answers.injuriesNone;
   return (
     <Scaffold onNext={next}>
-      <div className="flex items-center gap-2.5 mb-1">
-        <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
-          style={{ background: T.goldTint, border: `1px solid ${T.goldBorder}` }}>
-          <HeartPulse size={18} strokeWidth={T.stroke} style={{ color: T.gold }} />
-        </div>
-        <Question>YOUR BODY</Question>
-      </div>
+      <Question>YOUR BODY</Question>
       <p className="font-body text-[14px] mb-5" style={{ color: T.textLow }}>
         Anything Biki should program around? Tap what applies — the more honest, the safer your plan.
       </p>

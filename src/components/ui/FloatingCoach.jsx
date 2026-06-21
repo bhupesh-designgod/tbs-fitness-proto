@@ -1,26 +1,28 @@
 // ── FloatingCoach — the one coach presence, on every screen except chat ──
-// Messenger-style chat head. Draggable (and swipe-to-dock); stays inside the
-// app frame so it never drifts off-screen on desktop. Cadence is faked for the
-// prototype: it cycles through every scenario every 30s so all states are
-// demoable on any day, in this order:
-//   1. thought   — quote of the day
+// Messenger-style chat head, anchored bottom-right inside the app frame (so it
+// never drifts off-screen on desktop). It carries a queue of actions that need
+// attention and shows ONE at a time:
+//   1. thought   — quote of the day (commit)
 //   2. checkin   — Biki checking in (mood / energy pulse)
 //   3. bloodwork — asks for a health report, routes to Reviews to upload
-//   4. surplus   — off-plan macros; tap opens a meal-adjust sheet
-// Confirming a scenario slides the avatar away after ~6s; a swipe brings it back.
+//   4. surplus   — only when the day is off-plan; tap opens a meal-adjust sheet
+// The message does NOT change on a timer. It stays put until you complete the
+// current action; the next one only appears ~30s after that. A numeric badge
+// shows how many actions are still waiting (like an unread count).
 
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
-import { Sparkles, X, Quote, Check, ChevronRight, Activity, FileText, Flame, Upload, Plus } from 'lucide-react';
+import { Sparkles, X, Quote, Check, ChevronRight, Upload, Plus } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { useLocalStorage } from '../../hooks/useLocalStorage';
 import { track } from '../../lib/analytics';
-import { coachTeaser } from '../../lib/coachState';
 import { T } from '../../tokens';
 import { COACH_QUOTES, PHOTOS, PLAN_TOTALS } from '../../data/mockData';
 import { BottomSheet } from './Components';
 import AvatarMark from './AvatarMark';
 import MuskaanCheckIn from './MuskaanCheckIn';
+
+const NEXT_DELAY_MS = 30000; // next action surfaces 30s after the current is done
 
 const sumFoods = (foods) => foods.reduce(
   (a, f) => ({
@@ -189,23 +191,17 @@ function MealAdjustSheet({ isOpen, onClose, gap, meals, onPick, onAddNew }) {
   );
 }
 
-// Prototype cycle order — shows every scenario regardless of the day.
-const SCENARIOS = ['thought', 'checkin', 'bloodwork', 'surplus'];
-const CYCLE_MS = 30000;   // next scenario appears after 30s
-const DOCK_MS = 6000;     // slide away ~6s after a confirmation
-
-// Demo gap so the surplus state is always presentable in the proto.
-const DEMO_GAP = { calories: 320, protein: 24, carbs: 22, fat: 6 };
-
 export default function FloatingCoach({ onNavigate, hidden = false }) {
   const { submitMuskaan, logBloodwork, meals, redistributeToMeal, addMeal } = useApp();
   const frameRef = useRef(null);
+  const gateTimer = useRef();
 
-  const [scenarioIdx, setScenarioIdx] = useState(0);
-  const mode = SCENARIOS[scenarioIdx % SCENARIOS.length];
-
-  const [docked, setDocked] = useState(false);
+  // Actions the user has already cleared this session (so they don't re-surface).
+  const [completed, setCompleted] = useState(() => new Set());
   const [bubbleShown, setBubbleShown] = useState(false);
+  // After an action is completed we hold the next bubble back for ~30s.
+  const [revealGate, setRevealGate] = useState(true);
+
   const [quoteOpen, setQuoteOpen] = useState(false);
   const [muskaanOpen, setMuskaanOpen] = useState(false);
   const [bloodOpen, setBloodOpen] = useState(false);
@@ -222,8 +218,9 @@ export default function FloatingCoach({ onNavigate, hidden = false }) {
     return COACH_QUOTES[doy % COACH_QUOTES.length];
   }, []);
 
-  // Off-plan gap — real if something's logged off-target, else a demo deficit.
-  const { gap, pickMeals } = useMemo(() => {
+  // Off-plan gap — only counts as an action when something's been logged and
+  // there's a meal left to absorb the difference.
+  const { gap, offPlan, pickMeals } = useMemo(() => {
     const projected = meals.reduce((acc, m) => {
       const s = sumFoods(m.foods);
       return {
@@ -233,18 +230,27 @@ export default function FloatingCoach({ onNavigate, hidden = false }) {
         fat: acc.fat + s.fat,
       };
     }, { calories: 0, protein: 0, carbs: 0, fat: 0 });
-    const real = {
+    const g = {
       calories: Math.round(PLAN_TOTALS.calories - projected.calories),
       protein: Math.round(PLAN_TOTALS.protein - projected.protein),
       carbs: Math.round(PLAN_TOTALS.carbs - projected.carbs),
       fat: Math.round(PLAN_TOTALS.fat - projected.fat),
     };
-    const g = Math.abs(real.calories) >= 25 ? real : DEMO_GAP;
+    const loggedCount = meals.filter(m => m.logged).length;
     const upcoming = meals.map((m, i) => ({ m, i })).filter(({ m }) => !m.logged);
-    return { gap: g, pickMeals: upcoming.length ? upcoming : meals.map((m, i) => ({ m, i })) };
+    const isOff = loggedCount > 0 && upcoming.length > 0 && Math.abs(g.calories) >= 25;
+    return { gap: g, offPlan: isOff, pickMeals: upcoming.length ? upcoming : meals.map((m, i) => ({ m, i })) };
   }, [meals]);
 
-  const dockTimer = useRef();
+  // The queue of actions needing attention, in priority order.
+  // A quote already committed today is treated as done so it never blocks.
+  const queue = useMemo(() => {
+    const all = ['thought', 'checkin', 'bloodwork', ...(offPlan ? ['surplus'] : [])];
+    return all.filter(k => !completed.has(k) && !(k === 'thought' && committed));
+  }, [offPlan, completed, committed]);
+
+  const current = queue[0] || null;
+  const count = queue.length;
 
   // First reveal.
   useEffect(() => {
@@ -252,58 +258,56 @@ export default function FloatingCoach({ onNavigate, hidden = false }) {
     return () => clearTimeout(t);
   }, []);
 
-  // Advance to the next scenario every 30s (prototype demo cadence).
-  useEffect(() => {
-    const t = setTimeout(() => {
-      setQuoteOpen(false); setMuskaanOpen(false); setBloodOpen(false); setMealOpen(false);
-      setScenarioIdx(i => i + 1);
-      setDocked(false);
-    }, CYCLE_MS);
-    return () => clearTimeout(t);
-  }, [scenarioIdx]);
+  useEffect(() => () => clearTimeout(gateTimer.current), []);
 
-  useEffect(() => () => clearTimeout(dockTimer.current), []);
-
-  const scheduleDock = useCallback(() => {
-    clearTimeout(dockTimer.current);
-    dockTimer.current = setTimeout(() => setDocked(true), DOCK_MS);
+  // Mark the current action done; hold the next one back for ~30s.
+  const completeAction = useCallback((key) => {
+    setCompleted(prev => new Set(prev).add(key));
+    setRevealGate(false);
+    clearTimeout(gateTimer.current);
+    gateTimer.current = setTimeout(() => setRevealGate(true), NEXT_DELAY_MS);
   }, []);
 
-  // Teaser bubble copy per scenario.
   const teaser = useMemo(() => {
-    if (mode === 'thought') return coachTeaser('thought', { thoughtShort: quote.short });
-    if (mode === 'checkin') return { kicker: 'Checking in', text: "How's your week going? Quick pulse." };
-    if (mode === 'bloodwork') return { kicker: 'Health report', text: 'Got recent bloodwork? Send it over.' };
-    // surplus
-    return {
-      kicker: gap.calories > 0 ? 'Behind target' : 'Over plan',
-      text: gap.calories > 0
-        ? `You're ${Math.abs(gap.calories).toLocaleString()} kcal short today.`
-        : `You're ${Math.abs(gap.calories).toLocaleString()} kcal over today.`,
-    };
-  }, [mode, quote.short, gap.calories]);
+    if (current === 'thought') {
+      return committed
+        ? { kicker: 'Locked in', text: "That's the standard. Keep it." }
+        : { kicker: 'Biki says', text: quote.short };
+    }
+    if (current === 'checkin') return { kicker: 'Checking in', text: "How's your week going? Quick pulse." };
+    if (current === 'bloodwork') return { kicker: 'Health report', text: 'Got recent bloodwork? Send it over.' };
+    if (current === 'surplus') {
+      return {
+        kicker: gap.calories > 0 ? 'Behind target' : 'Over plan',
+        text: gap.calories > 0
+          ? `You're ${Math.abs(gap.calories).toLocaleString()} kcal short today.`
+          : `You're ${Math.abs(gap.calories).toLocaleString()} kcal over today.`,
+      };
+    }
+    return null;
+  }, [current, committed, quote.short, gap.calories]);
 
   const openCoach = useCallback(() => {
-    if (docked) { setDocked(false); return; } // swipe/tap recalls it
-    if (mode === 'thought') { setQuoteOpen(true); track('coach_open', { mode: 'thought' }); }
-    else if (mode === 'checkin') { setMuskaanOpen(true); track('coach_open', { mode: 'checkin' }); }
-    else if (mode === 'bloodwork') { setBloodOpen(true); track('coach_open', { mode: 'bloodwork' }); }
+    if (!current) { onNavigate && onNavigate('coach'); return; }
+    if (current === 'thought') { setQuoteOpen(true); track('coach_open', { mode: 'thought' }); }
+    else if (current === 'checkin') { setMuskaanOpen(true); track('coach_open', { mode: 'checkin' }); }
+    else if (current === 'bloodwork') { setBloodOpen(true); track('coach_open', { mode: 'bloodwork' }); }
     else { setMealOpen(true); track('coach_open', { mode: 'surplus' }); }
-  }, [docked, mode]);
+  }, [current, onNavigate]);
 
   const handleCommit = useCallback(() => {
     setCommit({ date: todayKey });
     track('coach_quote_committed');
     setTimeout(() => setQuoteOpen(false), 900);
-    scheduleDock();
-  }, [setCommit, todayKey, scheduleDock]);
+    completeAction('thought');
+  }, [setCommit, todayKey, completeAction]);
 
   const handlePickMeal = useCallback((i) => {
     redistributeToMeal(i);
     track('coach_surplus_fixed', { meal: i });
     setMealOpen(false);
-    scheduleDock();
-  }, [redistributeToMeal, scheduleDock]);
+    completeAction('surplus');
+  }, [redistributeToMeal, completeAction]);
 
   const handleAddNew = useCallback(() => {
     addMeal({
@@ -321,18 +325,17 @@ export default function FloatingCoach({ onNavigate, hidden = false }) {
       logged: true,
     });
     setMealOpen(false);
-    scheduleDock();
-  }, [addMeal, gap, scheduleDock]);
+    completeAction('surplus');
+  }, [addMeal, gap, completeAction]);
 
   if (hidden) return null;
 
-  const badge = mode === 'checkin'
-    ? <Activity size={10} strokeWidth={2.5} style={{ color: T.goldInk }} />
-    : mode === 'bloodwork'
-      ? <FileText size={10} strokeWidth={2.5} style={{ color: T.goldInk }} />
-      : mode === 'surplus'
-        ? <Flame size={10} strokeWidth={2.5} style={{ color: T.goldInk }} />
-        : <Sparkles size={10} strokeWidth={2.5} style={{ color: T.goldInk }} />;
+  // Numeric "unread"-style badge — how many actions still need attention.
+  const badge = count > 0
+    ? <span className="font-body text-[10px] font-extrabold leading-none tabular-nums" style={{ color: T.goldInk }}>{count}</span>
+    : null;
+
+  const showBubble = bubbleShown && current && revealGate && !anyOpen;
 
   return (
     <>
@@ -342,26 +345,22 @@ export default function FloatingCoach({ onNavigate, hidden = false }) {
         className="fixed inset-0 z-40 mx-auto pointer-events-none"
         style={{ maxWidth: 430 }}
       >
-        {/* Chat head — draggable anywhere in the frame; swipe right to dock */}
+        {/* Chat head — anchored bottom-right; draggable but snaps back so it
+            never gets stranded mid-screen. */}
         <motion.div
           className="absolute flex items-end gap-2 pointer-events-auto"
           style={{ bottom: 90, right: 20, touchAction: 'none' }}
           drag
           dragConstraints={frameRef}
-          dragElastic={0.12}
+          dragElastic={0.15}
           dragMomentum={false}
-          onDragEnd={(_, info) => {
-            if (info.offset.x > 48) setDocked(true);
-            else if (info.offset.x < -48) setDocked(false);
-          }}
-          animate={{ x: docked ? 66 : 0, opacity: docked ? 0.55 : 1 }}
-          transition={{ type: 'spring', stiffness: 320, damping: 30 }}
+          dragSnapToOrigin
         >
-          {/* Bubble — what the coach is surfacing */}
+          {/* Bubble — the current action; stays until it's completed */}
           <AnimatePresence>
-            {bubbleShown && !anyOpen && !docked && (
+            {showBubble && (
               <motion.button
-                key={`bubble-${mode}`}
+                key={`bubble-${current}`}
                 onClick={openCoach}
                 initial={{ opacity: 0, x: 12, scale: 0.9 }}
                 animate={{ opacity: 1, x: 0, scale: 1 }}
@@ -371,10 +370,10 @@ export default function FloatingCoach({ onNavigate, hidden = false }) {
                 style={{ background: T.surface, border: `1px solid ${T.hairlineStrong}`, boxShadow: '0 10px 30px rgba(0,0,0,0.45)' }}
               >
                 <p className="font-body text-[9px] font-extrabold uppercase tracking-wider mb-0.5" style={{ color: T.gold }}>
-                  {mode === 'thought' && committed ? 'Locked in' : teaser.kicker}
+                  {teaser?.kicker}
                 </p>
                 <p className="font-body text-[12px] font-semibold leading-snug" style={{ color: T.text }}>
-                  {mode === 'thought' && committed ? "That's the standard. Keep it." : teaser.text}
+                  {teaser?.text}
                 </p>
               </motion.button>
             )}
@@ -387,7 +386,7 @@ export default function FloatingCoach({ onNavigate, hidden = false }) {
             aria-label="Coach Biki"
             className="relative shrink-0"
           >
-            <AvatarMark size={56} pulse={!docked} status badge={badge} />
+            <AvatarMark size={56} pulse={count > 0} status badge={badge} />
           </motion.button>
         </motion.div>
       </div>
@@ -408,7 +407,7 @@ export default function FloatingCoach({ onNavigate, hidden = false }) {
       <MuskaanCheckIn
         isOpen={muskaanOpen}
         onClose={() => setMuskaanOpen(false)}
-        onSubmit={(r) => { submitMuskaan(r); track('muskaan_submit', r); scheduleDock(); }}
+        onSubmit={(r) => { submitMuskaan(r); track('muskaan_submit', r); completeAction('checkin'); }}
         variant={new Date().getDay() === 0 ? 'close' : 'mid'}
       />
 
@@ -426,7 +425,7 @@ export default function FloatingCoach({ onNavigate, hidden = false }) {
         </p>
         <motion.button
           whileTap={T.tap}
-          onClick={() => { logBloodwork(); setBloodOpen(false); scheduleDock(); onNavigate && onNavigate('progress'); }}
+          onClick={() => { logBloodwork(); setBloodOpen(false); completeAction('bloodwork'); onNavigate && onNavigate('progress'); }}
           className="btn-primary"
         >
           <Upload size={15} strokeWidth={2} /> Upload report
